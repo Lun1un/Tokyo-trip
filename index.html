@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京之旅 2026 (長按拖曳版)</title>
+    <title id="app-title">東京遛豬之旅 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -26,7 +26,6 @@
         .fixed-footer { position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; }
         .page-content { padding-top: 160px; padding-bottom: 7rem; min-height: 100vh; }
         
-        /* 拖曳樣式：長按後的浮動效果 */
         .sortable-ghost { opacity: 0.3; background-color: #f3f4f6; border: 2px dashed #cbd5e1; }
         .sortable-drag { background-color: white; transform: scale(1.05) rotate(1deg); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1rem; cursor: grabbing; }
         
@@ -40,8 +39,11 @@
         <div class="fixed-header bg-white/95 backdrop-blur-md border-b border-gray-200 pt-10 pb-2 px-4 shadow-sm">
             <div class="flex justify-between items-center mb-2">
                 <div>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Tokyo Trip 2026</p>
-                    <h1 class="text-xl font-black text-gray-900 leading-tight" id="current-day-title">Day 1 出發</h1>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">東京遛豬之旅</p>
+                    <div class="flex items-center gap-2" onclick="editDayTitle()">
+                        <h1 class="text-xl font-black text-gray-900 leading-tight border-b border-dashed border-gray-300 hover:border-gray-500 cursor-pointer transition-colors" id="current-day-title">Day 1 出發</h1>
+                        <i class="fas fa-pencil-alt text-[10px] text-gray-300"></i>
+                    </div>
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="bg-blue-50 border border-blue-100 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm">
@@ -215,8 +217,13 @@
                     <input type="text" id="expense-desc" placeholder="品項" class="flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm">
                 </div>
                 <div class="flex gap-2">
-                    <input type="number" id="expense-amount" placeholder="金額 (¥)" class="flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold">
-                    <button onclick="addExpenseToItem()" class="w-[80px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow hover:bg-yellow-600 shrink-0">
+                    <select id="expense-currency" class="w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0">
+                        <option value="JPY">JPY</option>
+                        <option value="TWD">TWD</option>
+                    </select>
+                    <input type="number" id="expense-amount" placeholder="金額" class="flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold">
+                    
+                    <button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow hover:bg-yellow-600 shrink-0">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -265,15 +272,17 @@
     let sortableInstance = null;
     let firestoreScheduleListener = null;
     let firestoreChecklistListener = null;
-
-    const TRIP_DATES = [
-        { day: 1, label: 'Day 1 出發', week: 'WED', date: '04', title: '東京 Start!' },
-        { day: 2, label: 'Day 2 探索', week: 'THU', date: '05', title: '築地、淺草' },
-        { day: 3, label: 'Day 3 購物', week: 'FRI', date: '06', title: '新宿、澀谷' },
-        { day: 4, label: 'Day 4 動漫', week: 'SAT', date: '07', title: '秋葉原' },
-        { day: 5, label: 'Day 5 樂園', week: 'SUN', date: '08', title: '迪士尼' },
-        { day: 6, label: 'Day 6 橫濱', week: 'MON', date: '09', title: '橫濱一日' },
-        { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10', title: 'Bye Tokyo' },
+    let firestoreTitlesListener = null;
+    
+    // 預設日期標題
+    let tripDates = [
+        { day: 1, label: 'Day 1 出發', week: 'WED', date: '04' },
+        { day: 2, label: 'Day 2 探索', week: 'THU', date: '05' },
+        { day: 3, label: 'Day 3 購物', week: 'FRI', date: '06' },
+        { day: 4, label: 'Day 4 動漫', week: 'SAT', date: '07' },
+        { day: 5, label: 'Day 5 樂園', week: 'SUN', date: '08' },
+        { day: 6, label: 'Day 6 橫濱', week: 'MON', date: '09' },
+        { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10' },
     ];
 
     const firebaseConfig = {
@@ -312,6 +321,38 @@
         } catch(e) {}
     }
 
+    // ★★★ 標題編輯與同步功能 ★★★
+    function listenForDayTitles() {
+        if (firestoreTitlesListener) firestoreTitlesListener();
+        firestoreTitlesListener = db.collection(CONFIG_DOCUMENT_ID).doc('titles').onSnapshot(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                tripDates.forEach(d => {
+                    if (data[`day${d.day}`]) d.label = data[`day${d.day}`];
+                });
+            }
+            // 更新目前顯示的標題
+            document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === currentDay).label;
+        });
+    }
+
+    async function editDayTitle() {
+        const currentLabel = tripDates.find(d => d.day === currentDay).label;
+        const newLabel = prompt("編輯今日標題:", currentLabel);
+        if (newLabel && newLabel !== currentLabel) {
+            try {
+                // 更新 UI
+                document.getElementById('current-day-title').textContent = newLabel;
+                // 更新 Local
+                tripDates.find(d => d.day === currentDay).label = newLabel;
+                // 更新 Firebase
+                await db.collection(CONFIG_DOCUMENT_ID).doc('titles').set({ [`day${currentDay}`]: newLabel }, { merge: true });
+            } catch (e) {
+                alert("儲存標題失敗");
+            }
+        }
+    }
+
     // 核心行程
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
@@ -320,7 +361,7 @@
             loading.style.opacity = '0';
             currentItems = doc.exists ? (doc.data().schedule || []) : [];
             renderSchedule();
-            calculateDailyCost(); // 只算今日
+            calculateDailyCost(); 
         });
     }
 
@@ -328,15 +369,13 @@
         try { await db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(currentDay)).set({ schedule: items, lastUpdated: firebase.firestore.FieldValue.serverTimestamp() }); } catch (e) {}
     }
 
-    // ★★★ 關鍵修改：移除 handle，設定 delay 1000 (長按1秒) ★★★
     function initSortable() {
         const el = document.getElementById('schedule-container');
         if (sortableInstance) sortableInstance.destroy();
         sortableInstance = new Sortable(el, {
-            // 這裡移除了 handle: '.drag-handle'，所以整張卡片都可以拖曳
             animation: 200,
-            delay: 1000, // 長按 1 秒
-            delayOnTouchOnly: false, // 電腦版也需要長按，避免點擊編輯時誤觸
+            delay: 1000, 
+            delayOnTouchOnly: false, 
             ghostClass: 'sortable-ghost',
             dragClass: 'sortable-drag',
             onEnd: function (evt) {
@@ -367,7 +406,6 @@
         const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-1 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
         let locationHTML = item.location ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-blue-500 mt-1 font-bold hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
-        // ★★★ 移除 .drag-handle 三條線圖示 ★★★
         return `
             <div class="flex gap-3 items-start group relative select-none cursor-pointer" data-id="${item.id}">
                 <div class="flex flex-col items-center pt-2 min-w-[3.5rem]">
@@ -394,9 +432,7 @@
         document.getElementById('header-daily-cost').textContent = `¥ ${total.toLocaleString()}`;
     }
 
-    // =======================================================
     // 七日花費統計
-    // =======================================================
     async function calculateAllExpenses() {
         const container = document.getElementById('expense-full-list');
         container.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fas fa-spinner fa-spin text-2xl"></i> 計算中...</div>';
@@ -407,7 +443,6 @@
         let totalShared = 0;
         let htmlContent = '';
 
-        // 跑迴圈抓 7 天資料
         for (let i = 1; i <= 7; i++) {
             const docId = getDocumentId(i);
             const doc = await db.collection(SCHEDULE_COLLECTION).doc(docId).get();
@@ -422,13 +457,11 @@
                             const amt = parseInt(ex.amount) || 0;
                             grandTotal += amt;
                             dayTotal += amt;
-                            
                             if (ex.payer === 'bird') totalBird += amt;
                             else if (ex.payer === 'pig') totalPig += amt;
                             else totalShared += amt; 
 
                             let payerIcon = ex.payer === 'bird' ? '🐦' : (ex.payer === 'pig' ? '🐷' : '🐷🐦');
-                            
                             dayHTML += `
                                 <div class="flex justify-between items-center text-sm py-1 border-b border-gray-50 last:border-0">
                                     <div class="flex items-center gap-2 overflow-hidden flex-1 min-w-0">
@@ -454,20 +487,15 @@
             }
         }
 
-        // 更新上方數字
         document.getElementById('total-trip-jpy').textContent = `¥ ${grandTotal.toLocaleString()}`;
         document.getElementById('total-trip-twd').textContent = `≈ NT$ ${Math.round(grandTotal * exchangeRate).toLocaleString()}`;
         document.getElementById('total-bird').textContent = `¥ ${totalBird.toLocaleString()}`;
         document.getElementById('total-pig').textContent = `¥ ${totalPig.toLocaleString()}`;
         document.getElementById('total-shared').textContent = `¥ ${totalShared.toLocaleString()}`;
-
-        // 更新列表
         container.innerHTML = htmlContent || '<div class="text-center text-gray-400 py-10">目前沒有任何消費記錄</div>';
     }
 
-    // =======================================================
-    // 記帳 Modal (支援付款人)
-    // =======================================================
+    // 記帳 Modal
     function openExpenseModal(itemId) {
         const item = currentItems.find(i => i.id === itemId);
         if(!item) return;
@@ -475,6 +503,7 @@
         document.getElementById('expense-item-id').value = itemId;
         document.getElementById('expense-desc').value = '';
         document.getElementById('expense-amount').value = '';
+        document.getElementById('expense-currency').value = 'JPY'; // 重置為日幣
         renderExpenseList(item.expenses || []);
         showModal('expense-modal');
     }
@@ -499,22 +528,33 @@
         });
     }
 
+    // ★★★ 新增幣別處理 ★★★
     async function addExpenseToItem() {
         const itemId = document.getElementById('expense-item-id').value;
         const payer = document.getElementById('expense-payer').value;
-        const desc = document.getElementById('expense-desc').value || '未分類';
-        const amount = parseInt(document.getElementById('expense-amount').value);
+        let desc = document.getElementById('expense-desc').value || '未分類';
+        let amount = parseInt(document.getElementById('expense-amount').value);
+        const currency = document.getElementById('expense-currency').value;
         
         if(isNaN(amount) || amount <= 0) return;
+        
         const idx = currentItems.findIndex(i => i.id === itemId);
         if(idx === -1) return;
         
+        // 如果是台幣，自動換算並備註
+        if (currency === 'TWD') {
+            const originalAmount = amount;
+            amount = Math.round(amount / exchangeRate); // 轉為日幣
+            desc += ` (TWD ${originalAmount})`; // 備註原幣金額
+        }
+        
         if(!currentItems[idx].expenses) currentItems[idx].expenses = [];
-        currentItems[idx].expenses.push({ description: desc, amount: amount, payer: payer }); // 存入付款人
+        currentItems[idx].expenses.push({ description: desc, amount: amount, payer: payer }); 
         
         renderExpenseList(currentItems[idx].expenses);
         document.getElementById('expense-desc').value = '';
         document.getElementById('expense-amount').value = '';
+        document.getElementById('expense-currency').value = 'JPY'; // 寫完一筆重置回日幣
         
         await saveScheduleToFirestore(currentItems);
         renderSchedule();
@@ -530,9 +570,7 @@
         renderSchedule();
     }
 
-    // =======================================================
     // Standard Logic
-    // =======================================================
     async function addScheduleItem() {
         const startTime = document.getElementById('new-start-time').value;
         const endTime = document.getElementById('new-end-time').value;
@@ -595,7 +633,7 @@
     function renderDateSlider() {
         const slider = document.getElementById('date-slider');
         slider.innerHTML = '';
-        TRIP_DATES.forEach(d => {
+        tripDates.forEach(d => {
             const active = d.day === currentDay;
             slider.insertAdjacentHTML('beforeend', `<div class="flex-shrink-0 text-center cursor-pointer px-2 ${active ? '' : 'opacity-40 hover:opacity-70'}" onclick="switchDay(${d.day})"><div class="text-[10px] font-bold ${active ? 'text-green-600' : 'text-gray-400'}">${d.week}</div><div class="text-xl font-black ${active ? 'text-gray-800 border-b-2 border-green-500' : 'text-gray-400'} pb-1">${d.date}</div></div>`);
         });
@@ -604,7 +642,8 @@
     function switchDay(day) {
         if (day === currentDay) return;
         currentDay = day;
-        document.getElementById('current-day-title').textContent = TRIP_DATES.find(d=>d.day===day).label;
+        // 更新標題
+        document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === day).label;
         renderDateSlider(); listenForScheduleUpdates(day); 
     }
 
@@ -622,7 +661,6 @@
     function showModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-    // Checklist (保留)
     function listenForChecklistUpdates() {
         if (firestoreChecklistListener) firestoreChecklistListener();
         firestoreChecklistListener = db.collection(CHECKLIST_COLLECTION).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
@@ -653,7 +691,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
+        renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
     });
 
     window.switchDay = switchDay; window.switchPage = switchPage; window.prepareRateModal = prepareRateModal;
@@ -661,6 +699,7 @@
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
     window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
     window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
+    window.editDayTitle = editDayTitle;
 </script>
 </body>
 </html>
