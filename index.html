@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (Pop版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (版面修復版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -18,62 +18,48 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
         
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        /* 背景改為更溫暖的淺淺黃白色，符合日系感 */
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #fffbf6; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; user-select: none; }
-        
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; user-select: none; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(4px); }
+        .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
-        .modal-content { transform: scale(0.95); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .modal.active .modal-content { transform: scale(1); }
 
-        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background-color: #f3f4f6; } /* 確保背景不透明 */
         .fixed-footer { position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; }
         
-        .page-content { padding-top: 170px; padding-bottom: 7rem; min-height: 100vh; }
+        /* ★★★ 修正：增加頂部間距，避免被標題擋住 ★★★ */
+        .page-content { padding-top: 240px; padding-bottom: 7rem; min-height: 100vh; }
         
-        /* 進場動畫 */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-card { opacity: 0; animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-
-        /* 拖曳效果 */
-        .sortable-ghost { opacity: 0.4; background-color: #fef3c7; border: 2px dashed #f59e0b; transform: scale(0.98); }
-        .sortable-drag { background-color: white; transform: scale(1.05) rotate(2deg); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1rem; cursor: grabbing; }
+        .sortable-ghost { opacity: 0.3; background-color: #f3f4f6; border: 2px dashed #cbd5e1; }
+        .sortable-drag { background-color: white; transform: scale(1.05) rotate(1deg); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1rem; cursor: grabbing; }
         
         .check-item.completed .check-text { text-decoration: line-through; color: #9ca3af; }
         .check-item.completed .check-circle { background-color: #10b981; border-color: #10b981; color: white; }
 
         #map { height: 100%; width: 100%; border-radius: 1rem; z-index: 1; }
-        
-        /* 按鈕點擊特效 */
-        .btn-bounce:active { transform: scale(0.92); }
     </style>
 </head>
 <body class="text-gray-800">
 
     <div id="schedule-page" class="page-content">
-        <div class="fixed-header border-b border-orange-100 pt-12 pb-2 px-4 shadow-sm">
+        <div class="fixed-header bg-white/95 backdrop-blur-md border-b border-gray-200 pt-10 pb-2 px-4 shadow-sm">
             <div class="flex justify-between items-start mb-3">
                 <div class="flex-1">
-                    <h1 class="text-2xl font-black text-gray-800 leading-tight mb-1 tracking-tight">東京遛豬之旅 <span class="text-pink-400">🐷</span></h1>
-                    <div class="inline-flex items-center gap-2 bg-orange-50 px-3 py-1 rounded-full cursor-pointer hover:bg-orange-100 transition border border-orange-100 btn-bounce" onclick="editDayTitle()">
+                    <h1 class="text-2xl font-black text-gray-900 leading-tight mb-1">東京遛豬之旅 🐷</h1>
+                    <div class="inline-flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full cursor-pointer hover:bg-gray-200 transition" onclick="editDayTitle()">
                         <span class="text-sm font-bold text-gray-600" id="current-day-title">Day 1 出發</span>
-                        <i class="fas fa-pencil-alt text-[10px] text-orange-300"></i>
+                        <i class="fas fa-pencil-alt text-[10px] text-gray-400"></i>
                     </div>
                 </div>
-                <div class="flex flex-col items-end gap-2">
+                <div class="flex flex-col items-end gap-1">
                     <div class="bg-blue-50 border border-blue-100 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm">
-                        <div id="weather-icon-container" class="text-blue-400 text-lg"><i class="fas fa-sync fa-spin"></i></div>
+                        <div id="weather-icon-container" class="text-blue-500 text-lg"><i class="fas fa-sync fa-spin"></i></div>
                         <div class="text-right leading-none">
-                            <div id="weather-temp" class="text-sm font-black text-gray-700">--°C</div>
+                            <div id="weather-temp" class="text-sm font-bold text-gray-800">--°C</div>
                         </div>
                     </div>
-                    <button onclick="prepareRateModal()" class="text-[10px] text-gray-400 bg-white px-2 py-0.5 rounded-full border border-gray-200 shadow-sm btn-bounce">
+                    <button onclick="prepareRateModal()" class="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-200">
                         匯率: <span id="display-rate">0.22</span>
                     </button>
                 </div>
@@ -81,15 +67,15 @@
             
             <div class="flex justify-between items-center mb-2 px-1">
                 <div class="text-xs text-gray-400 font-bold uppercase tracking-wider">Today's Cost</div>
-                <div class="text-lg font-black text-red-500 leading-none" id="header-daily-cost">¥ 0</div>
+                <div class="text-lg font-black text-red-600 leading-none" id="header-daily-cost">¥ 0</div>
             </div>
 
             <div class="flex overflow-x-auto gap-3 pb-2 hide-scrollbar z-10" id="date-slider"></div>
         </div>
 
         <div class="px-4 space-y-5"> 
-            <div id="loading-status" class="text-center text-xs text-gray-400 mt-4">
-                 <i class="fas fa-spinner fa-spin mr-1 text-orange-400"></i> <span class="text-orange-300">載入中...</span>
+            <div id="loading-status" class="text-center text-xs text-gray-400 mt-2">
+                 <i class="fas fa-spinner fa-spin mr-1"></i> 資料同步中...
             </div>
             <div id="schedule-container" class="space-y-4 pb-10"></div>
         </div>
@@ -97,81 +83,80 @@
 
     <div id="map-page" class="hidden page-content px-4 h-screen flex flex-col" style="padding-top: 20px; padding-bottom: 6rem;">
         <h1 class="text-2xl font-black mb-2 flex items-center gap-2 text-gray-800 pl-1">
-            <span class="text-blue-500 drop-shadow-sm"><i class="fas fa-map-marked-alt"></i></span>
+            <span class="text-blue-600"><i class="fas fa-map-marked-alt"></i></span>
             今日路線圖
         </h1>
-        <div class="flex-1 bg-white rounded-3xl shadow-[0_10px_40px_-15px_rgba(0,0,0,0.1)] border-4 border-white relative overflow-hidden">
+        <div class="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 relative overflow-hidden">
             <div id="map" class="h-full w-full z-0"></div>
         </div>
     </div>
 
     <div id="expense-page" class="hidden page-content px-4" style="padding-top: 2rem;">
-        <h1 class="text-2xl font-black mb-4 flex items-center gap-2 text-gray-800">
-            <span class="bg-yellow-100 text-yellow-600 p-2 rounded-xl text-xl shadow-sm"><i class="fas fa-coins"></i></span>
+        <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
+            <span class="bg-yellow-100 text-yellow-600 p-2 rounded-lg text-xl"><i class="fas fa-coins"></i></span>
             七日花費統計
         </h1>
         
-        <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white p-6 rounded-3xl shadow-xl shadow-gray-300 mb-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-            <div class="absolute bottom-0 left-0 w-24 h-24 bg-yellow-500/20 rounded-full -ml-8 -mb-8 blur-2xl"></div>
+        <div class="bg-gray-900 text-white p-5 rounded-2xl shadow-lg mb-4 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8 blur-xl"></div>
             <div class="flex justify-between items-start relative z-10">
                 <div>
-                    <p class="text-xs text-white/60 font-bold uppercase tracking-wider mb-1">Total Trip Cost</p>
-                    <div class="text-4xl font-black tracking-tight" id="total-trip-jpy">¥ 0</div>
-                    <div class="text-sm text-white/60 mt-1 font-medium" id="total-trip-twd">≈ NT$ 0</div>
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Total Trip Cost</p>
+                    <div class="text-3xl font-black mt-1" id="total-trip-jpy">¥ 0</div>
+                    <div class="text-sm text-gray-400 mt-1" id="total-trip-twd">≈ NT$ 0</div>
                 </div>
-                <button onclick="calculateAllExpenses()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition btn-bounce"><i class="fas fa-sync-alt"></i></button>
+                <button onclick="calculateAllExpenses()" class="text-gray-400 hover:text-white"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-6">
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-blue-50 text-center">
-                <div class="text-3xl mb-2">🐦</div>
-                <div class="text-xs text-gray-400 font-bold uppercase tracking-wide">Dove</div>
+        <div class="grid grid-cols-3 gap-2 mb-6">
+            <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 text-center">
+                <div class="text-2xl mb-1">🐦</div>
+                <div class="text-xs text-gray-400 font-bold">Dove</div>
                 <div class="font-black text-gray-800 text-sm mt-1 truncate" id="total-bird">¥0</div>
             </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-pink-50 text-center">
-                <div class="text-3xl mb-2">🐷</div>
-                <div class="text-xs text-gray-400 font-bold uppercase tracking-wide">Pig</div>
+            <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 text-center">
+                <div class="text-2xl mb-1">🐷</div>
+                <div class="text-xs text-gray-400 font-bold">Pig</div>
                 <div class="font-black text-gray-800 text-sm mt-1 truncate" id="total-pig">¥0</div>
             </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-purple-50 text-center">
-                <div class="text-3xl mb-2">🐷🐦</div>
-                <div class="text-xs text-gray-400 font-bold uppercase tracking-wide">Shared</div>
+            <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 text-center">
+                <div class="text-2xl mb-1">🐷🐦</div>
+                <div class="text-xs text-gray-400 font-bold">Shared</div>
                 <div class="font-black text-gray-800 text-sm mt-1 truncate" id="total-shared">¥0</div>
             </div>
         </div>
 
-        <h2 class="font-bold text-gray-700 mb-3 ml-1 flex items-center gap-2"><i class="fas fa-list-ul text-gray-400 text-xs"></i> 詳細明細 (Day 1-7)</h2>
-        <div id="expense-full-list" class="space-y-4 pb-20">
+        <h2 class="font-bold text-gray-700 mb-2 ml-1">詳細明細 (Day 1-7)</h2>
+        <div id="expense-full-list" class="space-y-3 pb-20">
             <div class="text-center text-gray-400 text-sm py-10">載入中...</div>
         </div>
     </div>
 
     <div id="checklist-page" class="hidden page-content px-4" style="padding-top: 2rem;">
-        <h1 class="text-2xl font-black mb-4 flex items-center gap-2 text-gray-800">
-            <span class="bg-purple-100 text-purple-600 p-2 rounded-xl text-xl shadow-sm"><i class="fas fa-clipboard-check"></i></span>
+        <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
+            <span class="bg-purple-100 text-purple-600 p-2 rounded-lg text-xl"><i class="fas fa-clipboard-check"></i></span>
             必買 & 準備清單
         </h1>
         <div class="flex gap-2 mb-4 w-full">
-            <input type="text" id="checklist-input" placeholder="新增項目..." class="flex-1 min-w-0 p-4 border-0 bg-white rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-200 text-gray-700 placeholder-gray-400">
-            <button onclick="addChecklistItem()" class="bg-purple-500 text-white w-14 rounded-2xl font-bold shadow-lg shadow-purple-200 active:scale-90 transition shrink-0"><i class="fas fa-plus"></i></button>
+            <input type="text" id="checklist-input" placeholder="新增項目..." class="flex-1 min-w-0 p-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <button onclick="addChecklistItem()" class="bg-purple-600 text-white px-4 rounded-xl font-bold shadow-md active:scale-95 transition shrink-0"><i class="fas fa-plus"></i></button>
         </div>
         <div id="checklist-container" class="space-y-2 pb-20"></div>
     </div>
 
-    <div id="add-modal" class="modal inset-0 bg-black/40 items-center justify-center p-4" onclick="closeModal('add-modal')">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl transform transition-all modal-content" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-black mb-4 text-gray-800 flex items-center gap-2"><span class="bg-green-100 text-green-600 p-1.5 rounded-lg text-sm"><i class="fas fa-plus"></i></span> 新增行程</h2>
+    <div id="add-modal" class="modal inset-0 bg-black/60 backdrop-blur-sm items-center justify-center p-4" onclick="closeModal('add-modal')">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">新增行程</h2>
             <div class="space-y-3">
                 <div class="flex gap-2">
-                    <div class="flex-1 flex gap-1 items-center bg-gray-50 border border-gray-100 rounded-2xl p-2">
-                        <input type="time" id="new-start-time" class="w-full bg-transparent font-bold text-center text-lg focus:outline-none text-gray-700" value="09:00">
+                    <div class="flex-1 flex gap-1 items-center bg-gray-50 border border-gray-200 rounded-xl p-2">
+                        <input type="time" id="new-start-time" class="w-full bg-transparent font-bold text-center text-lg focus:outline-none" value="09:00">
                         <span class="text-gray-300">-</span>
                         <input type="time" id="new-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
-                <select id="new-category" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-600 focus:outline-none focus:ring-2 focus:ring-green-100">
+                <select id="new-category" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                     <option value="FOOD">🍴 餐飲</option>
                     <option value="SHOPPING">🛍 購物</option>
                     <option value="SIGHTSEEING">⛩ 景點</option>
@@ -179,29 +164,29 @@
                     <option value="HOTEL">🏨 住宿</option>
                     <option value="OTHER">💡 其他</option>
                 </select>
-                <input type="text" id="new-title" placeholder="行程標題" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl font-bold focus:outline-none focus:ring-2 focus:ring-green-100 placeholder-gray-300">
-                <input type="text" id="new-location" placeholder="📍 地點 (Google Maps)" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-green-100 placeholder-gray-300">
-                <textarea id="new-content" placeholder="備註內容..." class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl h-20 text-sm focus:outline-none focus:ring-2 focus:ring-green-100 placeholder-gray-300 resize-none"></textarea>
+                <input type="text" id="new-title" placeholder="行程標題" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
+                <input type="text" id="new-location" placeholder="📍 地點 (Google Maps)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+                <textarea id="new-content" placeholder="備註內容..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
             </div>
-            <div class="flex justify-end space-x-2 mt-6">
-                <button onclick="closeModal('add-modal')" class="px-5 py-3 text-gray-400 font-bold rounded-2xl hover:bg-gray-50 btn-bounce">取消</button>
-                <button onclick="addScheduleItem()" class="px-6 py-3 bg-green-500 text-white rounded-2xl shadow-lg shadow-green-200 font-bold hover:bg-green-600 btn-bounce">新增</button>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeModal('add-modal')" class="px-5 py-2.5 text-gray-500 font-medium rounded-xl hover:bg-gray-100">取消</button>
+                <button onclick="addScheduleItem()" class="px-5 py-2.5 bg-green-600 text-white rounded-xl shadow-lg shadow-green-200 font-bold hover:bg-green-700">新增</button>
             </div>
         </div>
     </div>
     
-    <div id="edit-modal" class="modal inset-0 bg-black/40 items-center justify-center p-4" onclick="closeModal('edit-modal')">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl modal-content" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-black mb-4 text-gray-800 flex items-center gap-2"><span class="bg-blue-100 text-blue-600 p-1.5 rounded-lg text-sm"><i class="fas fa-pen"></i></span> 編輯行程</h2>
+    <div id="edit-modal" class="modal inset-0 bg-black/60 backdrop-blur-sm items-center justify-center p-4" onclick="closeModal('edit-modal')">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">編輯行程</h2>
             <div class="space-y-3">
                 <div class="flex gap-2">
-                    <div class="flex-1 flex gap-1 items-center bg-gray-50 border border-gray-100 rounded-2xl p-2">
-                        <input type="time" id="edit-start-time" class="w-full bg-transparent font-bold text-center text-lg focus:outline-none text-gray-700">
+                    <div class="flex-1 flex gap-1 items-center bg-gray-50 border border-gray-200 rounded-xl p-2">
+                        <input type="time" id="edit-start-time" class="w-full bg-transparent font-bold text-center text-lg focus:outline-none">
                         <span class="text-gray-300">-</span>
                         <input type="time" id="edit-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
-                <select id="edit-category" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm font-bold text-gray-600">
+                <select id="edit-category" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                     <option value="FOOD">🍴 餐飲</option>
                     <option value="SHOPPING">🛍 購物</option>
                     <option value="SIGHTSEEING">⛩ 景點</option>
@@ -209,49 +194,49 @@
                     <option value="HOTEL">🏨 住宿</option>
                     <option value="OTHER">💡 其他</option>
                 </select>
-                <input type="text" id="edit-title" placeholder="標題" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl font-bold">
-                <input type="text" id="edit-location" placeholder="📍 地點" class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl text-sm">
-                <textarea id="edit-content" placeholder="詳細內容..." class="w-full p-3 bg-gray-50 border border-gray-100 rounded-2xl h-20 text-sm resize-none"></textarea>
+                <input type="text" id="edit-title" placeholder="標題" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
+                <input type="text" id="edit-location" placeholder="📍 地點" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+                <textarea id="edit-content" placeholder="詳細內容..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
             </div>
             <div class="flex justify-between items-center mt-6">
-                 <button onclick="deleteScheduleItem()" class="px-4 py-3 text-red-400 rounded-2xl hover:bg-red-50 text-sm font-bold btn-bounce"><i class="fas fa-trash-alt mr-1"></i> 刪除</button>
+                 <button onclick="deleteScheduleItem()" class="px-4 py-2 text-red-500 rounded-xl hover:bg-red-50 text-sm font-medium"><i class="fas fa-trash-alt mr-1"></i> 刪除</button>
                 <div class="space-x-2">
-                    <button onclick="closeModal('edit-modal')" class="px-5 py-3 text-gray-400 font-bold rounded-2xl hover:bg-gray-50 btn-bounce">取消</button>
-                    <button onclick="saveEdit()" class="px-6 py-3 bg-blue-500 text-white rounded-2xl shadow-lg shadow-blue-200 font-bold hover:bg-blue-600 btn-bounce">儲存</button>
+                    <button onclick="closeModal('edit-modal')" class="px-4 py-2 text-gray-500 font-medium rounded-xl hover:bg-gray-100">取消</button>
+                    <button onclick="saveEdit()" class="px-5 py-2 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-200 font-bold hover:bg-blue-700">儲存</button>
                 </div>
             </div>
              <input type="hidden" id="editing-item-id">
         </div>
     </div>
 
-    <div id="expense-modal" class="modal inset-0 bg-black/40 items-center justify-center p-4" onclick="closeModal('expense-modal')">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl flex flex-col max-h-[80vh] modal-content" onclick="event.stopPropagation()">
+    <div id="expense-modal" class="modal inset-0 bg-black/60 backdrop-blur-sm items-center justify-center p-4" onclick="closeModal('expense-modal')">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h2 class="text-xl font-black text-gray-800 flex items-center gap-2"><span class="bg-yellow-100 text-yellow-600 p-1.5 rounded-lg text-sm"><i class="fas fa-coins"></i></span> 行程花費</h2>
-                    <p class="text-xs text-gray-400 mt-1 font-medium" id="expense-modal-title">Title</p>
+                    <h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2>
+                    <p class="text-xs text-gray-400">記下這個行程的所有開銷</p>
                 </div>
-                <button onclick="closeModal('expense-modal')" class="text-gray-300 hover:text-gray-500 p-2 btn-bounce"><i class="fas fa-times text-xl"></i></button>
+                <button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
             </div>
             
             <div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div>
             
-            <div class="bg-yellow-50/50 p-3 rounded-2xl border border-yellow-100 mt-auto">
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto">
                 <div class="flex gap-2 mb-2">
-                    <select id="expense-payer" class="w-[80px] p-2 border-0 rounded-xl text-2xl text-center bg-white shadow-sm focus:outline-none shrink-0">
+                    <select id="expense-payer" class="w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none shrink-0">
                         <option value="bird">🐦</option>
                         <option value="pig">🐷</option>
                         <option value="shared">🐷🐦</option>
                     </select>
-                    <input type="text" id="expense-desc" placeholder="品項 (如: 門票)" class="flex-1 min-w-0 p-2 border-0 bg-white rounded-xl shadow-sm text-sm placeholder-gray-300">
+                    <input type="text" id="expense-desc" placeholder="品項" class="flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm">
                 </div>
                 <div class="flex gap-2">
-                    <select id="expense-currency" class="w-[70px] p-2 border-0 rounded-xl text-xs font-bold bg-white shadow-sm focus:outline-none shrink-0 text-gray-600">
+                    <select id="expense-currency" class="w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0">
                         <option value="JPY">JPY</option>
                         <option value="TWD">TWD</option>
                     </select>
-                    <input type="number" id="expense-amount" placeholder="金額" class="flex-1 min-w-0 p-2 border-0 bg-white rounded-xl shadow-sm text-sm font-black text-gray-700 placeholder-gray-300">
-                    <button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-400 text-white font-bold py-2 rounded-xl shadow-md shadow-yellow-200 hover:bg-yellow-500 shrink-0 btn-bounce">
+                    <input type="number" id="expense-amount" placeholder="金額" class="flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold">
+                    <button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow hover:bg-yellow-600 shrink-0">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -260,38 +245,38 @@
         </div>
     </div>
     
-    <div id="rate-modal" class="modal inset-0 bg-black/40 items-center justify-center p-4" onclick="closeModal('rate-modal')">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl modal-content" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-black mb-4 text-gray-800">匯率設定</h2>
-            <div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+    <div id="rate-modal" class="modal inset-0 bg-black/60 backdrop-blur-sm items-center justify-center p-4" onclick="closeModal('rate-modal')">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
+            <h2 class="text-xl font-bold mb-2">匯率設定</h2>
+            <div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200">
                 <span class="text-lg font-bold text-gray-400">×</span>
-                <input type="number" step="0.0001" id="exchange-rate-input" class="flex-1 bg-transparent text-3xl font-black text-center focus:outline-none text-gray-700">
+                <input type="number" step="0.0001" id="exchange-rate-input" class="flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none">
             </div>
             <div class="flex justify-end mt-6">
-                <button onclick="saveExchangeRate()" class="px-6 py-3 bg-blue-500 text-white rounded-2xl font-bold hover:bg-blue-600 shadow-lg shadow-blue-200 btn-bounce">儲存</button>
+                <button onclick="saveExchangeRate()" class="px-5 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg">儲存</button>
             </div>
         </div>
     </div>
 
-    <div class="fixed-footer bg-white/90 backdrop-blur-lg text-gray-300 rounded-3xl shadow-[0_8px_40px_rgb(0,0,0,0.1)] h-20 flex items-center justify-around px-2 border border-white/50">
-        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-16 flex flex-col items-center justify-center text-green-500 transition-all duration-300 btn-bounce">
-            <i class="fas fa-map-marked-alt text-2xl mb-1"></i>
-            <span class="text-[10px] font-bold">行程</span>
+    <div class="fixed-footer bg-white text-gray-400 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] h-16 flex items-center justify-around px-2 border border-gray-100">
+        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-green-600 transition-colors">
+            <i class="fas fa-map-marked-alt text-xl mb-1"></i>
+            <span class="text-[9px] font-bold">行程</span>
         </button>
-        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-16 flex flex-col items-center justify-center hover:text-blue-400 transition-all duration-300 btn-bounce">
-            <i class="fas fa-map text-2xl mb-1"></i>
-            <span class="text-[10px] font-bold">地圖</span>
+        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-blue-500 transition-colors">
+            <i class="fas fa-map text-xl mb-1"></i>
+            <span class="text-[9px] font-bold">地圖</span>
         </button>
-        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="bg-gradient-to-tr from-gray-800 to-gray-700 text-white w-16 h-16 rounded-2xl flex items-center justify-center -mt-10 shadow-xl shadow-gray-400/40 cursor-pointer active:scale-90 transition-transform border-[6px] border-[#f3f4f6]">
-            <i class="fas fa-plus text-2xl"></i>
+        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="bg-gray-900 text-white w-14 h-14 rounded-2xl flex items-center justify-center -mt-8 shadow-lg shadow-gray-400/50 cursor-pointer active:scale-95 transition-transform border-4 border-gray-100">
+            <i class="fas fa-plus text-xl"></i>
         </div>
-        <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-16 flex flex-col items-center justify-center hover:text-yellow-400 transition-all duration-300 btn-bounce">
-            <i class="fas fa-coins text-2xl mb-1"></i>
-            <span class="text-[10px] font-bold">花費</span>
+        <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors">
+            <i class="fas fa-coins text-xl mb-1"></i>
+            <span class="text-[9px] font-bold">花費</span>
         </button>
-        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-16 flex flex-col items-center justify-center hover:text-purple-400 transition-all duration-300 btn-bounce">
-            <i class="fas fa-clipboard-list text-2xl mb-1"></i>
-            <span class="text-[10px] font-bold">清單</span>
+        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-purple-500 transition-colors">
+            <i class="fas fa-clipboard-list text-xl mb-1"></i>
+            <span class="text-[9px] font-bold">清單</span>
         </button>
     </div>
 
@@ -372,10 +357,11 @@
         }
     }
 
-    // 地圖功能 (Google Maps)
+    // ★★★ 地圖功能 (Google Maps 底圖) ★★★
     async function initMap() {
         if (!mapInstance) {
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
+            // Google Maps Tile Layer
             L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
                 maxZoom: 20,
                 subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
@@ -414,9 +400,8 @@
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
         const loading = document.getElementById('loading-status');
-        loading.style.display = 'block'; // Show loading
         firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
-            loading.style.display = 'none'; // Hide loading
+            loading.style.opacity = '0';
             currentItems = doc.exists ? (doc.data().schedule || []) : [];
             renderSchedule();
             calculateDailyCost();
@@ -445,52 +430,35 @@
     function renderSchedule() {
         const container = document.getElementById('schedule-container');
         container.innerHTML = ''; 
-        if (currentItems.length === 0) { 
-            // ★★★ 可愛空狀態 ★★★
-            container.innerHTML = `
-                <div class="flex flex-col items-center justify-center py-10 opacity-50 animate-card" style="animation-delay: 0.1s">
-                    <div class="text-6xl mb-2">🐷✈️🐦</div>
-                    <p class="text-gray-500 font-bold">還沒有行程捏～</p>
-                    <p class="text-xs text-gray-400">點擊下方 ＋ 新增第一站！</p>
-                </div>`; 
-            return; 
-        }
-        currentItems.forEach((item, index) => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item, index)));
+        if (currentItems.length === 0) { container.innerHTML = `<div class="text-center text-gray-300 py-10">點擊下方 + 新增行程</div>`; return; }
+        currentItems.forEach(item => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item)));
         initSortable();
     }
 
-    function createScheduleItemHTML(item, index) {
+    function createScheduleItemHTML(item) {
         const vibe = getCategoryVibe(item.category);
         const expenses = item.expenses || [];
         const totalItemCost = expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0);
         const timeDisplay = item.endTime ? `${item.startTime}<br><span class="text-[10px] opacity-50">${item.endTime}</span>` : item.startTime;
-        const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-lg text-xs font-bold border border-yellow-100 mt-2 inline-block shadow-sm">¥ ${totalItemCost.toLocaleString()}</div>` : '';
-        let locationHTML = item.location ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-blue-500 mt-1 font-bold hover:underline block flex items-center gap-1" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt"></i>${item.location}</a>` : '';
+        const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-1 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
+        let locationHTML = item.location ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-blue-500 mt-1 font-bold hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
-        // ★★★ 加入動畫延遲 ★★★
-        const delay = index * 0.05;
         return `
-            <div class="flex gap-3 items-start group relative select-none cursor-pointer animate-card" style="animation-delay: ${delay}s" data-id="${item.id}">
-                <div class="flex flex-col items-center pt-3 min-w-[3.5rem]">
-                    <div class="text-sm font-black text-gray-500 font-mono bg-white border border-gray-100 px-1.5 py-0.5 rounded-lg text-center leading-tight shadow-sm">${timeDisplay}</div>
-                    <div class="w-0.5 bg-gray-200 h-full mt-2 rounded-full min-h-[2rem]"></div>
+            <div class="flex gap-3 items-start group relative select-none cursor-pointer" data-id="${item.id}">
+                <div class="flex flex-col items-center pt-2 min-w-[3.5rem]">
+                    <div class="text-sm font-black text-gray-500 font-mono bg-gray-100 px-1 rounded text-center leading-tight">${timeDisplay}</div>
+                    <div class="w-0.5 bg-gray-200 h-full mt-1 rounded-full min-h-[3rem]"></div>
                 </div>
-                <div class="flex-1 bg-white p-4 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden transition-transform active:scale-[0.98]">
-                    <div class="absolute left-0 top-0 bottom-0 w-1.5" style="background-color: ${vibe.hex}"></div>
-                    <div class="flex justify-between items-start pl-2">
-                        <div>
-                            <span class="inline-block text-[10px] font-bold text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md mb-1 border border-gray-100">${vibe.label}</span>
-                            <h3 class="font-bold text-gray-800 text-lg leading-tight tracking-tight">${item.title}</h3>
-                        </div>
+                <div class="flex-1 bg-white p-3 rounded-2xl shadow-sm border-l-4 border-${vibe.color}-500 relative overflow-hidden transition-transform active:scale-[0.98]" style="border-left-color: ${vibe.hex}">
+                    <div class="flex justify-between items-start">
+                        <div><span class="inline-block text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded mb-1">${vibe.label}</span><h3 class="font-bold text-gray-800 text-lg leading-tight">${item.title}</h3></div>
                         <div class="flex gap-1">
-                            <button class="expense-btn w-9 h-9 rounded-full bg-yellow-50 text-yellow-500 flex items-center justify-center hover:bg-yellow-100 transition btn-bounce" data-item-id="${item.id}"><i class="fas fa-coins"></i></button>
-                            <button class="edit-btn w-9 h-9 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-blue-50 hover:text-blue-500 transition btn-bounce" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
+                            <button class="expense-btn w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center hover:bg-yellow-200 transition" data-item-id="${item.id}"><i class="fas fa-coins"></i></button>
+                            <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-blue-50 hover:text-blue-500 transition" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
                         </div>
                     </div>
-                    <p class="text-sm text-gray-500 mt-1 leading-relaxed pl-2">${item.content || ''}</p>
-                    <div class="pl-2">
-                        ${locationHTML} ${costBadge}
-                    </div>
+                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">${item.content || ''}</p>
+                    ${locationHTML} ${costBadge}
                 </div>
             </div>`;
     }
@@ -504,7 +472,7 @@
     // 七日花費
     async function calculateAllExpenses() {
         const container = document.getElementById('expense-full-list');
-        container.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fas fa-spinner fa-spin text-2xl text-orange-300"></i> 計算中...</div>';
+        container.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fas fa-spinner fa-spin text-2xl"></i> 計算中...</div>';
         
         let grandTotal = 0;
         let totalBird = 0; let totalPig = 0; let totalShared = 0;
@@ -531,10 +499,10 @@
 
                             let payerIcon = ex.payer === 'bird' ? '🐦' : (ex.payer === 'pig' ? '🐷' : '🐷🐦');
                             dayHTML += `
-                                <div class="flex justify-between items-center text-sm py-2 border-b border-gray-50 last:border-0">
-                                    <div class="flex items-center gap-3 overflow-hidden flex-1 min-w-0">
-                                        <span class="text-sm bg-gray-50 px-1.5 py-0.5 rounded-md shrink-0">${payerIcon}</span>
-                                        <span class="text-gray-600 truncate font-medium">${item.title} - ${ex.description}</span>
+                                <div class="flex justify-between items-center text-sm py-1 border-b border-gray-50 last:border-0">
+                                    <div class="flex items-center gap-2 overflow-hidden flex-1 min-w-0">
+                                        <span class="text-xs bg-gray-100 px-1 rounded shrink-0">${payerIcon}</span>
+                                        <span class="text-gray-600 truncate">${item.title} - ${ex.description}</span>
                                     </div>
                                     <span class="font-mono font-bold text-gray-800 shrink-0 ml-2">¥${amt.toLocaleString()}</span>
                                 </div>`;
@@ -543,14 +511,7 @@
                 });
 
                 if (dayTotal > 0) {
-                    htmlContent += `
-                        <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 mb-4 animate-card">
-                            <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-50">
-                                <h3 class="font-bold text-gray-800 text-lg">Day ${i}</h3>
-                                <span class="bg-orange-50 text-orange-600 text-xs font-bold px-3 py-1 rounded-full">Total: ¥${dayTotal.toLocaleString()}</span>
-                            </div>
-                            <div>${dayHTML}</div>
-                        </div>`;
+                    htmlContent += `<div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-gray-300 mb-3"><div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-100"><h3 class="font-bold text-gray-800">Day ${i}</h3><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded">Total: ¥${dayTotal.toLocaleString()}</span></div><div>${dayHTML}</div></div>`;
                 }
             }
         }
@@ -560,7 +521,7 @@
         document.getElementById('total-bird').textContent = `¥ ${totalBird.toLocaleString()}`;
         document.getElementById('total-pig').textContent = `¥ ${totalPig.toLocaleString()}`;
         document.getElementById('total-shared').textContent = `¥ ${totalShared.toLocaleString()}`;
-        container.innerHTML = htmlContent || '<div class="text-center text-gray-400 py-10 opacity-50">沒有花費記錄 🐷</div>';
+        container.innerHTML = htmlContent || '<div class="text-center text-gray-400 py-10">目前沒有任何消費記錄</div>';
     }
 
     // 記帳 Modal
@@ -581,7 +542,7 @@
         container.innerHTML = '';
         expenses.forEach((ex, idx) => {
             let payerIcon = ex.payer === 'bird' ? '🐦' : (ex.payer === 'pig' ? '🐷' : '🐷🐦');
-            const html = `<div class="flex justify-between items-center bg-white p-3 rounded-2xl border border-gray-100 shadow-sm mb-2 animate-card" style="animation-delay: ${idx*0.05}s"><div class="flex gap-3 items-center overflow-hidden flex-1 min-w-0"><span class="text-xl shrink-0">${payerIcon}</span><span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span></div><div class="flex items-center gap-3 shrink-0 ml-2"><span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span><button onclick="removeExpense(${idx})" class="w-6 h-6 bg-red-50 text-red-400 rounded-full flex items-center justify-center hover:bg-red-100 transition"><i class="fas fa-times text-xs"></i></button></div></div>`;
+            const html = `<div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-100"><div class="flex gap-2 items-center overflow-hidden flex-1 min-w-0"><span class="text-lg shrink-0">${payerIcon}</span><span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span></div><div class="flex items-center gap-3 shrink-0 ml-2"><span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span><button onclick="removeExpense(${idx})" class="text-red-300 hover:text-red-500"><i class="fas fa-times"></i></button></div></div>`;
             container.insertAdjacentHTML('beforeend', html);
         });
     }
@@ -681,15 +642,7 @@
     }
 
     function getCategoryVibe(category) {
-        // 調整為更柔和的糖果色
-        const map = { 
-            'FOOD': { hex: '#fbbf24', color: 'orange', label: '餐飲' }, // Amber-400
-            'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, // Red-400
-            'TRANSPORT': { hex: '#60a5fa', color: 'blue', label: '交通' }, // Blue-400
-            'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, // Pink-400
-            'HOTEL': { hex: '#c084fc', color: 'purple', label: '住宿' }, // Purple-400
-            'OTHER': { hex: '#9ca3af', color: 'gray', label: '其他' } // Gray-400
-        };
+        const map = { 'FOOD': { hex: '#f97316', color: 'orange', label: '餐飲' }, 'SIGHTSEEING': { hex: '#ef4444', color: 'red', label: '景點' }, 'TRANSPORT': { hex: '#3b82f6', color: 'blue', label: '交通' }, 'SHOPPING': { hex: '#ec4899', color: 'pink', label: '購物' }, 'HOTEL': { hex: '#a855f7', color: 'purple', label: '住宿' }, 'OTHER': { hex: '#6b7280', color: 'gray', label: '其他' } };
         return map[category] || map['OTHER'];
     }
 
@@ -698,14 +651,7 @@
         slider.innerHTML = '';
         tripDates.forEach(d => {
             const active = d.day === currentDay;
-            // 糖果色日期按鈕
-            const activeClass = "bg-yellow-300 text-gray-900 shadow-md scale-105";
-            const inactiveClass = "bg-white text-gray-400 border border-gray-100";
-            slider.insertAdjacentHTML('beforeend', `
-                <div class="flex-shrink-0 w-14 h-16 rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 ${active ? activeClass : inactiveClass}" onclick="switchDay(${d.day})"> 
-                    <div class="text-[10px] font-bold mb-1 opacity-60 tracking-wide">${d.week}</div>
-                    <div class="text-xl font-black leading-none">${d.date}</div>
-                </div>`);
+            slider.insertAdjacentHTML('beforeend', `<div class="flex-shrink-0 text-center cursor-pointer px-2 ${active ? '' : 'opacity-40 hover:opacity-70'}" onclick="switchDay(${d.day})"><div class="text-[10px] font-bold ${active ? 'text-green-600' : 'text-gray-400'}">${d.week}</div><div class="text-xl font-black ${active ? 'text-gray-800 border-b-2 border-green-500' : 'text-gray-400'} pb-1">${d.date}</div></div>`);
         });
     }
     
@@ -720,17 +666,10 @@
         document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
         document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`).classList.remove('hidden');
         
-        const updateTab = (id, isActive, color) => {
-            const el = document.getElementById(id);
-            el.className = `p-2 w-14 flex flex-col items-center justify-center transition-all duration-300 btn-bounce ${isActive ? color : 'text-gray-300 hover:text-gray-400'}`;
-            if(isActive) el.classList.add('scale-110');
-            else el.classList.remove('scale-110');
-        };
-
-        updateTab('tab-schedule', page === 'schedule', 'text-green-500');
-        updateTab('tab-map', page === 'map', 'text-blue-400');
-        updateTab('tab-expense', page === 'expense', 'text-yellow-400');
-        updateTab('tab-checklist', page === 'checklist', 'text-purple-400');
+        document.getElementById('tab-schedule').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'schedule' ? 'text-green-600' : 'text-gray-400'}`;
+        document.getElementById('tab-expense').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'expense' ? 'text-yellow-500' : 'text-gray-400'}`;
+        document.getElementById('tab-checklist').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'checklist' ? 'text-purple-600' : 'text-gray-400'}`;
+        document.getElementById('tab-map').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'map' ? 'text-blue-500' : 'text-gray-400'}`;
         
         if(page === 'expense') calculateAllExpenses();
         if(page === 'map') setTimeout(initMap, 200);
@@ -749,15 +688,7 @@
             checklistItems.sort((a, b) => a.isCompleted - b.isCompleted).forEach(item => {
                 const completedClass = item.isCompleted ? 'completed' : '';
                 const iconClass = item.isCompleted ? 'fa-check' : '';
-                const bgClass = item.isCompleted ? 'bg-gray-50 border-gray-100' : 'bg-white border-gray-100 shadow-sm';
-                const html = `
-                    <div class="flex items-center p-4 rounded-2xl border mb-2 transition-all animate-card ${bgClass} ${completedClass}">
-                        <div onclick="toggleChecklist('${item.id}', ${item.isCompleted})" class="w-6 h-6 rounded-full border-2 border-purple-200 mr-3 flex items-center justify-center text-xs cursor-pointer check-circle ${item.isCompleted ? 'bg-purple-400 border-purple-400 text-white' : 'text-transparent'}">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        <div class="flex-1 font-bold text-gray-700 select-none cursor-pointer check-text" onclick="toggleChecklist('${item.id}', ${item.isCompleted})">${item.text}</div>
-                        <button onclick="deleteChecklist('${item.id}')" class="text-gray-300 hover:text-red-400 px-2 transition"><i class="fas fa-times"></i></button>
-                    </div>`;
+                const html = `<div class="check-item flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 ${completedClass}"><div onclick="toggleChecklist('${item.id}', ${item.isCompleted})" class="check-circle cursor-pointer w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center text-xs"><i class="fas ${iconClass}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${item.id}', ${item.isCompleted})">${item.text}</div><button onclick="deleteChecklist('${item.id}')" class="text-gray-300 hover:text-red-400 px-2"><i class="fas fa-times"></i></button></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
         });
