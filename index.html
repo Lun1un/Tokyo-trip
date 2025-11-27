@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京之旅 2026</title>
+    <title id="app-title">東京之旅 2026 (同步版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
@@ -309,7 +309,7 @@
 
 <script>
     // =======================================================
-    // 全域變數 & 配置
+    // 全域變數 & 配置 (Firebase Version)
     // =======================================================
     let currentDay = 1; 
     let currentItems = []; 
@@ -334,18 +334,20 @@
         { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10', title: 'Bye Tokyo', tag: '返台', heroTitle: '滿載而歸' },
     ];
 
+    // ★★★ 你的專屬 Firebase 設定 ★★★
     const firebaseConfig = {
-      apiKey: "AIzaSyAWU_CfnTi1zdC11zegEnCjqVKGnwJ-JOY",
-      authDomain: "tokyo-trip-2026.firebaseapp.com",
-      projectId: "tokyo-trip-2026",
-      storageBucket: "tokyo-trip-2026.appspot.com",
-      messagingSenderId: "495258057956",
-      appId: "1:495258057956:web:d47fd494872c84032c80f1"
+      apiKey: "AIzaSyBSIP0E7wHTxEnoGmBnqe3IrdojWSTZu0A",
+      authDomain: "tokyotrip2026-24a2c.firebaseapp.com",
+      projectId: "tokyotrip2026-24a2c",
+      storageBucket: "tokyotrip2026-24a2c.firebasestorage.app",
+      messagingSenderId: "473041619302",
+      appId: "1:473041619302:web:477c0eee8903999012a0a7"
     };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     
+    // Firestore Collections
     const SCHEDULE_COLLECTION = 'trip_schedules';
     const BUDGET_COLLECTION = 'trip_budgets';
     const CHECKLIST_COLLECTION = 'trip_checklist'; 
@@ -391,7 +393,7 @@
     }
 
     // =======================================================
-    // Checklist 功能
+    // Checklist 功能 (Online)
     // =======================================================
     
     function listenForChecklistUpdates() {
@@ -448,7 +450,7 @@
     }
 
     // =======================================================
-    // 匯率與記帳 (核心修改區)
+    // 匯率與記帳 (Online + Optimistic UI)
     // =======================================================
     async function loadExchangeRate() {
         try {
@@ -533,7 +535,7 @@
         document.getElementById('total-twd').textContent = `≈ NT$ ${Math.round(totalTWD).toLocaleString('en-US')}`;
     }
 
-    // ★★★ 核心修復：確保列表資料絕對顯示 ★★★
+    // 記帳列表渲染 (含防呆：新資料強制置頂)
     function renderBudgetList() {
         const listContainer = document.getElementById('budget-list');
         listContainer.innerHTML = '';
@@ -552,7 +554,6 @@
 
         // 排序：確保剛新增的資料(時間為null或0) 排在最上面
         const sortedItems = [...currentDayItems].sort((a, b) => {
-            // 如果 timestamp 為 null (本地剛寫入)，視為「現在」 (Infinity/Max) 讓它排最上面
             const timeA = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : Number.MAX_SAFE_INTEGER;
             const timeB = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : Number.MAX_SAFE_INTEGER;
             return timeB - timeA;
@@ -562,7 +563,6 @@
             const vibe = getCategoryVibe(item.category);
             
             let timeStr = '剛剛';
-            // 安全處理時間格式
             if (item.timestamp && item.timestamp.toDate) {
                 const date = item.timestamp.toDate();
                 timeStr = date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -570,7 +570,7 @@
 
             const twdAmount = Math.round(item.amount * exchangeRate);
 
-            // 直接用 style 設定顏色，避免 Tailwind 動態 class 失效
+            // 直接用 style 設定顏色
             const itemHTML = `
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden relative group" style="border-left: 4px solid ${vibe.hex || '#gray'};">
                     <div class="p-3 flex items-center justify-between gap-3">
@@ -599,16 +599,15 @@
         });
     }
     
-    // 更新顏色配置，加入 Hex 碼確保顯示
     function getCategoryVibe(category) {
         const map = {
-            'FOOD': { hex: '#f97316', bgHex: '#ffedd5', icon: 'fas fa-utensils', label: '餐飲' }, // Orange
-            'SIGHTSEEING': { hex: '#ef4444', bgHex: '#fee2e2', icon: 'fas fa-torii-gate', label: '景點' }, // Red
-            'TRANSPORT': { hex: '#3b82f6', bgHex: '#dbeafe', icon: 'fas fa-train', label: '交通' }, // Blue
+            'FOOD': { hex: '#f97316', bgHex: '#ffedd5', icon: 'fas fa-utensils', label: '餐飲' }, 
+            'SIGHTSEEING': { hex: '#ef4444', bgHex: '#fee2e2', icon: 'fas fa-torii-gate', label: '景點' }, 
+            'TRANSPORT': { hex: '#3b82f6', bgHex: '#dbeafe', icon: 'fas fa-train', label: '交通' }, 
             'ARRIVAL': { hex: '#3b82f6', bgHex: '#dbeafe', icon: 'fas fa-plane-arrival', label: '抵達' },
-            'SHOPPING': { hex: '#ec4899', bgHex: '#fce7f3', icon: 'fas fa-shopping-bag', label: '購物' }, // Pink
-            'HOTEL': { hex: '#a855f7', bgHex: '#f3e8ff', icon: 'fas fa-bed', label: '住宿' }, // Purple
-            'OTHER': { hex: '#6b7280', bgHex: '#f3f4f6', icon: 'fas fa-star', label: '其他' } // Gray
+            'SHOPPING': { hex: '#ec4899', bgHex: '#fce7f3', icon: 'fas fa-shopping-bag', label: '購物' }, 
+            'HOTEL': { hex: '#a855f7', bgHex: '#f3e8ff', icon: 'fas fa-bed', label: '住宿' }, 
+            'OTHER': { hex: '#6b7280', bgHex: '#f3f4f6', icon: 'fas fa-star', label: '其他' } 
         };
         return map[category] || map['OTHER'];
     }
@@ -639,7 +638,7 @@
     }
 
     // =======================================================
-    // 行程管理
+    // 行程管理 (Online)
     // =======================================================
     function getInitialSchedule(day) {
         if (day === 1) return [
@@ -803,6 +802,7 @@
         fetchWeather();
     });
 
+    // Global Functions for HTML onClick
     window.switchDay = switchDay; window.switchPage = switchPage; window.prepareRateModal = prepareRateModal;
     window.saveExchangeRate = saveExchangeRate; window.addBudgetItem = addBudgetItem; window.deleteBudgetItem = deleteBudgetItem;
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
