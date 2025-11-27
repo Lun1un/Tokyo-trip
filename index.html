@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (經典玫瑰粉版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (玻璃感淡紫版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -18,17 +18,19 @@
         /* 引入 Noto Sans TC */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
         
-        /* ------------------ 主題色定義 - 玫瑰粉 ------------------ */
+        /* ------------------ 主題色定義 - 淡紫色 ------------------ */
         :root {
-            --primary-light: #FBCFE8; /* Soft UI 主色 (淺玫瑰粉/Rose-200) */
-            --primary-normal: #F472B6; /* 按鈕和重點元素 (標準玫瑰粉/Rose-400) */
-            --primary-dark: #EC4899; /* Hover 顏色 (深玫瑰粉/Rose-500) */
+            --primary-light: #E9D5FF; /* Soft UI 主色 (淺淡紫/Violet-200) */
+            --primary-normal: #A855F7; /* 按鈕和重點元素 (標準紫/Violet-500) */
+            --primary-dark: #9333EA; /* Hover 顏色 (深紫/Violet-600) */
+            /* 新增一個用於玻璃感的極淺底色，用於背景和卡片邊緣 */
+            --soft-bg-color: #f0f4ff; /* 極淺藍灰 */
         }
         /* ------------------------------------------------ */
 
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        /* 背景色調整為更柔和的淺灰色，與粉色更搭 */
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f7f7f9; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+        /* 背景色調整為新的極淺藍灰 */
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--soft-bg-color); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -40,7 +42,7 @@
 
         .fixed-header { 
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
-            background-color: #f7f7f9; /* 配合 body 背景色 */
+            background-color: var(--soft-bg-color); /* 配合 body 背景色 */
             padding-top: 16px; padding-bottom: 4px; 
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); 
         } 
@@ -48,14 +50,14 @@
         /* 底部導覽列 - 寬版圓角矩形佈局 */
         .fixed-footer { 
             position: fixed; 
-            bottom: 0; /* 貼緊底部 */
+            bottom: 0; 
             left: 0; 
             right: 0; 
             z-index: 1001; 
             background-color: white; 
-            border-radius: 2rem 2rem 0 0; /* 頂部大圓角，底部直角 */
+            border-radius: 2rem 2rem 0 0; 
             box-shadow: 0 -10px 30px rgba(0,0,0,0.1), 0 0px 10px rgba(0,0,0,0.05); 
-            height: 72px; /* 略高於之前的藥丸 */
+            height: 72px; 
             display: flex;
             align-items: center;
             justify-content: space-around;
@@ -65,8 +67,9 @@
         /* 調整內邊距以避免被 footer 遮擋 */
         #schedule-page { padding-top: 180px; } 
         #expense-page, #checklist-page { padding-top: 20px; } 
-        #map-page { padding-top: 20px; padding-bottom: 7.5rem !important; } /* 略微增加 padding-bottom */
+        #map-page { padding-top: 20px; padding-bottom: 7.5rem !important; } 
         
+        /* 基礎 Soft UI 陰影 */
         .soft-card-shadow {
             box-shadow: 
                 6px 6px 12px rgba(174, 174, 192, 0.4), 
@@ -74,27 +77,33 @@
             border-radius: 1.5rem; 
         }
 
+        /* 增強玻璃感的卡片樣式 */
         .soft-card-glow {
+            /* 調整陰影顏色，使其更具立體感 */
             box-shadow: 
-                6px 6px 12px rgba(174, 174, 192, 0.4),
-                -6px -6px 12px rgba(255, 255, 255, 0.9);
+                4px 4px 8px rgba(0, 0, 0, 0.1), 
+                -4px -4px 8px rgba(255, 255, 255, 0.7);
+            /* 增加邊緣半透明邊框 */
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            background-color: rgba(255, 255, 255, 0.85); /* 增加背景半透明度 */
+            backdrop-filter: blur(8px); /* 增加模糊效果 */
             border-radius: 1.5rem; 
             position: relative;
             overflow: hidden;
-            transition: box-shadow 0.3s ease;
+            transition: box-shadow 0.3s ease, transform 0.2s;
         }
-
-        .sortable-ghost { opacity: 0.2; background-color: #ffe4e6; border: 2px dashed #fecdd3; border-radius: 1.5rem; }
+        
+        .sortable-ghost { opacity: 0.2; background-color: #f3e8ff; border: 2px dashed #d8b4fe; border-radius: 1.5rem; }
         .sortable-drag { background-color: white; transform: scale(1.03); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1.5rem; cursor: grabbing; }
         
         .check-item.completed .check-text { text-decoration: line-through; color: #9ca3af; }
-        /* 清單完成色：使用淺玫瑰粉 */
-        .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: white; } 
+        /* 清單完成色：使用淺淡紫 */
+        .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: var(--primary-dark); } 
 
         #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
         .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
 
-        /* 輸入框和按鈕聚焦 - 使用淺玫瑰粉 */
+        /* 輸入框和按鈕聚焦 - 使用淺淡紫 */
         .input-focus {
             transition: box-shadow 0.2s, border-color 0.2s;
         }
@@ -103,7 +112,7 @@
             box-shadow: 0 0 0 3px var(--primary-light);
         }
 
-        /* 核心按鈕發光效果 - 使用標準玫瑰粉 */
+        /* 核心按鈕發光效果 - 使用標準紫 */
         .glow-btn {
             background-color: var(--primary-normal); 
             box-shadow: 0 0 15px var(--primary-light); 
@@ -204,7 +213,7 @@
 
     <div id="expense-page" class="hidden page-content px-4">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
-            <span class="bg-yellow-100 text-yellow-600 p-2 rounded-lg text-xl"><i class="fas fa-wallet"></i></span>
+            <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-wallet"></i></span>
             消費明細
         </h1>
         
@@ -214,7 +223,7 @@
                 <div>
                     <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Total Trip Cost</p>
                     <div class="text-4xl font-extrabold mt-1" id="total-trip-jpy">¥ 0</div>
-                    <div class="text-sm mt-1" style="color:var(--primary-normal);" id="total-trip-twd">≈ NT$ 0</div>
+                    <div class="text-sm mt-1 text-white" id="total-trip-twd">≈ NT$ 0</div>
                 </div>
                 <button onclick="calculateAllExpenses()" class="text-gray-400 active:scale-95" style="color:var(--primary-normal);"><i class="fas fa-sync-alt"></i></button>
             </div>
@@ -490,7 +499,7 @@
         }
     }
 
-    // 地圖 (Marker 顏色使用標準玫瑰粉)
+    // 地圖 (Marker 顏色使用標準紫)
     async function initMap() {
         if (!mapInstance) {
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
@@ -523,7 +532,7 @@
                     
                     const itemNumber = index + 1;
                     
-                    // 自定義 Icon 顏色使用標準玫瑰粉
+                    // 自定義 Icon 顏色使用標準紫
                     const customIcon = L.divIcon({
                         className: 'map-icon',
                         html: itemNumber.toString(),
@@ -601,11 +610,15 @@
         const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
         let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-blue-500 mt-1 font-bold hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
-        // Soft Card Glow - 邊緣光暈注入，使用分類色 HEX
-        const glowStyle = `box-shadow: 
-            6px 6px 12px rgba(174, 174, 192, 0.4), 
-            -6px -6px 12px rgba(255, 255, 255, 0.9),
-            inset 0 4px 0 0 ${vibe.hex}; /* 頂部內陰影模擬邊緣光暈 */
+        // Soft Card Glow - 增強玻璃感：使用分類色 HEX 作為內陰影光暈，並保持半透明背景和模糊
+        const glowStyle = `
+            box-shadow: 
+                4px 4px 8px rgba(0, 0, 0, 0.1), 
+                -4px -4px 8px rgba(255, 255, 255, 0.7),
+                inset 0 4px 0 0 ${vibe.hex}cc; /* 頂部內陰影光暈，增加透明度 */
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            background-color: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(8px);
         `;
 
         return `
@@ -613,19 +626,21 @@
                 <div class="flex flex-col items-center pt-1 min-w-[3.5rem]">
                     ${timeHTML}
                 </div>
-                <div class="flex-1 bg-white p-4 rounded-3xl soft-card-glow relative overflow-hidden transition-all active:scale-[0.98]" style="${glowStyle}">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="inline-block text-[10px] font-bold text-${vibe.color}-700 bg-${vibe.color}-50/50 px-2 py-0.5 rounded-full mb-1 border border-${vibe.color}-100">${vibe.label}</span>
-                            <h3 class="font-extrabold text-gray-800 text-lg leading-tight">${item.title}</h3>
+                <div class="flex-1 soft-card-glow relative overflow-hidden transition-all active:scale-[0.98]" style="${glowStyle}">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="inline-block text-[10px] font-bold text-${vibe.color}-700 bg-${vibe.color}-50/50 px-2 py-0.5 rounded-full mb-1 border border-${vibe.color}-100">${vibe.label}</span>
+                                <h3 class="font-extrabold text-gray-800 text-lg leading-tight">${item.title}</h3>
+                            </div>
+                            <div class="flex gap-1">
+                                <button class="expense-btn w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center hover:bg-yellow-200 transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-wallet"></i></button>
+                                <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-[var(--primary-normal)]/10 hover:text-[var(--primary-normal)] transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
+                            </div>
                         </div>
-                        <div class="flex gap-1">
-                            <button class="expense-btn w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center hover:bg-yellow-200 transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-wallet"></i></button>
-                            <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-[var(--primary-normal)]/10 hover:text-[var(--primary-normal)] transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
-                        </div>
+                        <p class="text-sm text-gray-500 mt-2 leading-relaxed">${item.content || ''}</p>
+                        ${locationHTML} ${costBadge}
                     </div>
-                    <p class="text-sm text-gray-500 mt-2 leading-relaxed">${item.content || ''}</p>
-                    ${locationHTML} ${costBadge}
                 </div>
             </div>`;
     }
@@ -811,9 +826,14 @@
             'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, 
             'TRANSPORT': { hex: '#38bdf8', color: 'sky', label: '交通' }, 
             'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, 
-            'HOTEL': { hex: '#F472B6', color: 'pink', label: '住宿' }, // 住宿顏色調整為標準玫瑰粉
+            // 住宿 (HOTEL) 顏色改為淡紫主題色
+            'HOTEL': { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'violet', label: '住宿' }, 
             'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } 
         };
+        // 確保 Tailwind CSS 能夠找到顏色的 Class Name
+        if (category === 'HOTEL') {
+            return { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'purple', label: '住宿' };
+        }
         return map[category] || map['OTHER'];
     }
 
@@ -825,7 +845,7 @@
 
         tripDates.forEach(d => {
             const active = d.day === currentDay;
-            // 日期滑塊使用 Soft UI 風格，激活時的顏色使用標準玫瑰粉和其陰影
+            // 日期滑塊使用 Soft UI 風格，激活時的顏色使用標準紫和其陰影
             const activeClass = active ? `bg-[${primaryColorNormal}] text-white shadow-lg shadow-[${primaryColorNormal}]/50 scale-105` : 'bg-white soft-card-shadow hover:bg-gray-50';
             slider.insertAdjacentHTML('beforeend', `<div class="flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95 ${activeClass}" onclick="switchDay(${d.day})"><div class="text-[10px] font-bold ${active ? 'opacity-90' : 'opacity-60'}">${d.week}</div><div class="text-xl font-black leading-none">${d.date}</div><div class="text-[8px] font-medium mt-1 truncate max-w-[90%] ${active ? 'text-white/80' : 'text-gray-400'}">${d.label}</div></div>`);
         });
@@ -842,7 +862,7 @@
         document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
         document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`).classList.remove('hidden');
         
-        // Tab 顏色切換為玫瑰粉主題
+        // Tab 顏色切換為淡紫主題
         const primaryColorNormal = getComputedStyle(document.documentElement).getPropertyValue('--primary-normal');
         const tabSchedule = document.getElementById('tab-schedule');
         const tabMap = document.getElementById('tab-map');
@@ -868,7 +888,7 @@
     function showModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-    // Checklist (完成狀態使用淺玫瑰粉)
+    // Checklist (完成狀態使用淺淡紫)
     function listenForChecklistUpdates() {
         if (firestoreChecklistListener) firestoreChecklistListener();
         firestoreChecklistListener = db.collection(CHECKLIST_COLLECTION).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
@@ -878,7 +898,7 @@
             checklistItems.sort((a, b) => a.isCompleted - b.isCompleted).forEach(item => {
                 const completedClass = item.isCompleted ? 'completed' : '';
                 const iconClass = item.isCompleted ? 'fa-check' : '';
-                // 清單項目 Soft UI 風格
+                // 清單項目 Soft UI 風格 (圓圈顏色和邊框使用淡紫主題色)
                 const html = `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${completedClass} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${item.id}', ${item.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color: var(--primary-normal);"><i class="fas ${iconClass}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${item.id}', ${item.isCompleted})">${item.text}</div><button onclick="deleteChecklist('${item.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
