@@ -8,11 +8,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
         
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; user-select: none; }
@@ -24,49 +27,48 @@
 
         .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
         .fixed-footer { position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; }
-        .page-content { padding-top: 160px; padding-bottom: 7rem; min-height: 100vh; }
+        .page-content { padding-top: 170px; padding-bottom: 7rem; min-height: 100vh; }
         
         .sortable-ghost { opacity: 0.3; background-color: #f3f4f6; border: 2px dashed #cbd5e1; }
         .sortable-drag { background-color: white; transform: scale(1.05) rotate(1deg); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1rem; cursor: grabbing; }
         
         .check-item.completed .check-text { text-decoration: line-through; color: #9ca3af; }
         .check-item.completed .check-circle { background-color: #10b981; border-color: #10b981; color: white; }
+
+        #map { height: 100%; width: 100%; border-radius: 1rem; z-index: 1; }
     </style>
 </head>
 <body class="text-gray-800">
 
     <div id="schedule-page" class="page-content">
         <div class="fixed-header bg-white/95 backdrop-blur-md border-b border-gray-200 pt-10 pb-2 px-4 shadow-sm">
-            <div class="flex justify-between items-center mb-2">
-                <div>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">東京遛豬之旅</p>
-                    <div class="flex items-center gap-2" onclick="editDayTitle()">
-                        <h1 class="text-xl font-black text-gray-900 leading-tight border-b border-dashed border-gray-300 hover:border-gray-500 cursor-pointer transition-colors" id="current-day-title">Day 1 出發</h1>
-                        <i class="fas fa-pencil-alt text-[10px] text-gray-300"></i>
+            <div class="flex justify-between items-start mb-3">
+                <div class="flex-1">
+                    <h1 class="text-2xl font-black text-gray-900 leading-tight mb-1">東京遛豬之旅 🐷</h1>
+                    <div class="inline-flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full cursor-pointer hover:bg-gray-200 transition" onclick="editDayTitle()">
+                        <span class="text-sm font-bold text-gray-600" id="current-day-title">Day 1 出發</span>
+                        <i class="fas fa-pencil-alt text-[10px] text-gray-400"></i>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="flex flex-col items-end gap-1">
                     <div class="bg-blue-50 border border-blue-100 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm">
                         <div id="weather-icon-container" class="text-blue-500 text-lg"><i class="fas fa-sync fa-spin"></i></div>
                         <div class="text-right leading-none">
                             <div id="weather-temp" class="text-sm font-bold text-gray-800">--°C</div>
-                            <div id="weather-desc" class="text-[10px] text-gray-500">Loading</div>
                         </div>
                     </div>
+                    <button onclick="prepareRateModal()" class="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-200">
+                        匯率: <span id="display-rate">0.22</span>
+                    </button>
                 </div>
             </div>
             
-            <div class="flex justify-between items-end mb-2 px-1">
-                <button onclick="prepareRateModal()" class="text-[10px] text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
-                    <i class="fas fa-cog mr-1"></i>匯率: <span id="display-rate">0.22</span>
-                </button>
-                <div class="text-right">
-                    <div class="text-[10px] text-gray-400 font-bold">今日概算</div>
-                    <div class="text-lg font-black text-red-600 leading-none" id="header-daily-cost">¥ 0</div>
-                </div>
+            <div class="flex justify-between items-center mb-2 px-1">
+                <div class="text-xs text-gray-400 font-bold uppercase tracking-wider">Today's Cost</div>
+                <div class="text-lg font-black text-red-600 leading-none" id="header-daily-cost">¥ 0</div>
             </div>
 
-            <div class="flex overflow-x-auto gap-4 pb-2 hide-scrollbar z-10" id="date-slider"></div>
+            <div class="flex overflow-x-auto gap-3 pb-2 hide-scrollbar z-10" id="date-slider"></div>
         </div>
 
         <div class="px-4 space-y-5"> 
@@ -74,6 +76,19 @@
                  <i class="fas fa-spinner fa-spin mr-1"></i> 資料同步中...
             </div>
             <div id="schedule-container" class="space-y-4 pb-10"></div>
+        </div>
+    </div>
+
+    <div id="map-page" class="hidden page-content px-4 h-screen flex flex-col" style="padding-top: 160px; padding-bottom: 6rem;">
+        <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
+            <span class="bg-blue-100 text-blue-600 p-2 rounded-lg text-xl"><i class="fas fa-map-marked-alt"></i></span>
+            今日路線圖
+        </h1>
+        <div class="flex-1 bg-white p-1 rounded-2xl shadow-lg border border-gray-200 relative">
+            <div id="map"></div>
+            <div class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur p-3 rounded-xl text-xs text-gray-500 shadow-md z-[1000] border border-gray-200">
+                <i class="fas fa-info-circle mr-1"></i> 地圖顯示今日行程中有填寫「地點」的項目。
+            </div>
         </div>
     </div>
 
@@ -222,7 +237,6 @@
                         <option value="TWD">TWD</option>
                     </select>
                     <input type="number" id="expense-amount" placeholder="金額" class="flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold">
-                    
                     <button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow hover:bg-yellow-600 shrink-0">
                         <i class="fas fa-plus"></i>
                     </button>
@@ -250,6 +264,10 @@
             <i class="fas fa-map-marked-alt text-xl mb-1"></i>
             <span class="text-[9px] font-bold">行程</span>
         </button>
+        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-blue-500 transition-colors">
+            <i class="fas fa-map text-xl mb-1"></i>
+            <span class="text-[9px] font-bold">地圖</span>
+        </button>
         <div id="add-schedule-btn" onclick="showModal('add-modal')" class="bg-gray-900 text-white w-14 h-14 rounded-2xl flex items-center justify-center -mt-8 shadow-lg shadow-gray-400/50 cursor-pointer active:scale-95 transition-transform border-4 border-gray-100">
             <i class="fas fa-plus text-xl"></i>
         </div>
@@ -273,8 +291,9 @@
     let firestoreScheduleListener = null;
     let firestoreChecklistListener = null;
     let firestoreTitlesListener = null;
+    let mapInstance = null;
+    let markers = [];
     
-    // 預設日期標題
     let tripDates = [
         { day: 1, label: 'Day 1 出發', week: 'WED', date: '04' },
         { day: 2, label: 'Day 2 探索', week: 'THU', date: '05' },
@@ -310,28 +329,19 @@
             const data = await res.json();
             if (data.cod === 200) {
                 const temp = Math.round(data.main.temp);
-                const icon = data.weather[0].icon;
                 document.getElementById('weather-temp').textContent = `${temp}°C`;
-                document.getElementById('weather-desc').textContent = data.weather[0].description;
-                let iconClass = 'fas fa-sun text-yellow-500';
-                if (icon.includes('09') || icon.includes('10')) iconClass = 'fas fa-umbrella text-blue-500';
-                if (icon.includes('03') || icon.includes('04')) iconClass = 'fas fa-cloud text-gray-400';
-                document.getElementById('weather-icon-container').innerHTML = `<i class="${iconClass}"></i>`;
             }
         } catch(e) {}
     }
 
-    // ★★★ 標題編輯與同步功能 ★★★
+    // 標題編輯
     function listenForDayTitles() {
         if (firestoreTitlesListener) firestoreTitlesListener();
         firestoreTitlesListener = db.collection(CONFIG_DOCUMENT_ID).doc('titles').onSnapshot(doc => {
             if (doc.exists) {
                 const data = doc.data();
-                tripDates.forEach(d => {
-                    if (data[`day${d.day}`]) d.label = data[`day${d.day}`];
-                });
+                tripDates.forEach(d => { if (data[`day${d.day}`]) d.label = data[`day${d.day}`]; });
             }
-            // 更新目前顯示的標題
             document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === currentDay).label;
         });
     }
@@ -341,19 +351,54 @@
         const newLabel = prompt("編輯今日標題:", currentLabel);
         if (newLabel && newLabel !== currentLabel) {
             try {
-                // 更新 UI
                 document.getElementById('current-day-title').textContent = newLabel;
-                // 更新 Local
                 tripDates.find(d => d.day === currentDay).label = newLabel;
-                // 更新 Firebase
                 await db.collection(CONFIG_DOCUMENT_ID).doc('titles').set({ [`day${currentDay}`]: newLabel }, { merge: true });
-            } catch (e) {
-                alert("儲存標題失敗");
-            }
+            } catch (e) { alert("儲存標題失敗"); }
         }
     }
 
-    // 核心行程
+    // 地圖功能
+    async function initMap() {
+        if (!mapInstance) {
+            mapInstance = L.map('map').setView([35.6895, 139.6917], 11); // 東京預設中心
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(mapInstance);
+        }
+        
+        // 清除舊標記
+        markers.forEach(m => mapInstance.removeLayer(m));
+        markers = [];
+
+        // 搜尋今日地點
+        const locations = currentItems.filter(i => i.location).map(i => ({ title: i.title, loc: i.location }));
+        if (locations.length === 0) return;
+
+        let bounds = L.latLngBounds();
+        
+        for (let item of locations) {
+            try {
+                // 使用 Nominatim 搜尋經緯度
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.loc)}`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    const lat = data[0].lat;
+                    const lon = data[0].lon;
+                    const marker = L.marker([lat, lon]).addTo(mapInstance)
+                        .bindPopup(`<b>${item.title}</b><br>${item.loc}`);
+                    markers.push(marker);
+                    bounds.extend([lat, lon]);
+                }
+            } catch (e) { console.error("Map Error", e); }
+            // 延遲以避免 API Rate Limit
+            await new Promise(r => setTimeout(r, 800));
+        }
+
+        if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
+    }
+
+    // 行程核心
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
         const loading = document.getElementById('loading-status');
@@ -361,7 +406,8 @@
             loading.style.opacity = '0';
             currentItems = doc.exists ? (doc.data().schedule || []) : [];
             renderSchedule();
-            calculateDailyCost(); 
+            calculateDailyCost();
+            if (!document.getElementById('map-page').classList.contains('hidden')) initMap(); // 如果在地圖頁，即時更新
         });
     }
 
@@ -373,11 +419,7 @@
         const el = document.getElementById('schedule-container');
         if (sortableInstance) sortableInstance.destroy();
         sortableInstance = new Sortable(el, {
-            animation: 200,
-            delay: 1000, 
-            delayOnTouchOnly: false, 
-            ghostClass: 'sortable-ghost',
-            dragClass: 'sortable-drag',
+            animation: 200, delay: 1000, delayOnTouchOnly: false, ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
             onEnd: function (evt) {
                 const item = currentItems[evt.oldIndex];
                 currentItems.splice(evt.oldIndex, 1);
@@ -390,10 +432,7 @@
     function renderSchedule() {
         const container = document.getElementById('schedule-container');
         container.innerHTML = ''; 
-        if (currentItems.length === 0) {
-            container.innerHTML = `<div class="text-center text-gray-300 py-10">點擊下方 + 新增行程</div>`;
-            return;
-        }
+        if (currentItems.length === 0) { container.innerHTML = `<div class="text-center text-gray-300 py-10">點擊下方 + 新增行程</div>`; return; }
         currentItems.forEach(item => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item)));
         initSortable();
     }
@@ -432,15 +471,13 @@
         document.getElementById('header-daily-cost').textContent = `¥ ${total.toLocaleString()}`;
     }
 
-    // 七日花費統計
+    // 七日花費
     async function calculateAllExpenses() {
         const container = document.getElementById('expense-full-list');
         container.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fas fa-spinner fa-spin text-2xl"></i> 計算中...</div>';
         
         let grandTotal = 0;
-        let totalBird = 0;
-        let totalPig = 0;
-        let totalShared = 0;
+        let totalBird = 0; let totalPig = 0; let totalShared = 0;
         let htmlContent = '';
 
         for (let i = 1; i <= 7; i++) {
@@ -457,6 +494,7 @@
                             const amt = parseInt(ex.amount) || 0;
                             grandTotal += amt;
                             dayTotal += amt;
+                            
                             if (ex.payer === 'bird') totalBird += amt;
                             else if (ex.payer === 'pig') totalPig += amt;
                             else totalShared += amt; 
@@ -475,14 +513,7 @@
                 });
 
                 if (dayTotal > 0) {
-                    htmlContent += `
-                        <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-gray-300 mb-3">
-                            <div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-100">
-                                <h3 class="font-bold text-gray-800">Day ${i}</h3>
-                                <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded">Total: ¥${dayTotal.toLocaleString()}</span>
-                            </div>
-                            <div>${dayHTML}</div>
-                        </div>`;
+                    htmlContent += `<div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-gray-300 mb-3"><div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-100"><h3 class="font-bold text-gray-800">Day ${i}</h3><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded">Total: ¥${dayTotal.toLocaleString()}</span></div><div>${dayHTML}</div></div>`;
                 }
             }
         }
@@ -503,7 +534,7 @@
         document.getElementById('expense-item-id').value = itemId;
         document.getElementById('expense-desc').value = '';
         document.getElementById('expense-amount').value = '';
-        document.getElementById('expense-currency').value = 'JPY'; // 重置為日幣
+        document.getElementById('expense-currency').value = 'JPY';
         renderExpenseList(item.expenses || []);
         showModal('expense-modal');
     }
@@ -513,22 +544,11 @@
         container.innerHTML = '';
         expenses.forEach((ex, idx) => {
             let payerIcon = ex.payer === 'bird' ? '🐦' : (ex.payer === 'pig' ? '🐷' : '🐷🐦');
-            const html = `
-                <div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-100">
-                    <div class="flex gap-2 items-center overflow-hidden flex-1 min-w-0">
-                        <span class="text-lg shrink-0">${payerIcon}</span>
-                        <span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span>
-                    </div>
-                    <div class="flex items-center gap-3 shrink-0 ml-2">
-                        <span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span>
-                        <button onclick="removeExpense(${idx})" class="text-red-300 hover:text-red-500"><i class="fas fa-times"></i></button>
-                    </div>
-                </div>`;
+            const html = `<div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-100"><div class="flex gap-2 items-center overflow-hidden flex-1 min-w-0"><span class="text-lg shrink-0">${payerIcon}</span><span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span></div><div class="flex items-center gap-3 shrink-0 ml-2"><span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span><button onclick="removeExpense(${idx})" class="text-red-300 hover:text-red-500"><i class="fas fa-times"></i></button></div></div>`;
             container.insertAdjacentHTML('beforeend', html);
         });
     }
 
-    // ★★★ 新增幣別處理 ★★★
     async function addExpenseToItem() {
         const itemId = document.getElementById('expense-item-id').value;
         const payer = document.getElementById('expense-payer').value;
@@ -537,15 +557,13 @@
         const currency = document.getElementById('expense-currency').value;
         
         if(isNaN(amount) || amount <= 0) return;
-        
         const idx = currentItems.findIndex(i => i.id === itemId);
         if(idx === -1) return;
         
-        // 如果是台幣，自動換算並備註
         if (currency === 'TWD') {
             const originalAmount = amount;
-            amount = Math.round(amount / exchangeRate); // 轉為日幣
-            desc += ` (TWD ${originalAmount})`; // 備註原幣金額
+            amount = Math.round(amount / exchangeRate); 
+            desc += ` (TWD ${originalAmount})`; 
         }
         
         if(!currentItems[idx].expenses) currentItems[idx].expenses = [];
@@ -554,7 +572,7 @@
         renderExpenseList(currentItems[idx].expenses);
         document.getElementById('expense-desc').value = '';
         document.getElementById('expense-amount').value = '';
-        document.getElementById('expense-currency').value = 'JPY'; // 寫完一筆重置回日幣
+        document.getElementById('expense-currency').value = 'JPY'; 
         
         await saveScheduleToFirestore(currentItems);
         renderSchedule();
@@ -642,25 +660,27 @@
     function switchDay(day) {
         if (day === currentDay) return;
         currentDay = day;
-        // 更新標題
         document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === day).label;
         renderDateSlider(); listenForScheduleUpdates(day); 
     }
 
     function switchPage(page) {
         document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
-        document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : 'schedule')}-page`).classList.remove('hidden');
+        document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`).classList.remove('hidden');
         
         document.getElementById('tab-schedule').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'schedule' ? 'text-green-600' : 'text-gray-400'}`;
         document.getElementById('tab-expense').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'expense' ? 'text-yellow-500' : 'text-gray-400'}`;
         document.getElementById('tab-checklist').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'checklist' ? 'text-purple-600' : 'text-gray-400'}`;
+        document.getElementById('tab-map').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'map' ? 'text-blue-500' : 'text-gray-400'}`;
         
         if(page === 'expense') calculateAllExpenses();
+        if(page === 'map') setTimeout(initMap, 200); // 確保地圖容器已顯示
     }
 
     function showModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
+    // Checklist
     function listenForChecklistUpdates() {
         if (firestoreChecklistListener) firestoreChecklistListener();
         firestoreChecklistListener = db.collection(CHECKLIST_COLLECTION).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
