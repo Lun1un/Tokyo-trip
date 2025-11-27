@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (最終修復版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (完美距離版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -22,10 +22,9 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
         
-        /* ------------------ 主題色定義 ------------------ */
         :root {
-            --primary-light: #E0C8FF; /* 淡紫邊框 */
-            --primary-normal: #C084FC; /* 標準紫 */
+            --primary-light: #E0C8FF; 
+            --primary-normal: #C084FC; 
             --primary-dark: #A855F7; 
             --soft-bg-color: #f8fafc; 
         }
@@ -41,21 +40,18 @@
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* Header 背景圖設定 */
+        /* Header 背景圖 */
         .fixed-header-bg {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
             background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
             background-size: cover;
             background-position: center bottom;
-            padding-top: 16px; padding-bottom: 8px; 
+            padding-top: 16px; padding-bottom: 10px; /* 稍微增加底部 padding 讓滑塊不切邊 */
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             color: white;
-            transition: all 0.3s ease;
-            height: auto; /* 確保高度自動 */
-            min-height: 200px; /* 給予最小高度 */
+            transition: height 0.3s ease;
         }
         
-        /* Header 遮罩 */
         .fixed-header-bg::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(to bottom, rgba(20, 10, 40, 0.6), rgba(20, 10, 40, 0.85));
@@ -69,17 +65,13 @@
             height: 72px; display: flex; align-items: center; justify-content: space-around; padding: 0 10px;
         }
 
-        /* ★★★ 重要修正：大幅增加頂部 Padding，避免被 Header 蓋住 ★★★ */
-        #schedule-page { padding-top: 260px; } 
+        /* ★★★ 修正這裡：預設高度縮小，JS 會自動微調 ★★★ */
+        #schedule-page { padding-top: 210px; } 
         #expense-page, #checklist-page { padding-top: 30px; } 
         #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
         
-        .soft-card-shadow {
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border-radius: 1.5rem; 
-        }
+        .soft-card-shadow { box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 1.5rem; }
 
-        /* 行程卡片樣式：強制使用淡紫色邊框 */
         .soft-card-glow {
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
             border: 2px solid var(--primary-light); 
@@ -148,7 +140,7 @@
                 </div>
             </div>
 
-            <div class="flex overflow-x-auto gap-3 py-1 pb-2 hide-scrollbar z-10 relative" id="date-slider"></div>
+            <div class="flex overflow-x-auto gap-3 py-1 pb-1 hide-scrollbar z-10 relative" id="date-slider"></div>
         </div>
 
         <div class="px-4 space-y-5"> 
@@ -485,7 +477,6 @@
         const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
         let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 mt-1 font-bold hover:text-[var(--primary-normal)] hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
-        // ★★★ 確保卡片邊框為淡紫色，而非藍色 ★★★
         const glowStyle = `
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             border: 2px solid var(--primary-light);
@@ -561,7 +552,7 @@
         slider.innerHTML = '';
         tripDates.forEach(d => {
             const active = d.day === currentDay;
-            // ★★★ 修正日期滑塊樣式：未選中為半透明白 ★★★
+            // ★★★ 修正這裡：未選中狀態改為明顯的半透明黑/白，選中時維持紫色 ★★★
             const activeClass = active 
                 ? 'bg-[var(--primary-normal)] text-white shadow-lg shadow-purple-500/30 scale-105 border border-transparent' 
                 : 'bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/30';
@@ -640,12 +631,13 @@
     async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
     async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
 
+    // ★★★ 修正關鍵：自動計算 Header 高度，讓內容剛好接在下面 ★★★
     function adjustContentPadding() {
         const h = document.getElementById('main-header');
         const p = document.getElementById('schedule-page');
         if(h && p) {
-            // 強制設定一個足夠大的 padding，確保內容不被遮擋
-            p.style.paddingTop = Math.max(h.offsetHeight + 10, 260) + 'px';
+            // 自動偵測高度，並加上 5px 緩衝
+            p.style.paddingTop = (h.offsetHeight + 5) + 'px';
         }
         document.querySelectorAll('.page-content').forEach(page => page.style.paddingBottom = '90px');
     }
