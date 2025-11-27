@@ -84,7 +84,7 @@
         #expense-page, #checklist-page { padding-top: 30px; } 
         #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
         
-        .soft-card-shadow { box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 1.5rem; }
+        .soft-card-shadow { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border-radius: 1.5rem; }
 
         .soft-card-glow {
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
@@ -117,6 +117,12 @@
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
+        }
+        
+        /* ★★★ 修正：地圖縮放按鈕被今日路線遮蔽的問題 ★★★ */
+        /* 將 Leaflet 的左上角控制項往下推，確保在固定標頭下方 */
+        #map-page .leaflet-control-container .leaflet-top.leaflet-left {
+            margin-top: 80px !important; 
         }
     </style>
 </head>
