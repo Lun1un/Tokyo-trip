@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (完美間距版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (極限間距版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -31,10 +31,9 @@
         /* 通用設定 */
         .page-content { padding-bottom: 7rem; min-height: 100vh; }
 
-        /* ★★★ 針對不同頁面設定不同的頂部間距 ★★★ */
-        #schedule-page { padding-top: 190px; } /* 行程頁：預設高度，JS會再微調 */
-        #expense-page, #checklist-page { padding-top: 80px; } /* 清單/花費頁：固定較小的高度 */
-        #map-page { padding-top: 20px; } /* 地圖頁：極限高度 */
+        /* ★★★ 針對不同頁面設定不同的頂部間距 (已依需求縮小) ★★★ */
+        #schedule-page { padding-top: 160px; } /* 行程頁：再縮小一點 */
+        #expense-page, #checklist-page, #map-page { padding-top: 20px; } /* 其他頁面：全部縮小到 20px */
         
         .sortable-ghost { opacity: 0.3; background-color: #f3f4f6; border: 2px dashed #cbd5e1; }
         .sortable-drag { background-color: white; transform: scale(1.05) rotate(1deg); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1rem; cursor: grabbing; }
@@ -679,7 +678,7 @@
         if(page === 'expense') calculateAllExpenses();
         if(page === 'map') setTimeout(initMap, 200);
         
-        // ★★★ 切換頁面時也重新調整高度 ★★★
+        // ★★★ 切換頁面時觸發調整 ★★★
         setTimeout(adjustContentPadding, 50);
     }
 
@@ -709,13 +708,12 @@
     async function saveExchangeRate() { const r = parseFloat(document.getElementById('exchange-rate-input').value); if(r) { exchangeRate = r; document.getElementById('display-rate').textContent = r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val: r}); closeModal('rate-modal'); } }
     function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
 
-    // ★★★ 自動調整高度函式 ★★★
+    // ★★★ 自動調整高度 ★★★
     function adjustContentPadding() {
         const header = document.querySelector('.fixed-header');
         const schedulePage = document.getElementById('schedule-page');
         if (header && schedulePage) {
             const height = header.offsetHeight;
-            // 只調整行程頁，其他頁面保持固定高度
             schedulePage.style.paddingTop = (height + 10) + 'px';
         }
     }
@@ -730,7 +728,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
         
-        // 啟動自動調整
         setTimeout(adjustContentPadding, 100);
         window.addEventListener('resize', adjustContentPadding);
     });
