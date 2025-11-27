@@ -34,7 +34,8 @@
         /* ★★★ 初始高度設定，JS會再微調貼齊 ★★★ */
         #schedule-page { padding-top: 180px; } 
         #expense-page, #checklist-page { padding-top: 20px; } 
-        #map-page { padding-top: 20px; padding-bottom: 100px !important; }
+        /* ★★★ 修正地圖高度: 移除底部 padding ★★★ */
+        #map-page { padding-top: 20px; padding-bottom: 0 !important; } 
         
         .sortable-ghost { opacity: 0.3; background-color: #f3f4f6; border: 2px dashed #cbd5e1; }
         .sortable-drag { background-color: white; transform: scale(1.05) rotate(1deg); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1rem; cursor: grabbing; }
@@ -51,8 +52,8 @@
         <div class="fixed-header bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 shadow-sm">
             <div class="flex justify-between items-start mb-3">
                 <div class="flex-1">
-                    <h1 class="text-2xl font-black text-gray-900 tracking-tight mb-1">東京遛豬之旅 🐷</h1>
-                    <div class="text-3xl font-black text-gray-900 cursor-pointer hover:text-gray-600 transition-colors flex items-center gap-2" onclick="editDayTitle()">
+                    <h1 class="text-3xl font-black text-gray-900 tracking-tight mb-1">東京遛豬之旅 🐷</h1>
+                    <div class="text-2xl font-black text-gray-900 cursor-pointer hover:text-gray-600 transition-colors flex items-center gap-2" onclick="editDayTitle()">
                         <span id="current-day-title">Day 1</span>
                         <i class="fas fa-pen text-xs text-gray-300 align-top"></i>
                     </div>
@@ -95,7 +96,7 @@
             <span class="text-blue-600"><i class="fas fa-map-marked-alt"></i></span>
             今日路線圖
         </h1>
-        <div class="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 relative overflow-hidden mb-24">
+        <div class="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 relative overflow-hidden mb-0">
             <div id="map" class="h-full w-full z-0"></div>
         </div>
     </div>
@@ -397,7 +398,10 @@
         markers = [];
 
         const locations = currentItems.filter(i => i.location).map(i => ({ title: i.title, loc: i.location }));
-        if (locations.length === 0) return;
+        if (locations.length === 0) { 
+            mapInstance.setView([35.6895, 139.6917], 11); // 重置到東京
+            return; 
+        }
 
         let bounds = L.latLngBounds();
         
