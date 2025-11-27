@@ -309,7 +309,7 @@
 
 <script>
     // =======================================================
-    // 全域變數 & 配置 (Firebase Version)
+    // 全域變數 & 配置
     // =======================================================
     let currentDay = 1; 
     let currentItems = []; 
@@ -450,7 +450,7 @@
     }
 
     // =======================================================
-    // 匯率與記帳 (Online + Optimistic UI)
+    // 匯率與記帳 (核心修復版)
     // =======================================================
     async function loadExchangeRate() {
         try {
@@ -535,14 +535,16 @@
         document.getElementById('total-twd').textContent = `≈ NT$ ${Math.round(totalTWD).toLocaleString('en-US')}`;
     }
 
-    // 記帳列表渲染 (含防呆：新資料強制置頂)
+    // ★★★ 防彈版列表渲染 (修復列表空白問題) ★★★
     function renderBudgetList() {
         const listContainer = document.getElementById('budget-list');
-        listContainer.innerHTML = '';
+        listContainer.innerHTML = ''; // 清空列表
         document.getElementById('budget-loading').style.display = 'none';
 
+        // 1. 找出當天的資料
         const currentDayItems = allBudgetItems.filter(item => item.day == currentDay); 
         
+        // 2. 如果沒資料，顯示提示
         if (currentDayItems.length === 0) {
             listContainer.innerHTML = `
                 <div class="text-center text-gray-400 py-10 opacity-60">
@@ -552,51 +554,71 @@
             return;
         }
 
-        // 排序：確保剛新增的資料(時間為null或0) 排在最上面
+        // 3. 排序 (防止時間格式錯誤導致排序失敗)
         const sortedItems = [...currentDayItems].sort((a, b) => {
-            const timeA = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : Number.MAX_SAFE_INTEGER;
-            const timeB = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : Number.MAX_SAFE_INTEGER;
+            // 嘗試取得時間秒數，失敗就當作 0
+            const timeA = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : (new Date(a.timestamp).getTime() / 1000 || 0);
+            const timeB = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : (new Date(b.timestamp).getTime() / 1000 || 0);
             return timeB - timeA;
         });
 
+        // 4. 產生 HTML (加入 Try-Catch 防止單一資料錯誤卡死整個頁面)
+        let htmlBuffer = '';
         sortedItems.forEach(item => {
-            const vibe = getCategoryVibe(item.category);
-            
-            let timeStr = '剛剛';
-            if (item.timestamp && item.timestamp.toDate) {
-                const date = item.timestamp.toDate();
-                timeStr = date.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
+            try {
+                // 取得分類樣式 (如果分類遺失，預設給 OTHER)
+                const vibe = getCategoryVibe(item.category || 'OTHER');
+                
+                // 處理時間顯示 (相容多種時間格式)
+                let timeStr = '剛剛';
+                try {
+                    if (item.timestamp && typeof item.timestamp.toDate === 'function') {
+                        // 這是 Firebase 格式
+                        timeStr = item.timestamp.toDate().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
+                    } else if (item.timestamp) {
+                        // 這是普通字串或數字格式
+                        timeStr = new Date(item.timestamp).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
+                    }
+                } catch (err) {
+                    timeStr = '--:--'; // 時間解析失敗時顯示
+                }
+
+                // 計算台幣
+                const amount = item.amount || 0;
+                const twdAmount = Math.round(amount * exchangeRate);
+
+                // 產生卡片 HTML (直接寫入樣式)
+                htmlBuffer += `
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden relative group mb-3" style="border-left: 4px solid ${vibe.hex || '#9ca3af'};">
+                        <div class="p-3 flex items-center justify-between gap-3">
+                            <div class="flex flex-col items-center justify-center w-10 min-w-[2.5rem]">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1" style="background-color: ${vibe.bgHex || '#f3f4f6'}; color: ${vibe.hex || '#6b7280'};">
+                                    <i class="${vibe.icon || 'fas fa-star'} text-sm"></i>
+                                </div>
+                                <span class="text-[9px] font-bold text-gray-400">${timeStr}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-bold text-gray-800 text-base truncate leading-snug">${item.description || '無名稱'}</h4>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">${vibe.label || '其他'}</span>
+                                </div>
+                            </div>
+                            <div class="text-right pl-2 shrink-0">
+                                <div class="font-black text-gray-800 text-lg leading-none">¥${amount.toLocaleString()}</div>
+                                <div class="text-xs text-gray-400 font-medium mt-1">≈ $${twdAmount.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <button onclick="deleteBudgetItem('${item.id}')" class="absolute top-0 right-0 p-2 text-gray-300 hover:text-red-500 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>`;
+            } catch (e) {
+                console.error("Skip bad item", e);
             }
-
-            const twdAmount = Math.round(item.amount * exchangeRate);
-
-            // 直接用 style 設定顏色
-            const itemHTML = `
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden relative group" style="border-left: 4px solid ${vibe.hex || '#gray'};">
-                    <div class="p-3 flex items-center justify-between gap-3">
-                        <div class="flex flex-col items-center justify-center w-10 min-w-[2.5rem]">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1" style="background-color: ${vibe.bgHex}; color: ${vibe.hex};">
-                                <i class="${vibe.icon} text-sm"></i>
-                            </div>
-                            <span class="text-[9px] font-bold text-gray-400">${timeStr}</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-gray-800 text-base truncate leading-snug">${item.description}</h4>
-                            <div class="flex items-center gap-2 mt-0.5">
-                                <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">${vibe.label}</span>
-                            </div>
-                        </div>
-                        <div class="text-right pl-2 shrink-0">
-                            <div class="font-black text-gray-800 text-lg leading-none">¥${item.amount.toLocaleString()}</div>
-                            <div class="text-xs text-gray-400 font-medium mt-1">≈ $${twdAmount.toLocaleString()}</div>
-                        </div>
-                    </div>
-                    <button onclick="deleteBudgetItem('${item.id}')" class="absolute top-0 right-0 p-2 text-gray-300 hover:text-red-500 transition-colors">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>`;
-            listContainer.insertAdjacentHTML('beforeend', itemHTML);
         });
+        
+        // 一次寫入 DOM
+        listContainer.innerHTML = htmlBuffer;
     }
     
     function getCategoryVibe(category) {
