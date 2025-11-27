@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (純淨淡紫版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (東京夜景版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -42,12 +42,29 @@
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        .fixed-header { 
+        /* ★★★ 修改 Header 樣式，加入背景圖和遮罩 ★★★ */
+        .fixed-header-bg {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
-            background-color: var(--soft-bg-color); 
+            /* 使用東京照片 (Unsplash Source) */
+            background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center center;
             padding-top: 16px; padding-bottom: 4px; 
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); 
-        } 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            color: white; /* 將 Header 內預設文字改為白色 */
+        }
+        
+        /* 加入一層半透明深紫色遮罩，確保文字清晰度 */
+        .fixed-header-bg::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            /* 深紫色到黑色的漸層遮罩 */
+            background: linear-gradient(to bottom, rgba(46, 16, 101, 0.7), rgba(20, 20, 20, 0.85));
+            z-index: -1; /* 放在內容後方 */
+            backdrop-filter: blur(2px); /* 輕微模糊背景增加質感 */
+        }
+
         
         /* 底部導覽列 */
         .fixed-footer { 
@@ -66,7 +83,7 @@
             padding: 0 10px;
         }
 
-        #schedule-page { padding-top: 180px; } 
+        #schedule-page { padding-top: 190px; /* 稍微增加一點 padding 以適應新的 Header 高度感 */ } 
         #expense-page, #checklist-page { padding-top: 20px; } 
         #map-page { padding-top: 20px; padding-bottom: 7.5rem !important; } 
         
@@ -146,43 +163,51 @@
             transform: scale(1.2);
             background-color: var(--primary-dark);
         }
+
+        /* ★★★ 新增：針對 Header 內部的半透明卡片樣式 ★★★ */
+        .header-glass-card {
+            background-color: rgba(255, 255, 255, 0.15); /* 半透明白色 */
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
     </style>
 </head>
 <body class="text-gray-800">
 
     <div id="schedule-page" class="page-content">
-        <div class="fixed-header px-4">
-            <div class="flex justify-between items-start mb-3">
+        <div class="fixed-header-bg px-4">
+            <div class="flex justify-between items-start mb-3 relative z-10">
                 <div class="flex-1">
-                    <h1 class="text-3xl font-black text-gray-900 tracking-tighter mb-1">東京遛豬之旅 🐷</h1>
-                    <div class="text-2xl font-bold text-gray-700 cursor-pointer hover:text-gray-500 transition-colors flex items-center gap-2" onclick="editDayTitle()">
+                    <h1 class="text-3xl font-black text-white tracking-tighter mb-1 drop-shadow-md">東京遛豬之旅 🐷</h1>
+                    <div class="text-2xl font-bold text-gray-200 cursor-pointer hover:text-white transition-colors flex items-center gap-2" onclick="editDayTitle()">
                         <span id="current-day-title">Day 1</span>
                         <i class="fas fa-pen text-xs text-gray-300 align-top"></i>
                     </div>
                 </div>
                 
                 <div class="flex flex-col items-end gap-1 mt-1">
-                    <div id="weather-card" class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl shadow-md border border-gray-200 soft-card-shadow">
-                        <div id="weather-icon-container" class="text-3xl text-gray-400"><i class="fas fa-sync fa-spin"></i></div>
+                    <div id="weather-card" class="flex items-center gap-2 px-3 py-1.5 rounded-xl shadow-md header-glass-card">
+                        <div id="weather-icon-container" class="text-3xl text-white/80"><i class="fas fa-sync fa-spin"></i></div>
                         <div class="text-right leading-none">
-                            <div id="weather-temp" class="text-2xl font-black text-gray-800">--°C</div>
-                            <div id="weather-desc" class="text-[10px] text-gray-500 font-bold uppercase mt-1">Loading</div>
+                            <div id="weather-temp" class="text-2xl font-black text-white">--°C</div>
+                            <div id="weather-desc" class="text-[10px] text-gray-300 font-bold uppercase mt-1">Loading</div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="flex justify-between items-center mb-2 px-1">
-                <button onclick="prepareRateModal()" class="text-[10px] text-gray-500 bg-gray-100 px-2 py-1 rounded-lg border border-gray-200 hover:bg-gray-200 transition font-bold active:scale-95">
-                    匯率: <span id="display-rate" class="text-gray-700">0.22</span>
+            <div class="flex justify-between items-center mb-2 px-1 relative z-10">
+                <button onclick="prepareRateModal()" class="text-[10px] text-white px-3 py-1.5 rounded-lg transition font-bold active:scale-95 header-glass-card hover:bg-white/20">
+                    匯率: <span id="display-rate" class="text-white">0.22</span>
                 </button>
                 <div class="flex items-baseline gap-1">
-                    <span class="text-xs text-gray-500 font-bold uppercase">今日花費:</span>
-                    <span class="text-xl font-extrabold text-red-600 leading-none" id="header-daily-cost">¥ 0</span>
+                    <span class="text-xs text-gray-300 font-bold uppercase">今日花費:</span>
+                    <span class="text-xl font-extrabold text-red-400 leading-none drop-shadow-sm" id="header-daily-cost">¥ 0</span>
                 </div>
             </div>
 
-            <div class="flex overflow-x-auto gap-3 py-1 pb-2 hide-scrollbar z-10" id="date-slider"></div>
+            <div class="flex overflow-x-auto gap-3 py-1 pb-2 hide-scrollbar z-10 relative" id="date-slider"></div>
         </div>
 
         <div class="px-4 space-y-5"> 
@@ -451,17 +476,18 @@
                 document.getElementById('weather-desc').textContent = desc;
                 
                 let iconClass = 'fas fa-sun'; 
-                let iconColor = 'text-gray-400';
-                if (icon.includes('01')) { iconClass = 'fas fa-sun'; iconColor = 'text-yellow-500'; }
-                else if (icon.includes('02')) { iconClass = 'fas fa-cloud-sun'; iconColor = 'text-yellow-400'; }
-                else if (icon.includes('03') || icon.includes('04')) { iconClass = 'fas fa-cloud'; iconColor = 'text-gray-400'; }
-                else if (icon.includes('09') || icon.includes('10')) { iconClass = 'fas fa-cloud-showers-heavy'; iconColor = 'text-blue-500'; }
-                else if (icon.includes('13')) { iconClass = 'fas fa-snowflake'; iconColor = 'text-blue-300'; }
-                else if (icon.includes('50')) { iconClass = 'fas fa-smog'; iconColor = 'text-gray-300'; }
+                let iconColor = 'text-white'; // ★★★ 修改：圖標顏色改為白色
+                if (icon.includes('01')) { iconClass = 'fas fa-sun'; }
+                else if (icon.includes('02')) { iconClass = 'fas fa-cloud-sun'; }
+                else if (icon.includes('03') || icon.includes('04')) { iconClass = 'fas fa-cloud'; iconColor = 'text-gray-200'; }
+                else if (icon.includes('09') || icon.includes('10')) { iconClass = 'fas fa-cloud-showers-heavy'; }
+                else if (icon.includes('13')) { iconClass = 'fas fa-snowflake'; }
+                else if (icon.includes('50')) { iconClass = 'fas fa-smog'; iconColor = 'text-gray-200'; }
 
                 document.getElementById('weather-icon-container').innerHTML = `<i class="${iconClass} ${iconColor}"></i>`;
                 
-                document.getElementById('weather-card').style.background = 'white';
+                // 移除原有的白色背景設定，改用 CSS class 控制
+                // document.getElementById('weather-card').style.background = 'white';
             }
         } catch(e) { 
             document.getElementById('weather-desc').textContent = "N/A";
@@ -601,9 +627,6 @@
                <div class="timeline-line bg-gray-200 h-full mt-1 min-h-[2rem]"></div>`;
 
         const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
-        // ★★★ 修改這裡：連結顏色改為灰色 hover 變主題色，去除藍色 ★★★
-        let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 mt-1 font-bold hover:text-[var(--primary-normal)] hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
-
         // ★★★ 修改這裡：移除 inset 陰影，去除卡片內部的彩色光暈 ★★★
         const glowStyle = `
             box-shadow: 
