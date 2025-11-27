@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (未來主義精修版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (丁香紫流體版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -56,7 +56,7 @@
         #expense-page, #checklist-page { padding-top: 20px; } 
         #map-page { padding-top: 20px; padding-bottom: 7rem !important; } 
         
-        /* ★★★ 方案六: Soft Card Shadow - 保持溫潤感 ★★★ */
+        /* Soft Card Shadow - 保持溫潤感 */
         .soft-card-shadow {
             box-shadow: 
                 6px 6px 12px rgba(174, 174, 192, 0.4), /* 深色 (右下) */
@@ -64,7 +64,7 @@
             border-radius: 1.5rem; 
         }
 
-        /* ★★★ 方案六: 卡片邊緣光暈 - 使用內陰影模擬分類色光暈 ★★★ */
+        /* 卡片邊緣光暈 - 使用內陰影模擬分類色光暈 */
         .soft-card-glow {
             /* 基礎 Soft Shadow */
             box-shadow: 
@@ -82,32 +82,33 @@
         .sortable-drag { background-color: white; transform: scale(1.03); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1.5rem; cursor: grabbing; }
         
         .check-item.completed .check-text { text-decoration: line-through; color: #9ca3af; }
-        .check-item.completed .check-circle { background-color: #06b6d4; border-color: #06b6d4; color: white; } /* 使用主色 */
+        /* 清單完成色：丁香紫 */
+        .check-item.completed .check-circle { background-color: #c084fc; border-color: #c084fc; color: white; } 
 
         #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
         .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
 
-        /* 輸入框和按鈕聚焦 - 使用電光藍 */
+        /* 輸入框和按鈕聚焦 - 使用丁香紫 */
         .input-focus {
             transition: box-shadow 0.2s, border-color 0.2s;
         }
         .input-focus:focus {
-            border-color: #00BFFF; /* 電光藍 */
-            box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.3);
+            border-color: #c084fc; /* 丁香紫 */
+            box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.3);
         }
 
-        /* ★★★ 方案六: 核心按鈕電光藍發光效果 ★★★ */
+        /* 核心按鈕發光效果 - 使用丁香紫 */
         .glow-btn {
-            background-color: #00BFFF; /* 電光藍 */
-            box-shadow: 0 0 15px rgba(0, 191, 255, 0.7); /* 電光陰影 */
+            background-color: #c084fc; /* 丁香紫 */
+            box-shadow: 0 0 15px rgba(192, 132, 252, 0.7); /* 丁香紫光陰影 */
             transition: background-color 0.2s, box-shadow 0.3s, transform 0.1s;
         }
         .glow-btn:hover {
-            background-color: #00A3E0;
-            box-shadow: 0 0 20px rgba(0, 191, 255, 0.9);
+            background-color: #a855f7; /* 更深一點的紫 */
+            box-shadow: 0 0 20px rgba(192, 132, 252, 0.9);
         }
 
-        /* ★★★ 方案六: 時間軸連線脈衝 (僅示意，需要 JS 配合) ★★★ */
+        /* 時間軸連線 */
         .timeline-line {
             background-color: #cbd5e1; /* 基礎灰色 */
             width: 2px;
@@ -115,13 +116,26 @@
             transition: background-color 0.3s;
         }
         .timeline-line.current-progress {
-            background-color: #06b6d4; /* 主色 */
-            /* animation: pulse-glow 1s infinite alternate; */
+            background-color: #c084fc; /* 主色 */
         }
-        
-        @keyframes pulse-glow {
-            from { box-shadow: 0 0 0px #06b6d4; }
-            to { box-shadow: 0 0 8px #06b6d4; }
+
+        /* 地圖 Marker 自定義樣式 */
+        .map-icon {
+            background-color: #c084fc; /* 丁香紫 */
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            line-height: 28px;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            border: 3px solid white;
+            transition: transform 0.2s;
+        }
+        .map-icon:hover {
+            transform: scale(1.2);
+            background-color: #a855f7;
         }
     </style>
 </head>
@@ -139,11 +153,11 @@
                 </div>
                 
                 <div class="flex flex-col items-end gap-1 mt-1">
-                    <div id="weather-card" class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl shadow-md border border-gray-200">
-                        <div id="weather-icon-container" class="text-2xl text-blue-500"><i class="fas fa-sync fa-spin"></i></div>
+                    <div id="weather-card" class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl shadow-md border border-gray-200 soft-card-shadow">
+                        <div id="weather-icon-container" class="text-3xl text-gray-400"><i class="fas fa-sync fa-spin"></i></div>
                         <div class="text-right leading-none">
-                            <div id="weather-temp" class="text-base font-black text-gray-800">--°C</div>
-                            <div id="weather-desc" class="text-[10px] text-gray-500 font-bold">Loading</div>
+                            <div id="weather-temp" class="text-2xl font-black text-gray-800">--°C</div>
+                            <div id="weather-desc" class="text-[10px] text-gray-500 font-bold uppercase mt-1">Loading</div>
                         </div>
                     </div>
                 </div>
@@ -174,7 +188,7 @@
         <div class="flex-1 bg-white rounded-3xl soft-card-shadow relative overflow-hidden">
              <div class="absolute top-0 left-0 right-0 z-10 p-4 bg-white/70 backdrop-blur-md rounded-t-3xl border-b border-gray-100">
                 <h1 class="text-2xl font-black flex items-center gap-2 text-gray-800">
-                    <span class="text-[#00BFFF]"><i class="fas fa-map-marked-alt"></i></span>
+                    <span class="text-[#c084fc]"><i class="fas fa-map-marked-alt"></i></span>
                     今日路線圖
                 </h1>
             </div>
@@ -189,14 +203,14 @@
         </h1>
         
         <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-[#00BFFF]/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+            <div class="absolute top-0 right-0 w-32 h-32 bg-[#c084fc]/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
             <div class="flex justify-between items-start relative z-10">
                 <div>
                     <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Total Trip Cost</p>
                     <div class="text-4xl font-extrabold mt-1" id="total-trip-jpy">¥ 0</div>
-                    <div class="text-sm text-[#00BFFF] mt-1" id="total-trip-twd">≈ NT$ 0</div>
+                    <div class="text-sm text-[#c084fc] mt-1" id="total-trip-twd">≈ NT$ 0</div>
                 </div>
-                <button onclick="calculateAllExpenses()" class="text-gray-400 hover:text-[#00BFFF] active:scale-95"><i class="fas fa-sync-alt"></i></button>
+                <button onclick="calculateAllExpenses()" class="text-gray-400 hover:text-[#c084fc] active:scale-95"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
 
@@ -205,19 +219,16 @@
                 <div class="text-2xl mb-1">🐦</div>
                 <div class="text-xs text-gray-400 font-bold">Dove</div>
                 <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-bird">¥0</div>
-                <div id="progress-bird" class="relative pt-1 mt-2"></div>
             </div>
             <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-pink-400">
                 <div class="text-2xl mb-1">🐷</div>
                 <div class="text-xs text-gray-400 font-bold">Pig</div>
                 <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-pig">¥0</div>
-                <div id="progress-pig" class="relative pt-1 mt-2"></div>
             </div>
             <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-yellow-400">
                 <div class="text-2xl mb-1">🐷🐦</div>
                 <div class="text-xs text-gray-400 font-bold">Shared</div>
                 <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-shared">¥0</div>
-                <div id="progress-shared" class="relative pt-1 mt-2"></div>
             </div>
         </div>
 
@@ -234,7 +245,7 @@
         </h1>
         <div class="flex gap-3 mb-6 w-full">
             <input type="text" id="checklist-input" placeholder="新增項目..." class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-gray-50 focus:outline-none">
-            <button onclick="addChecklistItem()" class="bg-[#00BFFF] text-white px-4 rounded-xl font-bold shadow-xl shadow-[#00BFFF]/50 hover:bg-[#00A3E0] active:scale-90 transition shrink-0"><i class="fas fa-plus"></i></button>
+            <button onclick="addChecklistItem()" class="bg-[#c084fc] text-white px-4 rounded-xl font-bold shadow-xl shadow-[#c084fc]/50 hover:bg-[#a855f7] active:scale-90 transition shrink-0"><i class="fas fa-plus"></i></button>
         </div>
         <div id="checklist-container" class="space-y-3 pb-20"></div>
     </div>
@@ -354,11 +365,11 @@
 
 
     <div class="fixed-footer text-gray-400">
-        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[#00BFFF] transition-colors active:scale-90">
+        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[#c084fc] transition-colors active:scale-90">
             <i class="fas fa-map-marked-alt text-xl mb-1"></i>
             <span class="text-[9px] font-bold">行程</span>
         </button>
-        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[#00BFFF] transition-colors active:scale-90">
+        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[#c084fc] transition-colors active:scale-90">
             <i class="fas fa-map text-xl mb-1"></i>
             <span class="text-[9px] font-bold">地圖</span>
         </button>
@@ -430,25 +441,18 @@
                 document.getElementById('weather-desc').textContent = desc;
                 
                 let iconClass = 'fas fa-sun'; 
-                if (icon.includes('01')) iconClass = 'fas fa-sun text-yellow-500';
-                else if (icon.includes('02')) iconClass = 'fas fa-cloud-sun text-yellow-400';
-                else if (icon.includes('03') || icon.includes('04')) iconClass = 'fas fa-cloud text-gray-400';
-                else if (icon.includes('09') || icon.includes('10')) iconClass = 'fas fa-umbrella text-blue-500';
-                else if (icon.includes('13')) iconClass = 'fas fa-snowflake text-blue-300';
-                else if (icon.includes('50')) iconClass = 'fas fa-smog text-gray-300';
+                let iconColor = 'text-gray-400';
+                if (icon.includes('01')) { iconClass = 'fas fa-sun'; iconColor = 'text-yellow-500'; }
+                else if (icon.includes('02')) { iconClass = 'fas fa-cloud-sun'; iconColor = 'text-yellow-400'; }
+                else if (icon.includes('03') || icon.includes('04')) { iconClass = 'fas fa-cloud'; iconColor = 'text-gray-400'; }
+                else if (icon.includes('09') || icon.includes('10')) { iconClass = 'fas fa-cloud-showers-heavy'; iconColor = 'text-blue-500'; }
+                else if (icon.includes('13')) { iconClass = 'fas fa-snowflake'; iconColor = 'text-blue-300'; }
+                else if (icon.includes('50')) { iconClass = 'fas fa-smog'; iconColor = 'text-gray-300'; }
 
-                document.getElementById('weather-icon-container').innerHTML = `<i class="${iconClass}"></i>`;
+                document.getElementById('weather-icon-container').innerHTML = `<i class="${iconClass} ${iconColor}"></i>`;
                 
-                // ★★★ 方案六: 根據溫度調整卡片漸變色 ★★★
-                const weatherCard = document.getElementById('weather-card');
-                if (temp >= 25) {
-                    weatherCard.style.background = 'linear-gradient(to right, #fef2f2, #fff7ed)'; // 暖色系
-                } else if (temp <= 10) {
-                    weatherCard.style.background = 'linear-gradient(to right, #eff6ff, #f0f9ff)'; // 冷色系
-                } else {
-                    weatherCard.style.background = 'white';
-                }
-
+                // 方案七: 移除複雜漸變色，保持卡片簡潔白底
+                document.getElementById('weather-card').style.background = 'white';
             }
         } catch(e) { 
             document.getElementById('weather-desc').textContent = "N/A";
@@ -464,7 +468,7 @@
                 tripDates.forEach(d => { if (data[`day${d.day}`]) d.label = data[`day${d.day}`]; });
             }
             document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === currentDay).label;
-            renderDateSlider(); // 確保標題更新後日期滑塊也更新
+            renderDateSlider();
         });
     }
 
@@ -481,6 +485,7 @@
     }
 
     // 地圖
+    // 方案七: 使用自定義 Icon 讓標點視覺化
     async function initMap() {
         if (!mapInstance) {
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
@@ -494,7 +499,7 @@
         markers.forEach(m => mapInstance.removeLayer(m));
         markers = [];
 
-        const locations = currentItems.filter(i => i.location).map(i => ({ title: i.title, loc: i.location }));
+        const locations = currentItems.filter(i => i.location);
         if (locations.length === 0) { 
             mapInstance.setView([35.6895, 139.6917], 11); 
             return; 
@@ -502,20 +507,33 @@
 
         let bounds = L.latLngBounds();
         
-        for (let item of locations) {
+        for (let index = 0; index < locations.length; index++) {
+            const item = locations[index];
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.loc)}`);
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.location)}`);
                 const data = await res.json();
                 if (data && data.length > 0) {
                     const lat = data[0].lat;
                     const lon = data[0].lon;
-                    const marker = L.marker([lat, lon]).addTo(mapInstance)
-                        .bindPopup(`<b>${item.title}</b><br>${item.loc}`);
+                    
+                    const itemNumber = index + 1;
+                    
+                    // 自定義 Icon
+                    const customIcon = L.divIcon({
+                        className: 'map-icon',
+                        html: itemNumber.toString(),
+                        iconSize: [28, 28],
+                        iconAnchor: [14, 14]
+                    });
+
+                    const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance)
+                        .bindPopup(`<b>${itemNumber}. ${item.title}</b><br>${item.location}<br><span class="text-gray-500">${item.startTime}</span>`);
+                        
                     markers.push(marker);
                     bounds.extend([lat, lon]);
                 }
             } catch (e) { console.error("Map Error", e); }
-            await new Promise(r => setTimeout(r, 800));
+            await new Promise(r => setTimeout(r, 800)); // 避免快速查詢被 OSM 阻擋
         }
 
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
@@ -568,7 +586,6 @@
         
         const hasEnd = !!item.endTime;
         
-        // ★★★ 方案六: 時間軸連線 (可以配合 CSS .timeline-line.current-progress)
         const timeHTML = hasEnd 
             ? `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
                <div class="timeline-line bg-gray-300 flex-1 my-0.5 opacity-50"></div>
@@ -579,7 +596,7 @@
         const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
         let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-blue-500 mt-1 font-bold hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
-        // ★★★ 方案六: Soft Card Glow - 邊緣光暈注入 ★★★
+        // Soft Card Glow - 邊緣光暈注入
         const glowStyle = `box-shadow: 
             6px 6px 12px rgba(174, 174, 192, 0.4), 
             -6px -6px 12px rgba(255, 255, 255, 0.9),
@@ -599,7 +616,7 @@
                         </div>
                         <div class="flex gap-1">
                             <button class="expense-btn w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center hover:bg-yellow-200 transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-coins"></i></button>
-                            <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-[#00BFFF]/10 hover:text-[#00BFFF] transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
+                            <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-[#c084fc]/10 hover:text-[#c084fc] transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
                         </div>
                     </div>
                     <p class="text-sm text-gray-500 mt-2 leading-relaxed">${item.content || ''}</p>
@@ -608,8 +625,6 @@
             </div>`;
     }
     
-    // 以下函數（計算花費、記帳、清單、匯率等）邏輯與方案五相同，已省略註解以節省篇幅。
-
     function calculateDailyCost() {
         let total = 0;
         currentItems.forEach(item => { if(item.expenses) total += item.expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0); });
@@ -657,7 +672,6 @@
                 });
 
                 if (dayTotal > 0) {
-                    // 卡片使用 Soft Card Shadow
                     htmlContent += `<div class="bg-white rounded-xl p-4 soft-card-shadow border-t-4 border-gray-300 mb-4"><div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-200"><h3 class="font-bold text-lg text-gray-800">Day ${i}</h3><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-lg">Total: ¥${dayTotal.toLocaleString()}</span></div><div>${dayHTML}</div></div>`;
                 }
             }
@@ -670,32 +684,11 @@
         document.getElementById('total-shared').textContent = `¥ ${totalShared.toLocaleString()}`;
         container.innerHTML = htmlContent || '<div class="text-center text-gray-400 py-10">目前沒有任何消費記錄</div>';
         
-        renderProgressBars(grandTotal, totalBird, totalPig, totalShared);
-    }
-    
-    function renderProgressBars(grandTotal, totalBird, totalPig, totalShared) {
-        if (grandTotal === 0) {
-            document.getElementById('progress-bird').innerHTML = '';
-            document.getElementById('progress-pig').innerHTML = '';
-            document.getElementById('progress-shared').innerHTML = '';
-            return;
-        }
-
-        const birdWidth = ((totalBird / grandTotal) * 100).toFixed(1);
-        const pigWidth = ((totalPig / grandTotal) * 100).toFixed(1);
-        const sharedWidth = ((totalShared / grandTotal) * 100).toFixed(1);
-
-        document.getElementById('progress-bird').innerHTML = createProgressBarHTML(birdWidth, 'blue');
-        document.getElementById('progress-pig').innerHTML = createProgressBarHTML(pigWidth, 'pink');
-        document.getElementById('progress-shared').innerHTML = createProgressBarHTML(sharedWidth, 'yellow');
+        // 方案七: 移除進度條呼叫
+        // renderProgressBars(grandTotal, totalBird, totalPig, totalShared);
     }
 
-    function createProgressBarHTML(width, color) {
-        return `
-            <div class="overflow-hidden h-1.5 flex rounded-full bg-${color}-100">
-                <div style="width: ${width}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-${color}-400 rounded-full transition-all duration-500 ease-out"></div>
-            </div>`;
-    }
+    // 方案七: 移除 renderProgressBars 函式
 
     function openExpenseModal(itemId) {
         const item = currentItems.find(i => i.id === itemId);
@@ -819,7 +812,7 @@
             'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, // red-400
             'TRANSPORT': { hex: '#38bdf8', color: 'sky', label: '交通' }, // sky-400
             'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, // pink-400
-            'HOTEL': { hex: '#c084fc', color: 'purple', label: '住宿' }, // purple-400
+            'HOTEL': { hex: '#c084fc', color: 'purple', label: '住宿' }, // purple-400 - 丁香紫
             'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } // slate-400
         };
         return map[category] || map['OTHER'];
@@ -828,10 +821,11 @@
     function renderDateSlider() {
         const slider = document.getElementById('date-slider');
         slider.innerHTML = '';
+        const primaryColorHex = '#c084fc'; // 丁香紫
         tripDates.forEach(d => {
             const active = d.day === currentDay;
             // 日期滑塊使用 Soft UI 風格
-            const activeClass = active ? 'bg-[#00BFFF] text-white shadow-lg shadow-[#00BFFF]/50 scale-105' : 'bg-white soft-card-shadow hover:bg-gray-50';
+            const activeClass = active ? `bg-[${primaryColorHex}] text-white shadow-lg shadow-[${primaryColorHex}]/50 scale-105` : 'bg-white soft-card-shadow hover:bg-gray-50';
             slider.insertAdjacentHTML('beforeend', `<div class="flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95 ${activeClass}" onclick="switchDay(${d.day})"><div class="text-[10px] font-bold ${active ? 'opacity-90' : 'opacity-60'}">${d.week}</div><div class="text-xl font-black leading-none">${d.date}</div><div class="text-[8px] font-medium mt-1 truncate max-w-[90%] ${active ? 'text-white/80' : 'text-gray-400'}">${d.label}</div></div>`);
         });
     }
@@ -847,8 +841,8 @@
         document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
         document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`).classList.remove('hidden');
         
-        // Tab 顏色切換為電光藍主題
-        const primaryColorHex = '#00BFFF';
+        // Tab 顏色切換為丁香紫主題
+        const primaryColorHex = '#c084fc';
         const tabSchedule = document.getElementById('tab-schedule');
         const tabMap = document.getElementById('tab-map');
         const tabExpense = document.getElementById('tab-expense');
@@ -928,6 +922,7 @@
     window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
     window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
     window.editDayTitle = editDayTitle;
+    window.initMap = initMap;
 </script>
 </body>
 </html>
