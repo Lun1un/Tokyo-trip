@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (丁香紫流體版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (極簡淺紫版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -18,8 +18,16 @@
         /* 引入 Noto Sans TC */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
         
+        /* ------------------ 主題色定義 ------------------ */
+        /* 淺丁香紫/薰衣草紫 (更淡、飽和度更低) */
+        :root {
+            --primary-light: #E0CFFC; /* Soft UI 主色 (淺紫) */
+            --primary-normal: #C084FC; /* 按鈕和重點元素 (丁香紫/purple-400) */
+            --primary-dark: #A855F7; /* Hover 顏色 (更深一點的紫) */
+        }
+        /* ------------------------------------------------ */
+
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        /* 基礎設置：柔和背景 */
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f0f4f7; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -30,7 +38,6 @@
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* Header 使用 Soft UI 背景 */
         .fixed-header { 
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
             background-color: #f0f4f7; 
@@ -38,7 +45,6 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); 
         } 
         
-        /* 底部導覽列 - Soft UI 藥丸造型 */
         .fixed-footer { 
             position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; 
             background-color: white; 
@@ -51,77 +57,71 @@
             padding: 0 10px;
         }
         
-        /* 頁面頂部 Padding */
         #schedule-page { padding-top: 180px; } 
         #expense-page, #checklist-page { padding-top: 20px; } 
         #map-page { padding-top: 20px; padding-bottom: 7rem !important; } 
         
-        /* Soft Card Shadow - 保持溫潤感 */
         .soft-card-shadow {
             box-shadow: 
-                6px 6px 12px rgba(174, 174, 192, 0.4), /* 深色 (右下) */
-                -6px -6px 12px rgba(255, 255, 255, 0.9); /* 淺色 (左上) */
+                6px 6px 12px rgba(174, 174, 192, 0.4), 
+                -6px -6px 12px rgba(255, 255, 255, 0.9); 
             border-radius: 1.5rem; 
         }
 
-        /* 卡片邊緣光暈 - 使用內陰影模擬分類色光暈 */
         .soft-card-glow {
-            /* 基礎 Soft Shadow */
             box-shadow: 
                 6px 6px 12px rgba(174, 174, 192, 0.4),
                 -6px -6px 12px rgba(255, 255, 255, 0.9);
             border-radius: 1.5rem; 
             position: relative;
             overflow: hidden;
-            /* 內層邊緣光暈，顏色在 JS 中動態注入 */
             transition: box-shadow 0.3s ease;
         }
 
-        /* Sortable 狀態 */
         .sortable-ghost { opacity: 0.2; background-color: #e2e8f0; border: 2px dashed #cbd5e1; border-radius: 1.5rem; }
         .sortable-drag { background-color: white; transform: scale(1.03); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1.5rem; cursor: grabbing; }
         
         .check-item.completed .check-text { text-decoration: line-through; color: #9ca3af; }
-        /* 清單完成色：丁香紫 */
-        .check-item.completed .check-circle { background-color: #c084fc; border-color: #c084fc; color: white; } 
+        /* 清單完成色：使用更淡的淺紫 */
+        .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: white; } 
 
         #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
         .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
 
-        /* 輸入框和按鈕聚焦 - 使用丁香紫 */
+        /* 輸入框和按鈕聚焦 - 使用更淡的淺紫 */
         .input-focus {
             transition: box-shadow 0.2s, border-color 0.2s;
         }
         .input-focus:focus {
-            border-color: #c084fc; /* 丁香紫 */
-            box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.3);
+            border-color: var(--primary-normal);
+            box-shadow: 0 0 0 3px var(--primary-light);
         }
 
-        /* 核心按鈕發光效果 - 使用丁香紫 */
+        /* 核心按鈕發光效果 - 使用更飽和的紫 */
         .glow-btn {
-            background-color: #c084fc; /* 丁香紫 */
-            box-shadow: 0 0 15px rgba(192, 132, 252, 0.7); /* 丁香紫光陰影 */
+            background-color: var(--primary-normal); 
+            box-shadow: 0 0 15px var(--primary-light); 
             transition: background-color 0.2s, box-shadow 0.3s, transform 0.1s;
         }
         .glow-btn:hover {
-            background-color: #a855f7; /* 更深一點的紫 */
-            box-shadow: 0 0 20px rgba(192, 132, 252, 0.9);
+            background-color: var(--primary-dark); 
+            box-shadow: 0 0 20px var(--primary-light);
         }
 
         /* 時間軸連線 */
         .timeline-line {
-            background-color: #cbd5e1; /* 基礎灰色 */
+            background-color: #cbd5e1; 
             width: 2px;
             border-radius: 9999px;
             transition: background-color 0.3s;
         }
         .timeline-line.current-progress {
-            background-color: #c084fc; /* 主色 */
+            background-color: var(--primary-normal); 
         }
 
         /* 地圖 Marker 自定義樣式 */
         .map-icon {
-            background-color: #c084fc; /* 丁香紫 */
+            background-color: var(--primary-normal); 
             color: white;
             font-weight: bold;
             text-align: center;
@@ -135,7 +135,7 @@
         }
         .map-icon:hover {
             transform: scale(1.2);
-            background-color: #a855f7;
+            background-color: var(--primary-dark);
         }
     </style>
 </head>
@@ -188,7 +188,7 @@
         <div class="flex-1 bg-white rounded-3xl soft-card-shadow relative overflow-hidden">
              <div class="absolute top-0 left-0 right-0 z-10 p-4 bg-white/70 backdrop-blur-md rounded-t-3xl border-b border-gray-100">
                 <h1 class="text-2xl font-black flex items-center gap-2 text-gray-800">
-                    <span class="text-[#c084fc]"><i class="fas fa-map-marked-alt"></i></span>
+                    <span style="color:var(--primary-normal);"><i class="fas fa-map-marked-alt"></i></span>
                     今日路線圖
                 </h1>
             </div>
@@ -198,19 +198,19 @@
 
     <div id="expense-page" class="hidden page-content px-4">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
-            <span class="bg-yellow-100 text-yellow-600 p-2 rounded-lg text-xl"><i class="fas fa-coins"></i></span>
-            七日花費統計
+            <span class="bg-yellow-100 text-yellow-600 p-2 rounded-lg text-xl"><i class="fas fa-wallet"></i></span>
+            消費明細
         </h1>
         
         <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-[#c084fc]/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+            <div class="absolute top-0 right-0 w-32 h-32" style="background-color: var(--primary-normal); opacity: 0.1; border-radius: 9999px; margin-right: -4rem; margin-top: -4rem; filter: blur(3rem);"></div>
             <div class="flex justify-between items-start relative z-10">
                 <div>
                     <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Total Trip Cost</p>
                     <div class="text-4xl font-extrabold mt-1" id="total-trip-jpy">¥ 0</div>
-                    <div class="text-sm text-[#c084fc] mt-1" id="total-trip-twd">≈ NT$ 0</div>
+                    <div class="text-sm mt-1" style="color:var(--primary-normal);" id="total-trip-twd">≈ NT$ 0</div>
                 </div>
-                <button onclick="calculateAllExpenses()" class="text-gray-400 hover:text-[#c084fc] active:scale-95"><i class="fas fa-sync-alt"></i></button>
+                <button onclick="calculateAllExpenses()" class="text-gray-400 active:scale-95" style="color:var(--primary-normal);"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
 
@@ -240,12 +240,12 @@
 
     <div id="checklist-page" class="hidden page-content px-4">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
-            <span class="bg-purple-100 text-purple-600 p-2 rounded-lg text-xl"><i class="fas fa-clipboard-check"></i></span>
+            <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-dark);"><i class="fas fa-clipboard-check"></i></span>
             必買 & 準備清單
         </h1>
         <div class="flex gap-3 mb-6 w-full">
             <input type="text" id="checklist-input" placeholder="新增項目..." class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-gray-50 focus:outline-none">
-            <button onclick="addChecklistItem()" class="bg-[#c084fc] text-white px-4 rounded-xl font-bold shadow-xl shadow-[#c084fc]/50 hover:bg-[#a855f7] active:scale-90 transition shrink-0"><i class="fas fa-plus"></i></button>
+            <button onclick="addChecklistItem()" class="text-white px-4 rounded-xl font-bold shadow-xl shadow-[var(--primary-light)] hover:bg-[var(--primary-dark)] active:scale-90 transition shrink-0 glow-btn"><i class="fas fa-plus"></i></button>
         </div>
         <div id="checklist-container" class="space-y-3 pb-20"></div>
     </div>
@@ -365,11 +365,11 @@
 
 
     <div class="fixed-footer text-gray-400">
-        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[#c084fc] transition-colors active:scale-90">
+        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[var(--primary-normal)] transition-colors active:scale-90">
             <i class="fas fa-map-marked-alt text-xl mb-1"></i>
             <span class="text-[9px] font-bold">行程</span>
         </button>
-        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[#c084fc] transition-colors active:scale-90">
+        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90">
             <i class="fas fa-map text-xl mb-1"></i>
             <span class="text-[9px] font-bold">地圖</span>
         </button>
@@ -377,10 +377,10 @@
             <i class="fas fa-plus text-xl"></i>
         </div>
         <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors active:scale-90">
-            <i class="fas fa-coins text-xl mb-1"></i>
+            <i class="fas fa-wallet text-xl mb-1"></i>
             <span class="text-[9px] font-bold">花費</span>
         </button>
-        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-purple-500 transition-colors active:scale-90">
+        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90">
             <i class="fas fa-clipboard-list text-xl mb-1"></i>
             <span class="text-[9px] font-bold">清單</span>
         </button>
@@ -409,6 +409,7 @@
         { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10' },
     ];
 
+    // Firebase configuration (保持不變)
     const firebaseConfig = {
       apiKey: "AIzaSyBSIP0E7wHTxEnoGmBnqe3IrdojWSTZu0A",
       authDomain: "tokyotrip2026-24a2c.firebaseapp.com",
@@ -426,7 +427,7 @@
 
     function getDocumentId(day) { return `tokyo_feb_2026_day_${day}`; }
 
-    // 天氣
+    // 天氣 API (保持不變)
     const WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?id=1850147&appid=54f22a6f3141e619d73a09a6d4136e88&units=metric&lang=zh_tw`;
     async function fetchWeather() {
         try {
@@ -451,7 +452,6 @@
 
                 document.getElementById('weather-icon-container').innerHTML = `<i class="${iconClass} ${iconColor}"></i>`;
                 
-                // 方案七: 移除複雜漸變色，保持卡片簡潔白底
                 document.getElementById('weather-card').style.background = 'white';
             }
         } catch(e) { 
@@ -459,7 +459,7 @@
         }
     }
 
-    // 標題編輯
+    // 標題編輯 (保持不變)
     function listenForDayTitles() {
         if (firestoreTitlesListener) firestoreTitlesListener();
         firestoreTitlesListener = db.collection(CONFIG_DOCUMENT_ID).doc('titles').onSnapshot(doc => {
@@ -484,8 +484,7 @@
         }
     }
 
-    // 地圖
-    // 方案七: 使用自定義 Icon 讓標點視覺化
+    // 地圖 (Marker 顏色使用飽和紫)
     async function initMap() {
         if (!mapInstance) {
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
@@ -533,13 +532,13 @@
                     bounds.extend([lat, lon]);
                 }
             } catch (e) { console.error("Map Error", e); }
-            await new Promise(r => setTimeout(r, 800)); // 避免快速查詢被 OSM 阻擋
+            await new Promise(r => setTimeout(r, 800)); 
         }
 
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
     }
 
-    // 行程核心
+    // 行程核心 (保持不變)
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
         const loading = document.getElementById('loading-status');
@@ -596,7 +595,7 @@
         const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
         let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-blue-500 mt-1 font-bold hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
-        // Soft Card Glow - 邊緣光暈注入
+        // Soft Card Glow - 邊緣光暈注入，使用分類色 HEX
         const glowStyle = `box-shadow: 
             6px 6px 12px rgba(174, 174, 192, 0.4), 
             -6px -6px 12px rgba(255, 255, 255, 0.9),
@@ -615,8 +614,8 @@
                             <h3 class="font-extrabold text-gray-800 text-lg leading-tight">${item.title}</h3>
                         </div>
                         <div class="flex gap-1">
-                            <button class="expense-btn w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center hover:bg-yellow-200 transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-coins"></i></button>
-                            <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-[#c084fc]/10 hover:text-[#c084fc] transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
+                            <button class="expense-btn w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center hover:bg-yellow-200 transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-wallet"></i></button>
+                            <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-[var(--primary-normal)]/10 hover:text-[var(--primary-normal)] transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
                         </div>
                     </div>
                     <p class="text-sm text-gray-500 mt-2 leading-relaxed">${item.content || ''}</p>
@@ -683,12 +682,7 @@
         document.getElementById('total-pig').textContent = `¥ ${totalPig.toLocaleString()}`;
         document.getElementById('total-shared').textContent = `¥ ${totalShared.toLocaleString()}`;
         container.innerHTML = htmlContent || '<div class="text-center text-gray-400 py-10">目前沒有任何消費記錄</div>';
-        
-        // 方案七: 移除進度條呼叫
-        // renderProgressBars(grandTotal, totalBird, totalPig, totalShared);
     }
-
-    // 方案七: 移除 renderProgressBars 函式
 
     function openExpenseModal(itemId) {
         const item = currentItems.find(i => i.id === itemId);
@@ -806,14 +800,13 @@
     }
 
     function getCategoryVibe(category) {
-        // 使用 Tailwind 預設顏色和更具體的 HEX 值來確保 glow 效果
         const map = { 
-            'FOOD': { hex: '#fb923c', color: 'orange', label: '餐飲' }, // orange-400
-            'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, // red-400
-            'TRANSPORT': { hex: '#38bdf8', color: 'sky', label: '交通' }, // sky-400
-            'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, // pink-400
-            'HOTEL': { hex: '#c084fc', color: 'purple', label: '住宿' }, // purple-400 - 丁香紫
-            'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } // slate-400
+            'FOOD': { hex: '#fb923c', color: 'orange', label: '餐飲' }, 
+            'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, 
+            'TRANSPORT': { hex: '#38bdf8', color: 'sky', label: '交通' }, 
+            'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, 
+            'HOTEL': { hex: '#D1B4F9', color: 'purple', label: '住宿' }, // 住宿顏色調整為飽和紫
+            'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } 
         };
         return map[category] || map['OTHER'];
     }
@@ -821,11 +814,13 @@
     function renderDateSlider() {
         const slider = document.getElementById('date-slider');
         slider.innerHTML = '';
-        const primaryColorHex = '#c084fc'; // 丁香紫
+        const primaryColorNormal = getComputedStyle(document.documentElement).getPropertyValue('--primary-normal');
+        const primaryColorLight = getComputedStyle(document.documentElement).getPropertyValue('--primary-light');
+
         tripDates.forEach(d => {
             const active = d.day === currentDay;
-            // 日期滑塊使用 Soft UI 風格
-            const activeClass = active ? `bg-[${primaryColorHex}] text-white shadow-lg shadow-[${primaryColorHex}]/50 scale-105` : 'bg-white soft-card-shadow hover:bg-gray-50';
+            // 日期滑塊使用 Soft UI 風格，激活時的顏色使用飽和紫和其陰影
+            const activeClass = active ? `bg-[${primaryColorNormal}] text-white shadow-lg shadow-[${primaryColorNormal}]/50 scale-105` : 'bg-white soft-card-shadow hover:bg-gray-50';
             slider.insertAdjacentHTML('beforeend', `<div class="flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95 ${activeClass}" onclick="switchDay(${d.day})"><div class="text-[10px] font-bold ${active ? 'opacity-90' : 'opacity-60'}">${d.week}</div><div class="text-xl font-black leading-none">${d.date}</div><div class="text-[8px] font-medium mt-1 truncate max-w-[90%] ${active ? 'text-white/80' : 'text-gray-400'}">${d.label}</div></div>`);
         });
     }
@@ -841,17 +836,17 @@
         document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
         document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`).classList.remove('hidden');
         
-        // Tab 顏色切換為丁香紫主題
-        const primaryColorHex = '#c084fc';
+        // Tab 顏色切換為淺紫主題
+        const primaryColorNormal = getComputedStyle(document.documentElement).getPropertyValue('--primary-normal');
         const tabSchedule = document.getElementById('tab-schedule');
         const tabMap = document.getElementById('tab-map');
         const tabExpense = document.getElementById('tab-expense');
         const tabChecklist = document.getElementById('tab-checklist');
 
-        tabSchedule.style.color = page === 'schedule' ? primaryColorHex : '';
-        tabMap.style.color = page === 'map' ? primaryColorHex : '';
-        tabExpense.style.color = page === 'expense' ? '#f59e0b' : ''; // yellow-600
-        tabChecklist.style.color = page === 'checklist' ? '#9333ea' : ''; // purple-600
+        tabSchedule.style.color = page === 'schedule' ? primaryColorNormal : '';
+        tabMap.style.color = page === 'map' ? primaryColorNormal : '';
+        tabExpense.style.color = page === 'expense' ? '#f59e0b' : ''; 
+        tabChecklist.style.color = page === 'checklist' ? primaryColorNormal : ''; 
 
         tabSchedule.classList.toggle('text-gray-400', page !== 'schedule');
         tabMap.classList.toggle('text-gray-400', page !== 'map');
@@ -867,7 +862,7 @@
     function showModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-    // Checklist
+    // Checklist (保持不變)
     function listenForChecklistUpdates() {
         if (firestoreChecklistListener) firestoreChecklistListener();
         firestoreChecklistListener = db.collection(CHECKLIST_COLLECTION).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
@@ -878,7 +873,7 @@
                 const completedClass = item.isCompleted ? 'completed' : '';
                 const iconClass = item.isCompleted ? 'fa-check' : '';
                 // 清單項目 Soft UI 風格
-                const html = `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${completedClass} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${item.id}', ${item.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 border-purple-300 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform"><i class="fas ${iconClass}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${item.id}', ${item.isCompleted})">${item.text}</div><button onclick="deleteChecklist('${item.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`;
+                const html = `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${completedClass} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${item.id}', ${item.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color: var(--primary-normal);"><i class="fas ${iconClass}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${item.id}', ${item.isCompleted})">${item.text}</div><button onclick="deleteChecklist('${item.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
         });
@@ -891,7 +886,7 @@
     async function saveExchangeRate() { const r = parseFloat(document.getElementById('exchange-rate-input').value); if(r) { exchangeRate = r; document.getElementById('display-rate').textContent = r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val: r}); closeModal('rate-modal'); } }
     function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
 
-    // 自動調整高度函式 
+    // 自動調整高度函式 (保持不變)
     function adjustContentPadding() {
         const header = document.querySelector('.fixed-header');
         const schedulePage = document.getElementById('schedule-page');
