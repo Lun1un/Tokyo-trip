@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (版面修復版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (完美版面)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -25,11 +25,11 @@
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background-color: #f3f4f6; } /* 確保背景不透明 */
+        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background-color: #f3f4f6; } 
         .fixed-footer { position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; }
         
-        /* ★★★ 修正：增加頂部間距，避免被標題擋住 ★★★ */
-        .page-content { padding-top: 240px; padding-bottom: 7rem; min-height: 100vh; }
+        /* ★★★ 預設加大間距，JS 會再自動微調 ★★★ */
+        .page-content { padding-top: 320px; padding-bottom: 7rem; min-height: 100vh; }
         
         .sortable-ghost { opacity: 0.3; background-color: #f3f4f6; border: 2px dashed #cbd5e1; }
         .sortable-drag { background-color: white; transform: scale(1.05) rotate(1deg); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1rem; cursor: grabbing; }
@@ -701,6 +701,21 @@
     async function saveExchangeRate() { const r = parseFloat(document.getElementById('exchange-rate-input').value); if(r) { exchangeRate = r; document.getElementById('display-rate').textContent = r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val: r}); closeModal('rate-modal'); } }
     function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
 
+    // ★★★ 動態調整內容 padding ★★★
+    function adjustContentPadding() {
+        const header = document.querySelector('.fixed-header');
+        const contents = document.querySelectorAll('.page-content');
+        if (header && contents.length > 0) {
+            const height = header.offsetHeight;
+            contents.forEach(el => {
+                // 只調整非地圖頁面
+                if(el.id !== 'map-page') {
+                    el.style.paddingTop = (height + 20) + 'px';
+                }
+            });
+        }
+    }
+
     document.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.edit-btn');
         const expenseBtn = e.target.closest('.expense-btn');
@@ -710,6 +725,10 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
+        
+        // 延遲執行 padding 調整，確保畫面渲染完成
+        setTimeout(adjustContentPadding, 100);
+        window.addEventListener('resize', adjustContentPadding);
     });
 
     window.switchDay = switchDay; window.switchPage = switchPage; window.prepareRateModal = prepareRateModal;
