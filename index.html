@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (修正版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (最終美化版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -25,17 +25,16 @@
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* ★★★ Header 恢復高度 ★★★ */
-        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background-color: #f3f4f6; padding-top: 30px; padding-bottom: 10px; } 
+        /* Header 設定 */
+        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background-color: #f3f4f6; padding-top: 16px; padding-bottom: 4px; } 
         .fixed-footer { position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; }
         
         .page-content { padding-bottom: 7rem; min-height: 100vh; }
 
-        /* ★★★ 行程頁留白加大到 180px (配合 Header) ★★★ */
+        /* ★★★ 初始高度設定，JS會再微調貼齊 ★★★ */
         #schedule-page { padding-top: 180px; } 
         #expense-page, #checklist-page { padding-top: 20px; } 
-        /* ★★★ 地圖頁底部只留 90px，讓地圖延伸到底 ★★★ */
-        #map-page { padding-top: 20px; padding-bottom: 90px !important; }
+        #map-page { padding-top: 20px; padding-bottom: 100px !important; }
         
         .sortable-ghost { opacity: 0.3; background-color: #f3f4f6; border: 2px dashed #cbd5e1; }
         .sortable-drag { background-color: white; transform: scale(1.05) rotate(1deg); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1rem; cursor: grabbing; }
@@ -50,19 +49,20 @@
 
     <div id="schedule-page" class="page-content">
         <div class="fixed-header bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 shadow-sm">
-            <div class="flex justify-between items-center mb-3">
+            <div class="flex justify-between items-start mb-3">
                 <div class="flex-1">
-                    <div class="flex items-baseline gap-2">
-                        <h1 class="text-2xl font-black text-gray-900 leading-tight">東京遛豬之旅 🐷</h1>
-                        <div class="text-xs text-gray-400 cursor-pointer border-b border-dashed border-gray-300" onclick="editDayTitle()" id="current-day-title">Day 1</div>
+                    <h1 class="text-sm font-bold text-gray-400 tracking-widest uppercase mb-0.5">東京遛豬之旅 🐷</h1>
+                    <div class="text-3xl font-black text-gray-900 cursor-pointer hover:text-gray-600 transition-colors flex items-center gap-2" onclick="editDayTitle()">
+                        <span id="current-day-title">Day 1</span>
+                        <i class="fas fa-pen text-xs text-gray-300 align-top"></i>
                     </div>
                 </div>
                 
-                <div class="flex flex-col items-end gap-1">
-                    <div class="flex items-center gap-3 bg-blue-50 px-3 py-1.5 rounded-xl shadow-sm border border-blue-100">
+                <div class="flex flex-col items-end gap-1 mt-1">
+                    <div class="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-xl shadow-sm border border-blue-100">
                         <div id="weather-icon-container" class="text-2xl text-blue-500"><i class="fas fa-sync fa-spin"></i></div>
                         <div class="text-right leading-none">
-                            <div id="weather-temp" class="text-sm font-black text-gray-800">--°C</div>
+                            <div id="weather-temp" class="text-base font-black text-gray-800">--°C</div>
                             <div id="weather-desc" class="text-[10px] text-gray-500 font-bold">Loading</div>
                         </div>
                     </div>
@@ -70,16 +70,16 @@
             </div>
             
             <div class="flex justify-between items-center mb-2 px-1">
-                <button onclick="prepareRateModal()" class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">
+                <button onclick="prepareRateModal()" class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded border border-gray-200 hover:bg-gray-200 transition">
                     匯率: <span id="display-rate">0.22</span>
                 </button>
                 <div class="flex items-baseline gap-1">
-                    <span class="text-[10px] text-gray-400 font-bold uppercase">Today's Cost</span>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase">Today:</span>
                     <span class="text-lg font-black text-red-600 leading-none" id="header-daily-cost">¥ 0</span>
                 </div>
             </div>
 
-            <div class="flex overflow-x-auto gap-3 pb-2 hide-scrollbar z-10" id="date-slider"></div>
+            <div class="flex overflow-x-auto gap-3 pb-1 hide-scrollbar z-10" id="date-slider"></div>
         </div>
 
         <div class="px-4 space-y-5"> 
@@ -95,7 +95,7 @@
             <span class="text-blue-600"><i class="fas fa-map-marked-alt"></i></span>
             今日路線圖
         </h1>
-        <div class="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 relative overflow-hidden mb-0">
+        <div class="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 relative overflow-hidden mb-24">
             <div id="map" class="h-full w-full z-0"></div>
         </div>
     </div>
@@ -463,15 +463,22 @@
         const vibe = getCategoryVibe(item.category);
         const expenses = item.expenses || [];
         const totalItemCost = expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0);
-        const timeDisplay = item.endTime ? `${item.startTime}<br><span class="text-[10px] opacity-50">${item.endTime}</span>` : item.startTime;
+        // ★★★ 時間格式：垂直排列 + 連線 ★★★
+        const hasEnd = !!item.endTime;
+        const timeHTML = hasEnd 
+            ? `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
+               <div class="w-0.5 bg-gray-300 flex-1 my-0.5 rounded-full opacity-50"></div>
+               <div class="text-xs font-bold text-gray-400 leading-none">${item.endTime}</div>`
+            : `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
+               <div class="w-0.5 bg-gray-200 h-full mt-1 rounded-full min-h-[2rem]"></div>`;
+
         const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-1 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
         let locationHTML = item.location ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-blue-500 mt-1 font-bold hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
         return `
-            <div class="flex gap-3 items-start group relative select-none cursor-pointer" data-id="${item.id}">
-                <div class="flex flex-col items-center pt-2 min-w-[3.5rem]">
-                    <div class="text-sm font-black text-gray-500 font-mono bg-gray-100 px-1 rounded text-center leading-tight">${timeDisplay}</div>
-                    <div class="w-0.5 bg-gray-200 h-full mt-1 rounded-full min-h-[3rem]"></div>
+            <div class="flex gap-3 items-stretch group relative select-none cursor-pointer" data-id="${item.id}">
+                <div class="flex flex-col items-center pt-1 min-w-[3.5rem]">
+                    ${timeHTML}
                 </div>
                 <div class="flex-1 bg-white p-3 rounded-2xl shadow-sm border-l-4 border-${vibe.color}-500 relative overflow-hidden transition-transform active:scale-[0.98]" style="border-left-color: ${vibe.hex}">
                     <div class="flex justify-between items-start">
@@ -698,7 +705,6 @@
         if(page === 'expense') calculateAllExpenses();
         if(page === 'map') setTimeout(initMap, 200);
         
-        // ★★★ 自動調整高度 ★★★
         setTimeout(adjustContentPadding, 50);
     }
 
@@ -748,6 +754,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
         
+        // 啟動自動調整
         setTimeout(adjustContentPadding, 100);
         window.addEventListener('resize', adjustContentPadding);
     });
