@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京之旅 2026 (修復顯示版)</title>
+    <title id="app-title">東京之旅 2026 (拖曳版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -25,7 +26,7 @@
             font-family: 'Noto Sans TC', sans-serif; 
             background-color: #f3f4f6;
             -webkit-font-smoothing: antialiased; 
-            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: transparent; 
         }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -63,21 +64,26 @@
         }
 
         .page-content {
-            padding-top: 150px; 
+            padding-top: 155px; /* 稍微增加高度給總金額顯示 */
             padding-bottom: 7rem; 
             min-height: 100vh;
         }
         
-        #budget-page, #checklist-page {
-            padding-top: 2rem;
+        /* 拖曳時的樣式 */
+        .sortable-ghost {
+            opacity: 0.4;
+            background-color: #f3f4f6;
+            border: 2px dashed #cbd5e1;
         }
-
+        .sortable-drag {
+            background-color: white;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: scale(1.02);
+        }
+        
         .check-item.completed .check-text {
             text-decoration: line-through;
             color: #9ca3af;
-        }
-        .check-circle {
-            transition: all 0.2s;
         }
         .check-item.completed .check-circle {
             background-color: #10b981;
@@ -96,14 +102,10 @@
                     <h1 class="text-xl font-black text-gray-900 leading-tight" id="current-day-title">Day 1 出發</h1>
                 </div>
                 
-                <div class="bg-blue-50 border border-blue-100 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm">
-                    <div id="weather-icon-container" class="text-blue-500 text-lg">
-                        <i class="fas fa-sync fa-spin"></i>
-                    </div>
-                    <div class="text-right leading-none">
-                        <div id="weather-temp" class="text-sm font-bold text-gray-800">--°C</div>
-                        <div id="weather-desc" class="text-[10px] text-gray-500">載入中</div>
-                    </div>
+                <div class="text-right">
+                    <div class="text-[10px] text-gray-400 font-bold uppercase">今日總花費</div>
+                    <div class="text-lg font-black text-red-600 leading-none" id="header-daily-cost">¥ 0</div>
+                    <div class="text-[10px] text-gray-400" id="header-twd-cost">≈ NT$ 0</div>
                 </div>
             </div>
             
@@ -111,67 +113,21 @@
         </div>
 
         <div class="px-4 space-y-5"> 
-            <div class="relative w-full h-40 rounded-2xl overflow-hidden shadow-lg bg-gray-900 group" id="hero-card">
-                <div id="hero-image" class="absolute inset-0 bg-gradient-to-r from-gray-900 to-gray-800 z-0"></div>
-                <div class="absolute bottom-0 left-0 right-0 p-4 text-white z-10">
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <div class="text-[10px] font-bold bg-white/20 backdrop-blur-sm px-2 py-0.5 inline-block rounded mb-1 border border-white/10" id="hero-tag">啟程</div>
-                            <h2 class="text-lg font-bold tracking-wide" id="hero-main-title">東京七日遊 Start!</h2>
-                        </div>
-                        <div class="text-right">
-                             <p class="text-[10px] text-gray-300" id="hero-subtitle">--</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="text-right">
+                <button onclick="prepareRateModal()" class="text-[10px] text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+                    <i class="fas fa-cog mr-1"></i>匯率: <span id="display-rate">0.22</span>
+                </button>
             </div>
-            
+
             <div id="loading-status" class="text-center text-xs text-gray-400 mt-2">
                  <i class="fas fa-spinner fa-spin mr-1"></i> 資料同步中...
             </div>
             
-            <div id="schedule-container" class="space-y-5 pb-10"></div>
+            <div id="schedule-container" class="space-y-4 pb-10"></div>
         </div>
     </div>
 
-    <div id="budget-page" class="hidden page-content px-4">
-        <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
-            <span class="bg-yellow-100 text-yellow-600 p-2 rounded-lg text-xl"><i class="fas fa-coins"></i></span>
-            旅費中心
-        </h1> 
-
-        <div class="bg-gray-900 text-white p-6 rounded-2xl shadow-xl mb-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-            
-            <div class="flex justify-between items-center mb-4 relative z-10">
-                <p class="text-xs uppercase opacity-60 font-bold tracking-wider">Total Spent</p>
-                <button onclick="prepareRateModal()" class="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded transition">
-                    匯率: <span id="display-rate">0.22</span> <i class="fas fa-pen ml-1"></i>
-                </button>
-            </div>
-            <div class="relative z-10">
-                <div class="text-4xl font-black tracking-tight" id="total-jpy">¥ 0</div>
-                <div class="text-sm opacity-60 mt-1 font-medium" id="total-twd">≈ NT$ 0</div>
-            </div>
-        </div>
-        
-        <div class="flex justify-between items-center mb-3 border-b border-gray-200 pb-2">
-             <h2 class="text-lg font-bold text-gray-700">今日明細 (<span id="current-day-budget">Day 1</span>)</h2>
-             <div class="text-lg font-bold text-red-600 bg-red-50 px-2 rounded" id="daily-jpy">¥ 0</div>
-        </div>
-        
-        <div id="budget-list" class="space-y-3 pb-6">
-            <div id="budget-loading" class="text-center text-sm text-gray-500 mt-4">
-                 <i class="fas fa-spinner fa-spin mr-2"></i> 讀取帳目中...
-            </div>
-        </div>
-        
-        <button onclick="showModal('add-budget-modal')" class="fixed bottom-[100px] right-5 bg-gray-900 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl active:scale-95 transition-transform z-30">
-            <i class="fas fa-plus text-xl"></i>
-        </button>
-    </div>
-
-    <div id="checklist-page" class="hidden page-content px-4">
+    <div id="checklist-page" class="hidden page-content px-4" style="padding-top: 2rem;">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
             <span class="bg-purple-100 text-purple-600 p-2 rounded-lg text-xl"><i class="fas fa-clipboard-check"></i></span>
             必買 & 準備清單
@@ -194,22 +150,28 @@
 
     <div id="add-modal" class="modal inset-0 bg-black/60 backdrop-blur-sm items-center justify-center p-4" onclick="closeModal('add-modal')">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl transform transition-all scale-100" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">新增行程</h2>
+            <h2 class="text-xl font-bold mb-4 text-gray-800">新增行程 & 花費</h2>
             <div class="space-y-3">
                 <div class="flex gap-2">
                     <input type="time" id="new-time" class="w-1/3 p-3 bg-gray-50 border border-gray-200 rounded-xl text-lg font-bold text-center" value="09:00">
                     <select id="new-category" class="w-2/3 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                         <option value="FOOD">🍴 餐飲</option>
+                        <option value="SHOPPING">🛍 購物</option>
                         <option value="SIGHTSEEING">⛩ 景點</option>
                         <option value="TRANSPORT">🚄 交通</option>
-                        <option value="SHOPPING">🛍 購物</option>
                         <option value="HOTEL">🏨 住宿</option>
                         <option value="OTHER">💡 其他</option>
                     </select>
                 </div>
-                <input type="text" id="new-title" placeholder="行程標題" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
-                <input type="text" id="new-location" placeholder="📍 地點名稱 (Google Maps)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
-                <textarea id="new-content" placeholder="備註內容..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-24 text-sm"></textarea>
+                <input type="text" id="new-title" placeholder="行程標題 (例如: 一蘭拉麵)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
+                
+                <div class="relative">
+                    <span class="absolute left-4 top-3.5 text-gray-400 font-bold">¥</span>
+                    <input type="number" id="new-cost" placeholder="金額 (選填)" class="w-full p-3 pl-8 bg-red-50 border border-red-100 rounded-xl font-bold text-red-600 focus:border-red-500 focus:bg-white transition-colors">
+                </div>
+
+                <input type="text" id="new-location" placeholder="📍 地點 (Google Maps)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+                <textarea id="new-content" placeholder="備註內容..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
             </div>
             <div class="flex justify-end space-x-3 mt-6">
                 <button onclick="closeModal('add-modal')" class="px-5 py-2.5 text-gray-500 font-medium rounded-xl hover:bg-gray-100">取消</button>
@@ -220,22 +182,28 @@
     
     <div id="edit-modal" class="modal inset-0 bg-black/60 backdrop-blur-sm items-center justify-center p-4" onclick="closeModal('edit-modal')">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">編輯行程</h2>
+            <h2 class="text-xl font-bold mb-4 text-gray-800">編輯項目</h2>
             <div class="space-y-3">
                 <div class="flex gap-2">
                     <input type="time" id="edit-time" class="w-1/3 p-3 bg-gray-50 border border-gray-200 rounded-xl text-lg font-bold text-center">
                     <select id="edit-category" class="w-2/3 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                         <option value="FOOD">🍴 餐飲</option>
+                        <option value="SHOPPING">🛍 購物</option>
                         <option value="SIGHTSEEING">⛩ 景點</option>
                         <option value="TRANSPORT">🚄 交通</option>
-                        <option value="SHOPPING">🛍 購物</option>
                         <option value="HOTEL">🏨 住宿</option>
                         <option value="OTHER">💡 其他</option>
                     </select>
                 </div>
-                <input type="text" id="edit-title" placeholder="行程標題" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
-                <input type="text" id="edit-location" placeholder="📍 地點名稱 (Google Maps)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
-                <textarea id="edit-content" placeholder="詳細內容..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-24 text-sm"></textarea>
+                <input type="text" id="edit-title" placeholder="標題" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
+                
+                <div class="relative">
+                    <span class="absolute left-4 top-3.5 text-gray-400 font-bold">¥</span>
+                    <input type="number" id="edit-cost" placeholder="金額 (選填)" class="w-full p-3 pl-8 bg-red-50 border border-red-100 rounded-xl font-bold text-red-600 focus:border-red-500 focus:bg-white transition-colors">
+                </div>
+
+                <input type="text" id="edit-location" placeholder="📍 地點" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+                <textarea id="edit-content" placeholder="詳細內容..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
             </div>
             <div class="flex justify-between items-center mt-6">
                  <button onclick="deleteScheduleItem()" class="px-4 py-2 text-red-500 rounded-xl hover:bg-red-50 text-sm font-medium"><i class="fas fa-trash-alt mr-1"></i> 刪除</button>
@@ -248,32 +216,10 @@
         </div>
     </div>
     
-    <div id="add-budget-modal" class="modal inset-0 bg-black/60 backdrop-blur-sm items-center justify-center p-4" onclick="closeModal('add-budget-modal')">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-bold mb-4">記一筆 (<span id="add-budget-day">Day 1</span>)</h2>
-            <div class="space-y-3">
-                <input type="number" id="budget-amount" placeholder="金額 (日圓 ¥)" class="w-full p-4 border-2 border-red-100 rounded-xl text-2xl font-bold text-center text-red-600 focus:border-red-500 focus:outline-none">
-                <input type="text" id="budget-description" placeholder="項目名稱 (例如: 拉麵)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl">
-                <select id="budget-category" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl">
-                    <option value="FOOD">🍴 餐飲</option>
-                    <option value="TRANSPORT">🚄 交通</option>
-                    <option value="SHOPPING">🛍 購物</option>
-                    <option value="SIGHTSEEING">⛩ 門票</option>
-                    <option value="HOTEL">🏨 住宿</option>
-                    <option value="OTHER">💡 其他</option>
-                </select>
-            </div>
-            <div class="flex justify-end space-x-3 mt-6">
-                <button onclick="closeModal('add-budget-modal')" class="px-5 py-2 text-gray-500 rounded-xl hover:bg-gray-100">取消</button>
-                <button onclick="addBudgetItem()" class="px-5 py-2 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 shadow-lg shadow-red-200">確定</button>
-            </div>
-        </div>
-    </div>
-    
     <div id="rate-modal" class="modal inset-0 bg-black/60 backdrop-blur-sm items-center justify-center p-4" onclick="closeModal('rate-modal')">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
             <h2 class="text-xl font-bold mb-2">匯率設定</h2>
-            <p class="text-sm text-gray-500 mb-4">目前的匯率: 1 JPY ≈ ? TWD</p>
+            <p class="text-sm text-gray-500 mb-4">1 JPY ≈ ? TWD</p>
             <div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200">
                 <span class="text-lg font-bold text-gray-400">×</span>
                 <input type="number" step="0.0001" id="exchange-rate-input" class="flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none" placeholder="0.22">
@@ -289,20 +235,12 @@
             <i class="fas fa-map-marked-alt text-xl mb-1"></i>
             <span class="text-[9px] font-bold">行程</span>
         </button>
+        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="bg-gray-900 text-white w-14 h-14 rounded-2xl flex items-center justify-center -mt-8 shadow-lg shadow-gray-400/50 cursor-pointer active:scale-95 transition-transform border-4 border-gray-100">
+            <i class="fas fa-plus text-xl"></i>
+        </div>
         <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-purple-500 transition-colors">
             <i class="fas fa-clipboard-list text-xl mb-1"></i>
             <span class="text-[9px] font-bold">清單</span>
-        </button>
-        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="bg-gray-900 text-white w-12 h-12 rounded-xl flex items-center justify-center -mt-8 shadow-lg shadow-gray-400/50 cursor-pointer active:scale-95 transition-transform border-4 border-gray-100">
-            <i class="fas fa-plus text-lg"></i>
-        </div>
-        <button class="p-2 w-14 flex flex-col items-center justify-center hover:text-blue-500 transition-colors pointer-events-none opacity-30">
-            <i class="fas fa-subway text-xl mb-1"></i>
-            <span class="text-[9px] font-bold">地圖</span>
-        </button>
-        <button id="tab-budget" onclick="switchPage('budget')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-600 transition-colors">
-            <i class="fas fa-wallet text-xl mb-1"></i>
-            <span class="text-[9px] font-bold">記帳</span>
         </button>
     </div>
 
@@ -314,27 +252,22 @@
     let currentDay = 1; 
     let currentItems = []; 
     let firestoreScheduleListener = null;
-    let firestoreBudgetListener = null;
     let firestoreChecklistListener = null;
     let exchangeRate = 0.22; 
-    let allBudgetItems = []; 
     let checklistItems = [];
-
-    const OPENWEATHER_API_KEY = '54f22a6f3141e619d73a09a6d4136e88'; 
-    const WEATHER_CITY_ID = '1850147'; 
-    const WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?id=${WEATHER_CITY_ID}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=zh_tw`;
+    let sortableInstance = null; // 拖曳實體
 
     const TRIP_DATES = [
-        { day: 1, label: 'Day 1 出發', week: 'WED', date: '04', title: '東京 Start!', tag: '啟程', heroTitle: '東京七日遊 Start!' },
-        { day: 2, label: 'Day 2 探索', week: 'THU', date: '05', title: '築地、淺草', tag: '探索', heroTitle: '築地、淺草' },
-        { day: 3, label: 'Day 3 購物', week: 'FRI', date: '06', title: '新宿、澀谷', tag: '購物', heroTitle: '新宿、澀谷' },
-        { day: 4, label: 'Day 4 動漫', week: 'SAT', date: '07', title: '秋葉原', tag: '動漫', heroTitle: '秋葉原探險' },
-        { day: 5, label: 'Day 5 樂園', week: 'SUN', date: '08', title: '迪士尼', tag: '樂園', heroTitle: '迪士尼魔法' },
-        { day: 6, label: 'Day 6 橫濱', week: 'MON', date: '09', title: '橫濱一日', tag: '近郊', heroTitle: '橫濱港未來' },
-        { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10', title: 'Bye Tokyo', tag: '返台', heroTitle: '滿載而歸' },
+        { day: 1, label: 'Day 1 出發', week: 'WED', date: '04', title: '東京 Start!' },
+        { day: 2, label: 'Day 2 探索', week: 'THU', date: '05', title: '築地、淺草' },
+        { day: 3, label: 'Day 3 購物', week: 'FRI', date: '06', title: '新宿、澀谷' },
+        { day: 4, label: 'Day 4 動漫', week: 'SAT', date: '07', title: '秋葉原' },
+        { day: 5, label: 'Day 5 樂園', week: 'SUN', date: '08', title: '迪士尼' },
+        { day: 6, label: 'Day 6 橫濱', week: 'MON', date: '09', title: '橫濱一日' },
+        { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10', title: 'Bye Tokyo' },
     ];
 
-    // ★★★ 你的專屬 Firebase 設定 ★★★
+    // Firebase Config (你的鑰匙)
     const firebaseConfig = {
       apiKey: "AIzaSyBSIP0E7wHTxEnoGmBnqe3IrdojWSTZu0A",
       authDomain: "tokyotrip2026-24a2c.firebaseapp.com",
@@ -347,381 +280,152 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     
-    // Firestore Collections
-    const SCHEDULE_COLLECTION = 'trip_schedules';
-    const BUDGET_COLLECTION = 'trip_budgets_v2'; 
+    // ★★★ 改用 V3 確保全新資料結構 ★★★
+    const SCHEDULE_COLLECTION = 'trip_schedules_v3';
     const CHECKLIST_COLLECTION = 'trip_checklist'; 
     const CONFIG_DOCUMENT_ID = 'trip_config';
 
     function getDocumentId(day) {
         return `tokyo_feb_2026_day_${day}`;
     }
-    
-    // =======================================================
-    // 天氣功能
-    // =======================================================
-
-    function getWeatherIcon(iconCode) {
-        if (iconCode.startsWith('01')) return 'fas fa-sun text-yellow-500'; 
-        if (iconCode.startsWith('02')) return 'fas fa-cloud-sun text-yellow-400'; 
-        if (iconCode.startsWith('03') || iconCode.startsWith('04')) return 'fas fa-cloud text-gray-400'; 
-        if (iconCode.startsWith('09') || iconCode.startsWith('10')) return 'fas fa-cloud-showers-heavy text-blue-500'; 
-        if (iconCode.startsWith('11')) return 'fas fa-bolt text-indigo-500'; 
-        if (iconCode.startsWith('13')) return 'fas fa-snowflake text-cyan-400'; 
-        if (iconCode.startsWith('50')) return 'fas fa-smog text-gray-400'; 
-        return 'fas fa-question text-gray-300';
-    }
-
-    async function fetchWeather() {
-        try {
-            const response = await fetch(WEATHER_URL);
-            const data = await response.json();
-            if (!response.ok || data.cod !== 200) throw new Error(`Weather Error`);
-            updateWeatherDisplay(data);
-        } catch (error) {
-            document.getElementById('weather-desc').textContent = 'N/A';
-        }
-    }
-
-    function updateWeatherDisplay(data) {
-        const temp = Math.round(data.main.temp);
-        const description = data.weather[0].description;
-        const iconCode = data.weather[0].icon;
-        document.getElementById('weather-temp').textContent = `${temp}°C`;
-        document.getElementById('weather-desc').textContent = description;
-        document.getElementById('weather-icon-container').innerHTML = `<i class="${getWeatherIcon(iconCode)}"></i>`;
-    }
 
     // =======================================================
-    // Checklist 功能 (Online)
+    // 核心功能：載入、拖曳、計算
     // =======================================================
-    
-    function listenForChecklistUpdates() {
-        if (firestoreChecklistListener) firestoreChecklistListener();
-        firestoreChecklistListener = db.collection(CHECKLIST_COLLECTION).orderBy('timestamp', 'desc')
-            .onSnapshot(snapshot => {
-                checklistItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderChecklist();
-            });
-    }
 
-    async function addChecklistItem() {
-        const input = document.getElementById('checklist-input');
-        const text = input.value.trim();
-        if(!text) return;
-        try {
-            await db.collection(CHECKLIST_COLLECTION).add({
-                text: text, isCompleted: false, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            input.value = '';
-        } catch (e) {}
-    }
-
-    async function toggleChecklist(id, currentStatus) {
-        try { await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !currentStatus }); } catch (e) {}
-    }
-
-    async function deleteChecklist(id) {
-        if(!confirm("刪除此項目？")) return;
-        try { await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); } catch (e) {}
-    }
-
-    function renderChecklist() {
-        const container = document.getElementById('checklist-container');
-        container.innerHTML = '';
-        if(checklistItems.length === 0) {
-            container.innerHTML = `<div class="text-center text-gray-400 text-sm mt-10"><i class="fas fa-box-open text-2xl mb-2"></i><br>清單目前是空的</div>`;
-            return;
-        }
-        checklistItems.sort((a, b) => a.isCompleted - b.isCompleted);
-        checklistItems.forEach(item => {
-            const completedClass = item.isCompleted ? 'completed' : '';
-            const iconClass = item.isCompleted ? 'fa-check' : '';
-            const html = `
-                <div class="check-item flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 ${completedClass}">
-                    <div onclick="toggleChecklist('${item.id}', ${item.isCompleted})" class="check-circle cursor-pointer w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center text-xs">
-                         <i class="fas ${iconClass}"></i>
-                    </div>
-                    <div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${item.id}', ${item.isCompleted})">${item.text}</div>
-                    <button onclick="deleteChecklist('${item.id}')" class="text-gray-300 hover:text-red-400 px-2"><i class="fas fa-times"></i></button>
-                </div>`;
-            container.insertAdjacentHTML('beforeend', html);
-        });
-    }
-
-    // =======================================================
-    // 匯率與記帳 (核心修復版)
-    // =======================================================
-    async function loadExchangeRate() {
-        try {
-            const doc = await db.collection(BUDGET_COLLECTION).doc(CONFIG_DOCUMENT_ID).get();
-            if (doc.exists && doc.data().rate) {
-                exchangeRate = doc.data().rate;
-                document.getElementById('display-rate').textContent = exchangeRate;
+    function listenForScheduleUpdates(day) {
+        if (firestoreScheduleListener) firestoreScheduleListener();
+        const loading = document.getElementById('loading-status');
+        
+        firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
+            loading.style.opacity = '0';
+            if (doc.exists) {
+                // 讀取已儲存的順序
+                currentItems = doc.data().schedule || [];
+            } else {
+                currentItems = []; // 預設全空
             }
-        } catch (e) {}
+            renderSchedule();
+            calculateTotalCost(); // 每次更新都重算金額
+        });
     }
 
-    async function saveExchangeRate() {
-        const inputRate = parseFloat(document.getElementById('exchange-rate-input').value);
-        if (isNaN(inputRate) || inputRate <= 0) return alert("請輸入有效匯率");
-        exchangeRate = inputRate;
-        try {
-            await db.collection(BUDGET_COLLECTION).doc(CONFIG_DOCUMENT_ID).set({ rate: exchangeRate }, { merge: true });
-            document.getElementById('display-rate').textContent = exchangeRate;
-            closeModal('rate-modal');
-            renderBudgetSummary(); renderBudgetList();
-        } catch (e) { alert("儲存失敗"); }
+    async function saveScheduleToFirestore(items) {
+        // 直接儲存整個陣列，順序就是陣列的順序
+        try { 
+            await db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(currentDay)).set({ 
+                schedule: items, 
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp() 
+            }); 
+        } catch (e) { console.error(e); }
     }
 
-    function prepareRateModal() {
-        document.getElementById('exchange-rate-input').value = exchangeRate;
-        showModal('rate-modal');
-    }
-
-    async function addBudgetItem() {
-        const descInput = document.getElementById('budget-description');
-        const amountInput = document.getElementById('budget-amount');
-        const catInput = document.getElementById('budget-category');
+    // 初始化拖曳功能
+    function initSortable() {
+        const el = document.getElementById('schedule-container');
+        if (sortableInstance) sortableInstance.destroy(); // 清除舊的
         
-        const desc = descInput.value;
-        const amount = parseFloat(amountInput.value);
-        const cat = catInput.value;
+        sortableInstance = new Sortable(el, {
+            handle: '.drag-handle', // 只允許拉「三條線」圖示
+            animation: 150,
+            delay: 100, // 防止誤觸
+            delayOnTouchOnly: true,
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
+            onEnd: function (evt) {
+                // 拖曳結束後，重新排列 currentItems 陣列
+                const itemEl = currentItems[evt.oldIndex];
+                currentItems.splice(evt.oldIndex, 1); // 移除舊位置
+                currentItems.splice(evt.newIndex, 0, itemEl); // 插入新位置
+                
+                // 儲存到 Firebase
+                saveScheduleToFirestore(currentItems);
+            },
+        });
+    }
+
+    function renderSchedule() {
+        const container = document.getElementById('schedule-container');
+        container.innerHTML = ''; 
         
-        if (!desc || isNaN(amount) || amount <= 0) return alert("請輸入金額與內容");
-        
-        closeModal('add-budget-modal');
-        descInput.value = '';
-        amountInput.value = '';
-
-        try {
-            await db.collection(BUDGET_COLLECTION).add({
-                description: desc, 
-                amount: amount, 
-                category: cat, 
-                day: currentDay, 
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        } catch (e) {
-            console.error(e);
-            alert("⚠️ 儲存失敗，請檢查網路連線");
-        }
-    }
-    
-    async function deleteBudgetItem(id) {
-         if(!confirm('刪除這筆開銷？')) return;
-        try { await db.collection(BUDGET_COLLECTION).doc(id).delete(); } catch (e) {}
-    }
-
-    function listenForBudgetUpdates() {
-        if (firestoreBudgetListener) firestoreBudgetListener();
-        firestoreBudgetListener = db.collection(BUDGET_COLLECTION).orderBy('timestamp', 'desc')
-            .onSnapshot(snapshot => {
-                allBudgetItems = snapshot.docs.map(doc => ({ 
-                    id: doc.id, ...doc.data(), day: Number(doc.data().day) || 0 
-                }));
-                renderBudgetSummary(); 
-                if(!document.getElementById('budget-page').classList.contains('hidden')) renderBudgetList();
-            });
-    }
-
-    function renderBudgetSummary() {
-        const dailyTotal = allBudgetItems.filter(i => i.day == currentDay).reduce((sum, i) => sum + i.amount, 0);
-        const totalJPY = allBudgetItems.reduce((sum, i) => sum + i.amount, 0);
-        const totalTWD = totalJPY * exchangeRate;
-        document.getElementById('current-day-budget').textContent = `Day ${currentDay}`;
-        document.getElementById('daily-jpy').textContent = `¥ ${dailyTotal.toLocaleString('en-US')}`;
-        document.getElementById('total-jpy').textContent = `¥ ${totalJPY.toLocaleString('en-US')}`;
-        document.getElementById('total-twd').textContent = `≈ NT$ ${Math.round(totalTWD).toLocaleString('en-US')}`;
-    }
-
-    // ★★★ 關鍵修復：強制渲染列表 ★★★
-    function renderBudgetList() {
-        const listContainer = document.getElementById('budget-list');
-        listContainer.innerHTML = ''; 
-        document.getElementById('budget-loading').style.display = 'none';
-
-        // 1. 找出當天的資料
-        const currentDayItems = allBudgetItems.filter(item => item.day == currentDay); 
-        
-        if (currentDayItems.length === 0) {
-            listContainer.innerHTML = `
-                <div class="text-center text-gray-400 py-10 opacity-60">
-                    <i class="fas fa-receipt text-4xl mb-3"></i>
-                    <p>今日還沒有花費記錄</p>
-                </div>`;
+        if (currentItems.length === 0) {
+            container.innerHTML = `<div class="text-center text-gray-300 py-10">點擊下方 + 新增行程</div>`;
             return;
         }
 
-        // 2. 簡單排序
-        const sortedItems = [...currentDayItems].sort((a, b) => {
-            const tA = a.timestamp ? (a.timestamp.seconds || 0) : Number.MAX_SAFE_INTEGER;
-            const tB = b.timestamp ? (b.timestamp.seconds || 0) : Number.MAX_SAFE_INTEGER;
-            return tB - tA;
-        });
-
-        // 3. 產生 HTML (完全分離變數準備與HTML生成)
-        let htmlBuffer = '';
-        sortedItems.forEach(item => {
-            // 變數準備 (防呆)
-            let vibe = getCategoryVibe(item.category || 'OTHER');
-            let timeStr = '--:--';
-            let amountStr = '0';
-            let twdStr = '0';
-            let descStr = '無名稱';
-
-            try {
-                if (item.timestamp && item.timestamp.toDate) {
-                    timeStr = item.timestamp.toDate().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
-                } else if (item.timestamp) {
-                    timeStr = new Date(item.timestamp).toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
-                } else {
-                    timeStr = '剛剛';
-                }
-            } catch(e) {}
-
-            try {
-                const val = item.amount || 0;
-                amountStr = val.toLocaleString();
-                twdStr = Math.round(val * exchangeRate).toLocaleString();
-            } catch(e) {}
-
-            try { descStr = item.description || '無名稱'; } catch(e) {}
-
-            // 產生 HTML
-            htmlBuffer += `
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden relative group mb-3" style="border-left: 4px solid ${vibe.hex || '#9ca3af'};">
-                    <div class="p-3 flex items-center justify-between gap-3">
-                        <div class="flex flex-col items-center justify-center w-10 min-w-[2.5rem]">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1" style="background-color: ${vibe.bgHex || '#f3f4f6'}; color: ${vibe.hex || '#6b7280'};">
-                                <i class="${vibe.icon || 'fas fa-star'} text-sm"></i>
-                            </div>
-                            <span class="text-[9px] font-bold text-gray-400">${timeStr}</span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-gray-800 text-base truncate leading-snug">${descStr}</h4>
-                            <div class="flex items-center gap-2 mt-0.5">
-                                <span class="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">${vibe.label || '其他'}</span>
-                            </div>
-                        </div>
-                        <div class="text-right pl-2 shrink-0">
-                            <div class="font-black text-gray-800 text-lg leading-none">¥${amountStr}</div>
-                            <div class="text-xs text-gray-400 font-medium mt-1">≈ $${twdStr}</div>
-                        </div>
-                    </div>
-                    <button onclick="deleteBudgetItem('${item.id}')" class="absolute top-0 right-0 p-2 text-gray-300 hover:text-red-500 transition-colors">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>`;
+        // 不再用時間排序，而是依照陣列順序渲染 (支援拖曳結果)
+        currentItems.forEach(item => {
+            container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item));
         });
         
-        // 寫入畫面
-        listContainer.innerHTML = htmlBuffer;
+        // 重新綁定拖曳
+        initSortable();
     }
-    
+
+    function createScheduleItemHTML(item) {
+        const vibe = getCategoryVibe(item.category);
+        const cost = item.cost ? parseInt(item.cost) : 0;
+        const costHTML = cost > 0 
+            ? `<div class="mt-2 inline-flex items-center bg-red-50 px-2 py-1 rounded-lg border border-red-100">
+                 <span class="text-[10px] text-red-400 font-bold mr-1">¥</span>
+                 <span class="text-sm font-black text-red-600">${cost.toLocaleString()}</span>
+               </div>` 
+            : '';
+
+        return `
+            <div class="flex gap-3 items-start group relative" data-id="${item.id}">
+                <div class="flex flex-col items-center pt-2 min-w-[3.5rem]">
+                    <div class="text-sm font-black text-gray-500 font-mono bg-gray-100 px-1 rounded">${item.time}</div>
+                    <div class="w-0.5 bg-gray-200 h-full mt-1 rounded-full min-h-[3rem]"></div>
+                </div>
+                
+                <div class="flex-1 bg-white p-4 rounded-2xl shadow-sm border-l-4 border-${vibe.color}-500 relative overflow-hidden" style="border-left-color: ${vibe.hex}">
+                    
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="inline-block text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded mb-1">${vibe.label}</span>
+                            <h3 class="font-bold text-gray-800 text-lg leading-tight">${item.title}</h3>
+                        </div>
+                        <button class="edit-btn text-gray-300 p-2 hover:text-blue-500 -mr-2 -mt-2" data-item-id="${item.id}">
+                            <i class="fas fa-pen text-xs"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">${item.content || ''}</p>
+                    
+                    ${item.location ? `<div class="text-xs text-blue-500 mt-1 font-bold"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</div>` : ''}
+                    
+                    ${costHTML}
+                </div>
+
+                <div class="drag-handle flex items-center justify-center w-8 h-full self-center cursor-move touch-none text-gray-300 hover:text-gray-500">
+                    <i class="fas fa-bars text-lg"></i>
+                </div>
+            </div>`;
+    }
+
+    function calculateTotalCost() {
+        const total = currentItems.reduce((sum, item) => sum + (parseInt(item.cost) || 0), 0);
+        document.getElementById('header-daily-cost').textContent = `¥ ${total.toLocaleString()}`;
+        document.getElementById('header-twd-cost').textContent = `≈ NT$ ${Math.round(total * exchangeRate).toLocaleString()}`;
+    }
+
     function getCategoryVibe(category) {
         const map = {
-            'FOOD': { hex: '#f97316', bgHex: '#ffedd5', icon: 'fas fa-utensils', label: '餐飲' }, 
-            'SIGHTSEEING': { hex: '#ef4444', bgHex: '#fee2e2', icon: 'fas fa-torii-gate', label: '景點' }, 
-            'TRANSPORT': { hex: '#3b82f6', bgHex: '#dbeafe', icon: 'fas fa-train', label: '交通' }, 
-            'ARRIVAL': { hex: '#3b82f6', bgHex: '#dbeafe', icon: 'fas fa-plane-arrival', label: '抵達' },
-            'SHOPPING': { hex: '#ec4899', bgHex: '#fce7f3', icon: 'fas fa-shopping-bag', label: '購物' }, 
-            'HOTEL': { hex: '#a855f7', bgHex: '#f3e8ff', icon: 'fas fa-bed', label: '住宿' }, 
-            'OTHER': { hex: '#6b7280', bgHex: '#f3f4f6', icon: 'fas fa-star', label: '其他' } 
+            'FOOD': { hex: '#f97316', color: 'orange', label: '餐飲' },
+            'SIGHTSEEING': { hex: '#ef4444', color: 'red', label: '景點' },
+            'TRANSPORT': { hex: '#3b82f6', color: 'blue', label: '交通' },
+            'SHOPPING': { hex: '#ec4899', color: 'pink', label: '購物' },
+            'HOTEL': { hex: '#a855f7', color: 'purple', label: '住宿' },
+            'OTHER': { hex: '#6b7280', color: 'gray', label: '其他' }
         };
         return map[category] || map['OTHER'];
     }
 
     // =======================================================
-    // 頁面切換
+    // 基本 UI 操作
     // =======================================================
-    function switchPage(page) {
-        document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
-        document.getElementById(`${page}-page`).classList.remove('hidden');
-        ['schedule', 'budget', 'checklist'].forEach(tab => {
-            const btn = document.getElementById(`tab-${tab}`);
-            if(btn) { btn.classList.remove('text-green-600', 'text-yellow-600', 'text-purple-600'); btn.classList.add('text-gray-400'); }
-        });
-        const activeBtn = document.getElementById(`tab-${page}`);
-        if(page === 'schedule') {
-            activeBtn.classList.add('text-green-600'); document.getElementById('app-title').textContent = `東京之旅 - 行程`;
-            document.getElementById('add-schedule-btn').style.display = 'flex';
-        } else if (page === 'budget') {
-            activeBtn.classList.add('text-yellow-600'); document.getElementById('app-title').textContent = `旅費中心`;
-            renderBudgetSummary(); renderBudgetList();
-            document.getElementById('add-schedule-btn').style.display = 'none';
-        } else if (page === 'checklist') {
-            activeBtn.classList.add('text-purple-600'); document.getElementById('app-title').textContent = `必買清單`;
-            renderChecklist();
-            document.getElementById('add-schedule-btn').style.display = 'none';
-        }
-    }
-
-    // =======================================================
-    // 行程管理 (Online)
-    // =======================================================
-    function getInitialSchedule(day) {
-        if (day === 1) return [
-            { id: 'item-flight-out', time: '15:20', title: '出發 BR0196', content: 'TPE T2 → NRT T1', category: 'TRANSPORT', isStatic: true },
-            { id: 'item-arrival', time: '19:20', title: '抵達成田', content: '入境、領行李', category: 'ARRIVAL', isStatic: true },
-            { id: 'item-hotel-ph', time: '21:30', title: '飯店 Check-in', content: '輸入飯店名稱', category: 'HOTEL', isStatic: true }
-        ];
-        if (day === 7) return [
-            { id: 'item-check-out', time: '10:00', title: 'Check-out', content: '前往機場', category: 'HOTEL', isStatic: true },
-            { id: 'item-flight-back', time: '14:00', title: '回程 BR0197', content: 'NRT T1 → TPE T2', category: 'TRANSPORT', isStatic: true }
-        ];
-        return [{ id: 'item-bf-ph', time: '09:00', title: '早餐', content: '美好的一天', category: 'FOOD', isStatic: true }];
-    }
-
-    async function saveScheduleToFirestore(items) {
-        const savableItems = items.filter(item => item.id.startsWith('custom-') || ['item-hotel-ph','item-bf-ph','item-check-out'].includes(item.id));
-        try { await db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(currentDay)).set({ schedule: savableItems, lastUpdated: firebase.firestore.FieldValue.serverTimestamp() }); } catch (e) { console.error(e); }
-    }
     
-    function listenForScheduleUpdates(day) {
-        if (firestoreScheduleListener) firestoreScheduleListener();
-        const loading = document.getElementById('loading-status');
-        firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
-            loading.style.opacity = '0';
-            const initial = getInitialSchedule(day);
-            if (doc.exists) {
-                const saved = doc.data().schedule || [];
-                currentItems = [...initial];
-                saved.forEach(sItem => {
-                    const idx = currentItems.findIndex(i => i.id === sItem.id);
-                    if (idx !== -1) currentItems[idx] = sItem; else currentItems.push(sItem);
-                });
-                renderSchedule();
-            } else { currentItems = initial; saveScheduleToFirestore(initial); renderSchedule(); }
-        });
-    }
-
-    function createScheduleItemHTML(item) {
-        const vibe = getCategoryVibe(item.category);
-        const isEditable = item.id.startsWith('custom-') || ['item-hotel-ph','item-bf-ph','item-check-out'].includes(item.id);
-        let mapBtn = '';
-        if (item.location) {
-            const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}`;
-            mapBtn = `<a href="${mapUrl}" target="_blank" class="inline-flex items-center gap-1 mt-2 text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors">
-                        <i class="fas fa-map-marker-alt"></i> ${item.location} <i class="fas fa-external-link-alt text-[9px] ml-1"></i>
-                      </a>`;
-        }
-        return `
-            <div id="${item.id}" class="flex gap-3">
-                <div class="flex flex-col items-center pt-1 min-w-[3rem]">
-                    <div class="text-sm font-black text-gray-500 font-mono">${item.time}</div>
-                    <div class="w-0.5 bg-gray-200 h-full mt-1 rounded-full"></div>
-                </div>
-                <div class="flex-1 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 relative group active:scale-[0.99] transition-transform">
-                    ${isEditable ? `<button class="edit-btn absolute top-3 right-3 text-gray-300 hover:text-blue-500 p-2" data-item-id="${item.id}"><i class="fas fa-pencil-alt"></i></button>` : ''}
-                    <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded mb-1 tracking-wide" style="background-color: ${vibe.bgHex}; color: ${vibe.hex}">${vibe.label}</span>
-                    <h3 class="font-bold text-gray-800 text-lg leading-tight">${item.title}</h3>
-                    <p class="text-sm text-gray-500 mt-1 leading-relaxed">${item.content}</p>
-                    ${mapBtn}
-                </div>
-            </div>`;
-    }
-
     function renderDateSlider() {
         const slider = document.getElementById('date-slider');
         slider.innerHTML = '';
@@ -738,50 +442,68 @@
     function renderHeroAndTitle(day) {
         const conf = TRIP_DATES.find(d => d.day === day) || TRIP_DATES[0];
         document.getElementById('current-day-title').textContent = conf.label;
-        document.getElementById('hero-main-title').textContent = conf.heroTitle;
-        document.getElementById('hero-tag').textContent = conf.tag;
-        document.getElementById('hero-subtitle').textContent = day === 7 ? '回程: BR197' : `${conf.date} Feb, 2026`;
-    }
-
-    function renderSchedule() {
-        const container = document.getElementById('schedule-container');
-        container.innerHTML = ''; 
-        currentItems.sort((a, b) => a.time.localeCompare(b.time));
-        currentItems.forEach(item => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item)));
     }
 
     function switchDay(day) {
         if (day === currentDay) return;
         currentDay = day;
         renderDateSlider(); renderHeroAndTitle(day); listenForScheduleUpdates(day); 
-        document.getElementById('add-budget-day').textContent = `Day ${day}`;
-        if(!document.getElementById('budget-page').classList.contains('hidden')) { renderBudgetSummary(); renderBudgetList(); }
+    }
+
+    function switchPage(page) {
+        document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById(`${page}-page`).classList.remove('hidden');
+        
+        const tabSchedule = document.getElementById('tab-schedule');
+        const tabChecklist = document.getElementById('tab-checklist');
+        
+        tabSchedule.className = "p-2 w-14 flex flex-col items-center justify-center transition-colors " + (page === 'schedule' ? "text-green-600" : "text-gray-400");
+        tabChecklist.className = "p-2 w-14 flex flex-col items-center justify-center transition-colors " + (page === 'checklist' ? "text-purple-600" : "text-gray-400");
     }
 
     function showModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
     
+    // 新增功能 (整合)
     async function addScheduleItem() {
         const time = document.getElementById('new-time').value;
         const title = document.getElementById('new-title').value;
+        const cost = document.getElementById('new-cost').value;
         const location = document.getElementById('new-location').value; 
-        const content = document.getElementById('new-content').value || '無詳細說明';
+        const content = document.getElementById('new-content').value;
         const cat = document.getElementById('new-category').value;
-        if (!title || !time) return alert("請輸入時間和標題");
-        const newItem = { id: 'custom-'+Date.now(), time, title, content, category: cat, location };
-        const itemsToSave = [...currentItems.filter(i => !i.isStatic), newItem];
+        
+        if (!title) return alert("請輸入標題");
+        
+        const newItem = { 
+            id: 'item-' + Date.now(), 
+            time, title, content, category: cat, location, 
+            cost: cost ? parseInt(cost) : 0 
+        };
+        
+        const itemsToSave = [...currentItems, newItem];
+        // 按照時間簡單排序一次，之後讓使用者自己拖曳
+        itemsToSave.sort((a, b) => a.time.localeCompare(b.time));
+        
         await saveScheduleToFirestore(itemsToSave);
         closeModal('add-modal');
-        document.getElementById('new-title').value = ''; document.getElementById('new-location').value = ''; document.getElementById('new-content').value = '';
+        
+        // 清空
+        document.getElementById('new-title').value = ''; 
+        document.getElementById('new-cost').value = '';
+        document.getElementById('new-location').value = ''; 
+        document.getElementById('new-content').value = '';
     }
 
+    // 編輯功能 (整合)
     function prepareEdit(id) {
         const item = currentItems.find(i => i.id === id);
         if (!item) return;
         document.getElementById('edit-time').value = item.time;
         document.getElementById('edit-title').value = item.title;
+        document.getElementById('edit-cost').value = item.cost || '';
         document.getElementById('edit-location').value = item.location || '';
-        document.getElementById('edit-content').value = item.content;
+        document.getElementById('edit-content').value = item.content || '';
         document.getElementById('edit-category').value = item.category;
         document.getElementById('editing-item-id').value = id;
         showModal('edit-modal');
@@ -791,25 +513,59 @@
         const id = document.getElementById('editing-item-id').value;
         const time = document.getElementById('edit-time').value;
         const title = document.getElementById('edit-title').value;
+        const cost = document.getElementById('edit-cost').value;
         const location = document.getElementById('edit-location').value;
         const content = document.getElementById('edit-content').value;
         const cat = document.getElementById('edit-category').value;
-        if (!title || !time) return alert("標題時間必填");
-        const updated = { id, time, title, content, category: cat, location };
-        let itemsToSave = currentItems.filter(i => !i.isStatic || ['item-hotel-ph','item-bf-ph','item-check-out'].includes(i.id));
-        const idx = itemsToSave.findIndex(i => i.id === id);
-        if (idx !== -1) itemsToSave[idx] = updated; else itemsToSave.push(updated);
-        await saveScheduleToFirestore(itemsToSave);
+        
+        if (!title) return alert("標題必填");
+        
+        const updated = { 
+            id, time, title, content, category: cat, location,
+            cost: cost ? parseInt(cost) : 0
+        };
+        
+        const idx = currentItems.findIndex(i => i.id === id);
+        if (idx !== -1) currentItems[idx] = updated;
+        
+        await saveScheduleToFirestore(currentItems);
         closeModal('edit-modal');
     }
     
     async function deleteScheduleItem() {
         if(!confirm('刪除此行程？')) return;
         const id = document.getElementById('editing-item-id').value;
-        let itemsToSave = currentItems.filter(i => !i.isStatic || ['item-hotel-ph','item-bf-ph','item-check-out'].includes(i.id)).filter(i => i.id !== id);
-        await saveScheduleToFirestore(itemsToSave);
+        const newItems = currentItems.filter(i => i.id !== id);
+        await saveScheduleToFirestore(newItems);
         closeModal('edit-modal');
     }
+
+    // Checklist & Rate (保留原功能)
+    function listenForChecklistUpdates() {
+        if (firestoreChecklistListener) firestoreChecklistListener();
+        firestoreChecklistListener = db.collection(CHECKLIST_COLLECTION).orderBy('timestamp', 'desc')
+            .onSnapshot(snapshot => {
+                checklistItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderChecklist();
+            });
+    }
+    async function addChecklistItem() {
+        const input = document.getElementById('checklist-input');
+        const text = input.value.trim();
+        if(!text) return;
+        try { await db.collection(CHECKLIST_COLLECTION).add({ text, isCompleted: false, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); input.value = ''; } catch (e) {}
+    }
+    async function toggleChecklist(id, status) { try { await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !status }); } catch (e) {} }
+    async function deleteChecklist(id) { if(confirm("刪除?")) try { await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); } catch (e) {} }
+    
+    async function loadExchangeRate() {
+        try { const doc = await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if (doc.exists) { exchangeRate = doc.data().val; document.getElementById('display-rate').textContent = exchangeRate; } } catch (e) {}
+    }
+    async function saveExchangeRate() {
+        const r = parseFloat(document.getElementById('exchange-rate-input').value);
+        if(r) { exchangeRate = r; document.getElementById('display-rate').textContent = r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val: r}); closeModal('rate-modal'); calculateTotalCost(); }
+    }
+    function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
 
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.edit-btn');
@@ -818,15 +574,13 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         renderDateSlider(); renderHeroAndTitle(currentDay); switchPage('schedule');
-        loadExchangeRate(); listenForScheduleUpdates(currentDay); listenForBudgetUpdates(); listenForChecklistUpdates();
-        fetchWeather();
+        listenForScheduleUpdates(currentDay); listenForChecklistUpdates(); loadExchangeRate();
     });
 
-    // Global Functions for HTML onClick
     window.switchDay = switchDay; window.switchPage = switchPage; window.prepareRateModal = prepareRateModal;
-    window.saveExchangeRate = saveExchangeRate; window.addBudgetItem = addBudgetItem; window.deleteBudgetItem = deleteBudgetItem;
+    window.saveExchangeRate = saveExchangeRate; window.addChecklistItem = addChecklistItem;
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
-    window.addScheduleItem = addScheduleItem; window.addChecklistItem = addChecklistItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
+    window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
 </script>
 </body>
 </html>
