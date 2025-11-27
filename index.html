@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (淡紫柔和版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (純淨淡紫版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -18,7 +18,7 @@
         /* 引入 Noto Sans TC */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
         
-        /* ------------------ 主題色定義 - 更淡更柔和的紫色 ------------------ */
+        /* ------------------ 主題色定義 ------------------ */
         :root {
             /* 變得更淡的淺紫色，用於背景光暈和邊框 */
             --primary-light: #E0C8FF; 
@@ -26,7 +26,7 @@
             --primary-normal: #C084FC; 
             /* Hover 顏色，稍微深一點點 */
             --primary-dark: #A855F7; 
-            /* 背景色維持不變 */
+            /* 背景色 */
             --soft-bg-color: #f0f4ff; 
         }
         /* ------------------------------------------------ */
@@ -82,7 +82,7 @@
             box-shadow: 
                 4px 4px 8px rgba(0, 0, 0, 0.1), 
                 -4px -4px 8px rgba(255, 255, 255, 0.7);
-            /* ★★★ 修改這裡：邊框改為淡紫色 ★★★ */
+            /* 邊框維持淡紫色 */
             border: 2px solid var(--primary-light); 
             background-color: rgba(255, 255, 255, 0.85); 
             backdrop-filter: blur(8px); 
@@ -601,14 +601,14 @@
                <div class="timeline-line bg-gray-200 h-full mt-1 min-h-[2rem]"></div>`;
 
         const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
-        let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-blue-500 mt-1 font-bold hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
+        // ★★★ 修改這裡：連結顏色改為灰色 hover 變主題色，去除藍色 ★★★
+        let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 mt-1 font-bold hover:text-[var(--primary-normal)] hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
-        // ★★★ 修改這裡：邊框使用淡紫色變數 ★★★
+        // ★★★ 修改這裡：移除 inset 陰影，去除卡片內部的彩色光暈 ★★★
         const glowStyle = `
             box-shadow: 
                 4px 4px 8px rgba(0, 0, 0, 0.1), 
-                -4px -4px 8px rgba(255, 255, 255, 0.7),
-                inset 0 4px 0 0 ${vibe.hex}cc;
+                -4px -4px 8px rgba(255, 255, 255, 0.7);
             border: 2px solid var(--primary-light);
             background-color: rgba(255, 255, 255, 0.85); 
             backdrop-filter: blur(8px);
@@ -880,30 +880,6 @@
 
     function showModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-    // Checklist (完成狀態使用淺淡紫)
-    function listenForChecklistUpdates() {
-        if (firestoreChecklistListener) firestoreChecklistListener();
-        firestoreChecklistListener = db.collection(CHECKLIST_COLLECTION).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-            checklistItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            const container = document.getElementById('checklist-container');
-            container.innerHTML = '';
-            checklistItems.sort((a, b) => a.isCompleted - b.isCompleted).forEach(item => {
-                const completedClass = item.isCompleted ? 'completed' : '';
-                const iconClass = item.isCompleted ? 'fa-check' : '';
-                // 清單項目 Soft UI 風格 (圓圈顏色和邊框使用淡紫主題色)
-                const html = `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${completedClass} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${item.id}', ${item.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color: var(--primary-normal);"><i class="fas ${iconClass}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${item.id}', ${item.isCompleted})">${item.text}</div><button onclick="deleteChecklist('${item.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`;
-                container.insertAdjacentHTML('beforeend', html);
-            });
-        });
-    }
-    async function addChecklistItem() { const v = document.getElementById('checklist-input').value.trim(); if(v) { await db.collection(CHECKLIST_COLLECTION).add({ text: v, isCompleted: false, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('checklist-input').value = ''; } }
-    async function toggleChecklist(id, s) { await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !s }); }
-    async function deleteChecklist(id) { if(confirm("刪除?")) await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
-
-    async function loadExchangeRate() { try { const doc = await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if (doc.exists) { exchangeRate = doc.data().val; document.getElementById('display-rate').textContent = exchangeRate; } } catch (e) {} }
-    async function saveExchangeRate() { const r = parseFloat(document.getElementById('exchange-rate-input').value); if(r) { exchangeRate = r; document.getElementById('display-rate').textContent = r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val: r}); closeModal('rate-modal'); } }
-    function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
 
     // 自動調整高度函式
     function adjustContentPadding() {
