@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026</title>
+    <title id="app-title">東京遛豬之旅 2026 (衛星地圖版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -27,6 +27,7 @@
 
         .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
         .fixed-footer { position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; }
+        /* 調整頁面 padding，讓內容更靠上 */
         .page-content { padding-top: 170px; padding-bottom: 7rem; min-height: 100vh; }
         
         .sortable-ghost { opacity: 0.3; background-color: #f3f4f6; border: 2px dashed #cbd5e1; }
@@ -79,17 +80,14 @@
         </div>
     </div>
 
-    <div id="map-page" class="hidden page-content px-4 h-screen flex flex-col" style="padding-top: 160px; padding-bottom: 6rem;">
-        <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
-            <span class="bg-blue-100 text-blue-600 p-2 rounded-lg text-xl"><i class="fas fa-map-marked-alt"></i></span>
+    <div id="map-page" class="hidden page-content px-4 h-screen flex flex-col" style="padding-top: 130px; padding-bottom: 6rem;">
+        <h1 class="text-lg font-black mb-2 flex items-center gap-2 text-gray-700">
+            <span class="bg-blue-100 text-blue-600 p-1.5 rounded-lg text-sm"><i class="fas fa-satellite"></i></span>
             今日路線圖
         </h1>
-        <div class="flex-1 bg-white p-1 rounded-2xl shadow-lg border border-gray-200 relative">
-            <div id="map"></div>
-            <div class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur p-3 rounded-xl text-xs text-gray-500 shadow-md z-[1000] border border-gray-200">
-                <i class="fas fa-info-circle mr-1"></i> 地圖顯示今日行程中有填寫「地點」的項目。
+        <div class="flex-1 bg-gray-200 rounded-2xl shadow-lg border border-gray-300 relative overflow-hidden">
+            <div id="map" class="h-full w-full z-0"></div>
             </div>
-        </div>
     </div>
 
     <div id="expense-page" class="hidden page-content px-4" style="padding-top: 2rem;">
@@ -358,20 +356,19 @@
         }
     }
 
-    // 地圖功能
+    // ★★★ 地圖功能 (衛星版) ★★★
     async function initMap() {
         if (!mapInstance) {
-            mapInstance = L.map('map').setView([35.6895, 139.6917], 11); // 東京預設中心
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+            mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
+            // Esri World Imagery (衛星)
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri'
             }).addTo(mapInstance);
         }
         
-        // 清除舊標記
         markers.forEach(m => mapInstance.removeLayer(m));
         markers = [];
 
-        // 搜尋今日地點
         const locations = currentItems.filter(i => i.location).map(i => ({ title: i.title, loc: i.location }));
         if (locations.length === 0) return;
 
@@ -379,7 +376,6 @@
         
         for (let item of locations) {
             try {
-                // 使用 Nominatim 搜尋經緯度
                 const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.loc)}`);
                 const data = await res.json();
                 if (data && data.length > 0) {
@@ -391,7 +387,6 @@
                     bounds.extend([lat, lon]);
                 }
             } catch (e) { console.error("Map Error", e); }
-            // 延遲以避免 API Rate Limit
             await new Promise(r => setTimeout(r, 800));
         }
 
@@ -407,7 +402,7 @@
             currentItems = doc.exists ? (doc.data().schedule || []) : [];
             renderSchedule();
             calculateDailyCost();
-            if (!document.getElementById('map-page').classList.contains('hidden')) initMap(); // 如果在地圖頁，即時更新
+            if (!document.getElementById('map-page').classList.contains('hidden')) initMap(); 
         });
     }
 
@@ -674,7 +669,7 @@
         document.getElementById('tab-map').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'map' ? 'text-blue-500' : 'text-gray-400'}`;
         
         if(page === 'expense') calculateAllExpenses();
-        if(page === 'map') setTimeout(initMap, 200); // 確保地圖容器已顯示
+        if(page === 'map') setTimeout(initMap, 200);
     }
 
     function showModal(id) { document.getElementById(id).classList.add('active'); }
