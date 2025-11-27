@@ -1,12 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (Pro Design)</title>
+    <title id="app-title">東京遛豬之旅 2026 (Soft UI 精修版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -18,16 +17,9 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
         
-        /* 全局基礎設定 */
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        body { 
-            font-family: 'Noto Sans TC', sans-serif; 
-            background: linear-gradient(145deg, #f3f6f9 0%, #eef2f6 100%); /* 更加柔和的漸層背景 */
-            color: #334155; /* Slate-700 取代純黑 */
-            -webkit-font-smoothing: antialiased; 
-            -webkit-tap-highlight-color: transparent; 
-        }
-        
+        /* ★★★ 方案四: 背景使用柔和的淺藍色，更具設計感 ★★★ */
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f0f4f7; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -35,298 +27,242 @@
             opacity: 1; 
             transition: opacity 0.3s ease-in-out; 
             min-height: 100vh;
-            padding-bottom: 8rem; /* 增加底部空間給懸浮 Footer */
+            padding-bottom: 7rem;
         }
         .page-content.hidden { 
             opacity: 0; 
             display: none !important; 
         }
 
-        /* Modal 動畫與樣式 */
-        .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
-        .modal .modal-content { transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .modal.active .modal-content { transform: scale(1); }
-        .modal-background { background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); }
 
-        /* 玻璃擬態 Header */
-        .glass-header { 
+        /* ★★★ 方案四: Header 陰影更柔和 ★★★ */
+        .fixed-header { 
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
-            background: rgba(243, 246, 249, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding-top: max(env(safe-area-inset-top), 16px); 
-            padding-bottom: 8px; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            background-color: #f0f4f7; 
+            padding-top: 16px; padding-bottom: 4px; 
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* 輕微陰影 */
         } 
         
-        /* 懸浮膠囊 Footer */
-        .glass-footer { 
-            position: fixed; bottom: 24px; left: 20px; right: 20px; z-index: 1001; 
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 24px; 
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.5) inset; 
-            height: 70px;
+        /* ★★★ 方案五: 底部導覽列使用藥丸造型 ★★★ */
+        .fixed-footer { 
+            position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; 
+            background-color: white; /* 內層用白色 */
+            border-radius: 9999px; /* rounded-full */
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15), 0 5px 10px rgba(0,0,0,0.05); 
+            height: 64px; /* 稍微高一點 */
             display: flex;
             align-items: center;
             justify-content: space-around;
-            padding: 0 12px;
+            padding: 0 10px;
         }
         
-        /* 頁面頂部 Padding (配合 Header 高度) */
-        #schedule-page { padding-top: 190px; } 
-        #expense-page, #checklist-page { padding-top: 24px; } 
-        #map-page { padding-top: 24px; padding-bottom: 7rem !important; } 
+        /* 頁面頂部 Padding */
+        #schedule-page { padding-top: 180px; } 
+        #expense-page, #checklist-page { padding-top: 20px; } 
+        #map-page { padding-top: 20px; padding-bottom: 7rem !important; } 
         
-        /* Soft UI 卡片 - 精修版 */
-        .soft-card {
-            background: #ffffff;
+        /* ★★★ 方案四: Soft UI 卡片風格 ★★★ */
+        .soft-card-shadow {
+            /* Neumorphism-Lite 雙陰影 */
             box-shadow: 
-                8px 8px 16px rgba(166, 175, 195, 0.25), 
-                -8px -8px 16px #ffffff;
-            border-radius: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.8);
-        }
-        
-        /* 深色卡片 (花費總覽) */
-        .dark-card {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.5);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
+                6px 6px 12px rgba(174, 174, 192, 0.4), /* 深色 (右下) */
+                -6px -6px 12px rgba(255, 255, 255, 0.9); /* 淺色 (左上) */
+            border-radius: 1.5rem; /* rounded-3xl */
         }
 
-        .sortable-ghost { opacity: 0.3; background-color: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 1.5rem; }
-        .sortable-drag { background-color: white; transform: scale(1.02) rotate(1deg); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); z-index: 9999; cursor: grabbing; }
+        .sortable-ghost { opacity: 0.2; background-color: #e2e8f0; border: 2px dashed #cbd5e1; border-radius: 1.5rem; }
+        .sortable-drag { background-color: white; transform: scale(1.03); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1.5rem; cursor: grabbing; }
         
-        /* Checklist 樣式 */
-        .check-item { transition: all 0.2s; }
-        .check-item.completed .check-text { text-decoration: line-through; color: #94a3b8; }
-        .check-item.completed .check-circle { background-color: #10b981; border-color: #10b981; color: white; transform: scale(1.1); }
-        .check-item:active { transform: scale(0.98); }
+        .check-item.completed .check-text { text-decoration: line-through; color: #9ca3af; }
+        .check-item.completed .check-circle { background-color: #10b981; border-color: #10b981; color: white; }
 
         #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
+        .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
 
-        /* 輸入框聚焦特效 */
-        .input-soft {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            transition: all 0.2s ease;
+        /* 統一按鈕和輸入框的聚焦效果 */
+        .input-focus {
+            transition: box-shadow 0.2s, border-color 0.2s;
         }
-        .input-soft:focus {
-            background: #fff;
-            border-color: #06b6d4;
-            box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
-            outline: none;
+        .input-focus:focus {
+            border-color: #06b6d4; /* 換成青藍色 */
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.3);
         }
-
-        /* 漸層按鈕 */
-        .btn-gradient-cyan {
-            background: linear-gradient(135deg, #06b6d4 0%, #0ea5e9 100%);
-            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
-            color: white;
-            transition: all 0.2s;
-        }
-        .btn-gradient-cyan:active { transform: scale(0.95); box-shadow: 0 2px 6px rgba(6, 182, 212, 0.2); }
-
-        /* 時間軸裝飾 */
-        .timeline-line { position: absolute; left: 1.7rem; top: 3.5rem; bottom: -1rem; width: 2px; background: #e2e8f0; z-index: 0; }
-        .timeline-dot { position: relative; z-index: 1; }
     </style>
 </head>
-<body class="text-slate-700 selection:bg-cyan-100">
+<body class="text-gray-800">
 
     <div id="schedule-page" class="page-content">
-        <div class="glass-header px-4">
-            <div class="flex justify-between items-start mb-4 pt-1">
+        <div class="fixed-header px-4">
+            <div class="flex justify-between items-start mb-3">
                 <div class="flex-1">
-                    <h1 class="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                        東京遛豬之旅 
-                        <span class="text-sm bg-pink-100 text-pink-500 px-2 py-0.5 rounded-full font-bold">2026</span>
-                    </h1>
-                    <div class="text-xl font-bold text-slate-500 cursor-pointer hover:text-cyan-600 transition-colors flex items-center gap-2 mt-1" onclick="editDayTitle()">
+                    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">東京遛豬之旅 🐷</h1>
+                    <div class="text-2xl font-bold text-gray-700 cursor-pointer hover:text-gray-500 transition-colors flex items-center gap-2" onclick="editDayTitle()">
                         <span id="current-day-title">Day 1</span>
-                        <i class="fas fa-pen text-[10px] text-slate-300 align-top opacity-50"></i>
+                        <i class="fas fa-pen text-xs text-gray-300 align-top"></i>
                     </div>
                 </div>
                 
-                <div class="flex flex-col items-end gap-2">
-                    <div class="flex items-center gap-2 bg-white/60 backdrop-blur-md px-3 py-1.5 rounded-2xl shadow-sm border border-white/50">
-                        <div id="weather-icon-container" class="text-xl text-blue-500"><i class="fas fa-sync fa-spin text-slate-300"></i></div>
+                <div class="flex flex-col items-end gap-1 mt-1">
+                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl shadow-md border border-gray-200">
+                        <div id="weather-icon-container" class="text-2xl text-blue-500"><i class="fas fa-sync fa-spin"></i></div>
                         <div class="text-right leading-none">
-                            <div id="weather-temp" class="text-sm font-black text-slate-700">--°C</div>
-                            <div id="weather-desc" class="text-[9px] text-slate-400 font-bold tracking-wide">載入中</div>
+                            <div id="weather-temp" class="text-base font-black text-gray-800">--°C</div>
+                            <div id="weather-desc" class="text-[10px] text-gray-500 font-bold">Loading</div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="flex justify-between items-center mb-3 px-1">
-                <button onclick="prepareRateModal()" class="text-[10px] font-bold text-slate-500 bg-white/80 px-3 py-1.5 rounded-xl shadow-sm hover:bg-white transition active:scale-95 border border-slate-100">
-                    匯率: <span id="display-rate" class="text-slate-800 ml-1">0.22</span>
+            <div class="flex justify-between items-center mb-2 px-1">
+                <button onclick="prepareRateModal()" class="text-[10px] text-gray-500 bg-gray-100 px-2 py-1 rounded-lg border border-gray-200 hover:bg-gray-200 transition font-bold">
+                    匯率: <span id="display-rate" class="text-gray-700">0.22</span>
                 </button>
-                <div class="flex items-baseline gap-1.5 bg-red-50 px-3 py-1 rounded-xl border border-red-100">
-                    <span class="text-[10px] text-red-400 font-bold uppercase tracking-wider">Today</span>
-                    <span class="text-lg font-black text-red-500 leading-none" id="header-daily-cost">¥ 0</span>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-xs text-gray-500 font-bold uppercase">今日花費:</span>
+                    <span class="text-xl font-extrabold text-red-600 leading-none" id="header-daily-cost">¥ 0</span>
                 </div>
             </div>
 
-            <div class="flex overflow-x-auto gap-3 py-2 pb-3 hide-scrollbar z-10 pl-1" id="date-slider">
-                </div>
+            <div class="flex overflow-x-auto gap-3 py-1 pb-2 hide-scrollbar z-10" id="date-slider"></div>
         </div>
 
-        <div class="px-4 space-y-2"> 
-            <div id="loading-status" class="text-center text-xs text-slate-400 mt-4 transition-opacity flex justify-center items-center gap-2">
-                 <i class="fas fa-circle-notch fa-spin text-cyan-500"></i> 資料同步中...
+        <div class="px-4 space-y-5"> 
+            <div id="loading-status" class="text-center text-xs text-gray-400 mt-2 transition-opacity">
+                 <i class="fas fa-spinner fa-spin mr-1"></i> 資料同步中...
             </div>
-            <div id="schedule-container" class="space-y-0 pb-10 pt-2 pl-1 relative"></div>
+            <div id="schedule-container" class="space-y-4 pb-10"></div>
         </div>
     </div>
 
     <div id="map-page" class="hidden page-content px-4 h-screen flex flex-col">
-        <div class="flex-1 bg-white rounded-3xl soft-card relative overflow-hidden border border-white">
-             <div class="absolute top-0 left-0 right-0 z-[500] p-4 bg-white/80 backdrop-blur-md rounded-t-3xl border-b border-slate-100 flex justify-between items-center">
-                <h1 class="text-xl font-black flex items-center gap-2 text-slate-800">
-                    <span class="w-8 h-8 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center text-sm"><i class="fas fa-map-marked-alt"></i></span>
-                    今日路線
+        <div class="flex-1 bg-white rounded-3xl soft-card-shadow relative overflow-hidden">
+             <div class="absolute top-0 left-0 right-0 z-10 p-4 bg-white/70 backdrop-blur-md rounded-t-3xl border-b border-gray-100">
+                <h1 class="text-2xl font-black flex items-center gap-2 text-gray-800">
+                    <span class="text-cyan-600"><i class="fas fa-map-marked-alt"></i></span>
+                    今日路線圖
                 </h1>
-                <div class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">Live Map</div>
             </div>
             <div id="map" class="h-full w-full pt-16"></div>
         </div>
     </div>
 
     <div id="expense-page" class="hidden page-content px-4">
-        <h1 class="text-2xl font-black mb-5 flex items-center gap-3 text-slate-800">
-            <span class="bg-gradient-to-br from-yellow-400 to-orange-500 text-white w-10 h-10 rounded-xl flex items-center justify-center text-lg shadow-lg shadow-orange-200"><i class="fas fa-coins"></i></span>
+        <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
+            <span class="bg-yellow-100 text-yellow-600 p-2 rounded-lg text-xl"><i class="fas fa-coins"></i></span>
             七日花費統計
         </h1>
         
-        <div class="dark-card p-6 rounded-3xl mb-8 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-10 -mt-10 blur-3xl pointer-events-none"></div>
-            <div class="absolute bottom-0 left-0 w-32 h-32 bg-cyan-500/10 rounded-full -ml-10 -mb-10 blur-2xl pointer-events-none"></div>
-            
+        <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
             <div class="flex justify-between items-start relative z-10">
                 <div>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">TOTAL EXPENSES</p>
-                    <div class="text-4xl font-black mt-1 tracking-tight text-white" id="total-trip-jpy">¥ 0</div>
-                    <div class="text-sm text-yellow-400 mt-1 font-bold flex items-center gap-1">
-                        <i class="fas fa-exchange-alt text-xs opacity-50"></i> NT$ <span id="total-trip-twd">0</span>
-                    </div>
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Total Trip Cost</p>
+                    <div class="text-4xl font-extrabold mt-1" id="total-trip-jpy">¥ 0</div>
+                    <div class="text-sm text-yellow-400 mt-1" id="total-trip-twd">≈ NT$ 0</div>
                 </div>
-                <button onclick="calculateAllExpenses()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition backdrop-blur-sm active:scale-90"><i class="fas fa-sync-alt"></i></button>
+                <button onclick="calculateAllExpenses()" class="text-gray-400 hover:text-yellow-400 active:scale-95"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-4 mb-8">
-            <div class="bg-white p-4 rounded-2xl soft-card text-center relative group overflow-hidden">
-                <div class="absolute inset-x-0 bottom-0 h-1 bg-blue-400"></div>
-                <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🐦</div>
-                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Dove</div>
-                <div class="font-black text-slate-800 text-sm mt-1 truncate" id="total-bird">¥0</div>
-                <div id="progress-bird" class="relative pt-2 mt-1"></div>
+        <div class="grid grid-cols-3 gap-3 mb-8">
+            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-blue-400">
+                <div class="text-2xl mb-1">🐦</div>
+                <div class="text-xs text-gray-400 font-bold">Dove</div>
+                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-bird">¥0</div>
+                <div id="progress-bird" class="relative pt-1 mt-2"></div>
             </div>
-            <div class="bg-white p-4 rounded-2xl soft-card text-center relative group overflow-hidden">
-                <div class="absolute inset-x-0 bottom-0 h-1 bg-pink-400"></div>
-                <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🐷</div>
-                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Pig</div>
-                <div class="font-black text-slate-800 text-sm mt-1 truncate" id="total-pig">¥0</div>
-                <div id="progress-pig" class="relative pt-2 mt-1"></div>
+            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-pink-400">
+                <div class="text-2xl mb-1">🐷</div>
+                <div class="text-xs text-gray-400 font-bold">Pig</div>
+                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-pig">¥0</div>
+                <div id="progress-pig" class="relative pt-1 mt-2"></div>
             </div>
-            <div class="bg-white p-4 rounded-2xl soft-card text-center relative group overflow-hidden">
-                <div class="absolute inset-x-0 bottom-0 h-1 bg-yellow-400"></div>
-                <div class="text-2xl mb-1 group-hover:scale-110 transition-transform">🤝</div>
-                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wide">Shared</div>
-                <div class="font-black text-slate-800 text-sm mt-1 truncate" id="total-shared">¥0</div>
-                <div id="progress-shared" class="relative pt-2 mt-1"></div>
+            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-yellow-400">
+                <div class="text-2xl mb-1">🐷🐦</div>
+                <div class="text-xs text-gray-400 font-bold">Shared</div>
+                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-shared">¥0</div>
+                <div id="progress-shared" class="relative pt-1 mt-2"></div>
             </div>
         </div>
 
-        <h2 class="font-bold text-slate-700 mb-4 ml-1 flex items-center gap-2">
-            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> 詳細明細
-        </h2>
-        <div id="expense-full-list" class="space-y-4 pb-20">
-            <div class="text-center text-slate-300 text-sm py-10">資料讀取中...</div>
+        <h2 class="font-bold text-gray-700 mb-2 ml-1 border-b border-gray-300 pb-1">詳細明細 (Day 1-7)</h2>
+        <div id="expense-full-list" class="space-y-3 pb-20">
+            <div class="text-center text-gray-400 text-sm py-10">載入中...</div>
         </div>
     </div>
 
     <div id="checklist-page" class="hidden page-content px-4">
-        <h1 class="text-2xl font-black mb-6 flex items-center gap-3 text-slate-800">
-            <span class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white w-10 h-10 rounded-xl flex items-center justify-center text-lg shadow-lg shadow-indigo-200"><i class="fas fa-clipboard-check"></i></span>
+        <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
+            <span class="bg-purple-100 text-purple-600 p-2 rounded-lg text-xl"><i class="fas fa-clipboard-check"></i></span>
             必買 & 準備清單
         </h1>
         <div class="flex gap-3 mb-6 w-full">
-            <input type="text" id="checklist-input" placeholder="新增待辦事項..." class="input-soft flex-1 min-w-0 p-4 rounded-xl text-sm font-medium">
-            <button onclick="addChecklistItem()" class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white w-14 rounded-xl font-bold shadow-lg shadow-indigo-300 hover:shadow-xl active:scale-95 transition flex items-center justify-center shrink-0">
-                <i class="fas fa-plus text-lg"></i>
-            </button>
+            <input type="text" id="checklist-input" placeholder="新增項目..." class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-gray-50 focus:outline-none">
+            <button onclick="addChecklistItem()" class="bg-cyan-600 text-white px-4 rounded-xl font-bold shadow-lg shadow-cyan-300 hover:bg-cyan-700 active:scale-90 transition shrink-0"><i class="fas fa-plus"></i></button>
         </div>
         <div id="checklist-container" class="space-y-3 pb-20"></div>
     </div>
 
     <div id="add-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('add-modal')">
-        <div class="modal-content bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl relative overflow-hidden" onclick="event.stopPropagation()">
-            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-cyan-400 to-blue-500"></div>
-            <h2 class="text-xl font-bold mb-5 text-slate-800">新增行程</h2>
-            <div class="space-y-4">
-                <div class="flex gap-3">
-                    <div class="flex-1 flex gap-2 items-center bg-slate-50 border border-slate-200 rounded-xl p-3">
-                        <input type="time" id="new-start-time" class="w-full bg-transparent font-bold text-center text-lg text-slate-800 focus:outline-none" value="09:00">
-                        <span class="text-slate-300 font-light">to</span>
-                        <input type="time" id="new-end-time" class="w-full bg-transparent font-bold text-slate-400 text-center text-lg focus:outline-none">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl shadow-black/30" onclick="event.stopPropagation()">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">新增行程</h2>
+            <div class="space-y-3">
+                <div class="flex gap-2">
+                    <div class="flex-1 flex gap-1 items-center bg-gray-50 border border-gray-200 rounded-xl p-2 shadow-inner">
+                        <input type="time" id="new-start-time" class="w-full bg-transparent font-bold text-center text-lg focus:outline-none" value="09:00">
+                        <span class="text-gray-300">-</span>
+                        <input type="time" id="new-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
-                <select id="new-category" class="input-soft w-full p-3 rounded-xl text-sm font-bold text-slate-600 appearance-none">
-                    <option value="FOOD">🍴 餐飲美食</option>
-                    <option value="SHOPPING">🛍 購物血拼</option>
-                    <option value="SIGHTSEEING">⛩ 觀光景點</option>
-                    <option value="TRANSPORT">🚄 交通移動</option>
-                    <option value="HOTEL">🏨 飯店住宿</option>
-                    <option value="OTHER">💡 其他項目</option>
+                <select id="new-category" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium shadow-sm">
+                    <option value="FOOD">🍴 餐飲</option>
+                    <option value="SHOPPING">🛍 購物</option>
+                    <option value="SIGHTSEEING">⛩ 景點</option>
+                    <option value="TRANSPORT">🚄 交通</option>
+                    <option value="HOTEL">🏨 住宿</option>
+                    <option value="OTHER">💡 其他</option>
                 </select>
-                <input type="text" id="new-title" placeholder="行程標題" class="input-soft w-full p-3 rounded-xl font-bold text-slate-800">
-                <input type="text" id="new-location" placeholder="📍 地點 (用於地圖定位)" class="input-soft w-full p-3 rounded-xl text-sm">
-                <textarea id="new-content" placeholder="備註內容..." class="input-soft w-full p-3 rounded-xl h-24 text-sm resize-none"></textarea>
+                <input type="text" id="new-title" placeholder="行程標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold shadow-sm">
+                <input type="text" id="new-location" placeholder="📍 地點 (Google Maps)" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm">
+                <textarea id="new-content" placeholder="備註內容..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm shadow-sm"></textarea>
             </div>
-            <div class="flex justify-end space-x-3 mt-8">
-                <button onclick="closeModal('add-modal')" class="px-6 py-2.5 text-slate-500 font-bold rounded-xl hover:bg-slate-50 transition">取消</button>
-                <button onclick="addScheduleItem()" class="px-8 py-2.5 btn-gradient-cyan text-white rounded-xl font-bold">新增</button>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeModal('add-modal')" class="px-5 py-2.5 text-gray-500 font-medium rounded-xl hover:bg-gray-100">取消</button>
+                <button onclick="addScheduleItem()" class="px-5 py-2.5 bg-cyan-600 text-white rounded-xl shadow-xl shadow-cyan-300 font-bold hover:bg-cyan-700 active:scale-95">新增</button>
             </div>
         </div>
     </div>
     
     <div id="edit-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('edit-modal')">
-        <div class="modal-content bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl relative overflow-hidden" onclick="event.stopPropagation()">
-            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-slate-400 to-slate-600"></div>
-            <h2 class="text-xl font-bold mb-5 text-slate-800">編輯行程</h2>
-            <div class="space-y-4">
-                <div class="flex gap-3">
-                    <div class="flex-1 flex gap-2 items-center bg-slate-50 border border-slate-200 rounded-xl p-3">
-                        <input type="time" id="edit-start-time" class="w-full bg-transparent font-bold text-center text-lg text-slate-800 focus:outline-none">
-                        <span class="text-slate-300 font-light">to</span>
-                        <input type="time" id="edit-end-time" class="w-full bg-transparent font-bold text-slate-400 text-center text-lg focus:outline-none">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl shadow-black/30" onclick="event.stopPropagation()">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">編輯行程</h2>
+            <div class="space-y-3">
+                <div class="flex gap-2">
+                    <div class="flex-1 flex gap-1 items-center bg-gray-50 border border-gray-200 rounded-xl p-2 shadow-inner">
+                        <input type="time" id="edit-start-time" class="w-full bg-transparent font-bold text-center text-lg focus:outline-none">
+                        <span class="text-gray-300">-</span>
+                        <input type="time" id="edit-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
-                <select id="edit-category" class="input-soft w-full p-3 rounded-xl text-sm font-bold text-slate-600 appearance-none">
-                    <option value="FOOD">🍴 餐飲美食</option>
-                    <option value="SHOPPING">🛍 購物血拼</option>
-                    <option value="SIGHTSEEING">⛩ 觀光景點</option>
-                    <option value="TRANSPORT">🚄 交通移動</option>
-                    <option value="HOTEL">🏨 飯店住宿</option>
-                    <option value="OTHER">💡 其他項目</option>
+                <select id="edit-category" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium shadow-sm">
+                    <option value="FOOD">🍴 餐飲</option>
+                    <option value="SHOPPING">🛍 購物</option>
+                    <option value="SIGHTSEEING">⛩ 景點</option>
+                    <option value="TRANSPORT">🚄 交通</option>
+                    <option value="HOTEL">🏨 住宿</option>
+                    <option value="OTHER">💡 其他</option>
                 </select>
-                <input type="text" id="edit-title" placeholder="標題" class="input-soft w-full p-3 rounded-xl font-bold text-slate-800">
-                <input type="text" id="edit-location" placeholder="📍 地點" class="input-soft w-full p-3 rounded-xl text-sm">
-                <textarea id="edit-content" placeholder="詳細內容..." class="input-soft w-full p-3 rounded-xl h-24 text-sm resize-none"></textarea>
+                <input type="text" id="edit-title" placeholder="標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold shadow-sm">
+                <input type="text" id="edit-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm shadow-sm">
+                <textarea id="edit-content" placeholder="詳細內容..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm shadow-sm"></textarea>
             </div>
-            <div class="flex justify-between items-center mt-8">
-                 <button onclick="deleteScheduleItem()" class="px-4 py-2 text-red-500 bg-red-50 rounded-xl hover:bg-red-100 text-sm font-bold active:scale-95 transition"><i class="fas fa-trash-alt mr-1"></i> 刪除</button>
+            <div class="flex justify-between items-center mt-6">
+                 <button onclick="deleteScheduleItem()" class="px-4 py-2 text-red-500 rounded-xl hover:bg-red-50 text-sm font-medium active:scale-95"><i class="fas fa-trash-alt mr-1"></i> 刪除</button>
                 <div class="space-x-2">
-                    <button onclick="closeModal('edit-modal')" class="px-5 py-2 text-slate-500 font-bold rounded-xl hover:bg-slate-50 transition">取消</button>
-                    <button onclick="saveEdit()" class="px-6 py-2 btn-gradient-cyan text-white rounded-xl font-bold shadow-lg shadow-cyan-200">儲存</button>
+                    <button onclick="closeModal('edit-modal')" class="px-4 py-2 text-gray-500 font-medium rounded-xl hover:bg-gray-100">取消</button>
+                    <button onclick="saveEdit()" class="px-5 py-2 bg-cyan-600 text-white rounded-xl shadow-xl shadow-cyan-300 font-bold hover:bg-cyan-700 active:scale-95">儲存</button>
                 </div>
             </div>
              <input type="hidden" id="editing-item-id">
@@ -334,33 +270,33 @@
     </div>
 
     <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')">
-        <div class="modal-content bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl flex flex-col max-h-[85vh]" onclick="event.stopPropagation()">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl shadow-black/30 flex flex-col max-h-[80vh]" onclick="event.stopPropagation()">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800" id="expense-modal-title">行程花費</h2>
-                    <p class="text-xs text-slate-400 mt-1">記下這個行程的所有開銷細項</p>
+                    <h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2>
+                    <p class="text-xs text-gray-400">記下這個行程的所有開銷</p>
                 </div>
-                <button onclick="closeModal('expense-modal')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center"><i class="fas fa-times"></i></button>
+                <button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
             </div>
             
-            <div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[120px] max-h-[300px]"></div>
+            <div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div>
             
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 mt-auto">
-                <div class="flex gap-2 mb-3">
-                    <select id="expense-payer" class="input-soft w-[80px] p-2 rounded-lg text-xl text-center bg-white shrink-0">
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-inner">
+                <div class="flex gap-2 mb-2">
+                    <select id="expense-payer" class="input-focus w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none shrink-0 shadow-sm">
                         <option value="bird">🐦</option>
                         <option value="pig">🐷</option>
-                        <option value="shared">🤝</option>
+                        <option value="shared">🐷🐦</option>
                     </select>
-                    <input type="text" id="expense-desc" placeholder="品項名稱" class="input-soft flex-1 min-w-0 p-2 rounded-lg text-sm">
+                    <input type="text" id="expense-desc" placeholder="品項" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm shadow-sm">
                 </div>
                 <div class="flex gap-2">
-                    <select id="expense-currency" class="input-soft w-[75px] p-2 rounded-lg text-sm font-bold bg-white shrink-0">
+                    <select id="expense-currency" class="input-focus w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0 shadow-sm">
                         <option value="JPY">JPY</option>
                         <option value="TWD">TWD</option>
                     </select>
-                    <input type="number" id="expense-amount" placeholder="金額" class="input-soft flex-1 min-w-0 p-2 rounded-lg text-sm font-bold">
-                    <button onclick="addExpenseToItem()" class="w-[50px] bg-yellow-400 text-white font-bold rounded-lg shadow-md shadow-yellow-200 hover:bg-yellow-500 shrink-0 active:scale-95 transition flex items-center justify-center">
+                    <input type="number" id="expense-amount" placeholder="金額" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold shadow-sm">
+                    <button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow-md hover:bg-yellow-600 shrink-0 active:scale-95">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
@@ -370,41 +306,41 @@
     </div>
     
     <div id="rate-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('rate-modal')">
-        <div class="modal-content bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-bold mb-2 text-slate-800">匯率設定</h2>
-            <div class="flex items-center space-x-3 bg-slate-50 p-5 rounded-2xl border border-slate-200 mt-4">
-                <span class="text-lg font-bold text-slate-400">×</span>
-                <input type="number" step="0.0001" id="exchange-rate-input" class="bg-transparent text-3xl font-black text-center focus:outline-none w-full text-slate-700">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl shadow-black/30" onclick="event.stopPropagation()">
+            <h2 class="text-xl font-bold mb-2">匯率設定</h2>
+            <div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-inner">
+                <span class="text-lg font-bold text-gray-400">×</span>
+                <input type="number" step="0.0001" id="exchange-rate-input" class="input-focus flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none">
             </div>
-            <div class="flex justify-end mt-8">
-                <button onclick="saveExchangeRate()" class="px-8 py-2.5 btn-gradient-cyan text-white rounded-xl font-bold shadow-lg shadow-cyan-200">儲存設定</button>
+            <div class="flex justify-end mt-6">
+                <button onclick="saveExchangeRate()" class="px-5 py-2 bg-cyan-600 text-white rounded-xl font-bold hover:bg-cyan-700 shadow-xl shadow-cyan-300 active:scale-95">儲存</button>
             </div>
         </div>
     </div>
 
-    <div class="glass-footer text-slate-300">
-        <button id="tab-schedule" onclick="switchPage('schedule')" class="relative p-2 w-14 flex flex-col items-center justify-center text-cyan-600 transition-all active:scale-90 group">
-            <div class="text-xl mb-1 group-hover:-translate-y-1 transition-transform duration-300"><i class="fas fa-calendar-alt"></i></div>
-            <span class="text-[9px] font-bold opacity-0 group-hover:opacity-100 absolute -bottom-1 transition-opacity">行程</span>
+
+    <div class="fixed-footer text-gray-400">
+        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-cyan-600 transition-colors active:scale-90">
+            <i class="fas fa-map-marked-alt text-xl mb-1"></i>
+            <span class="text-[9px] font-bold">行程</span>
         </button>
-        <button id="tab-map" onclick="switchPage('map')" class="relative p-2 w-14 flex flex-col items-center justify-center hover:text-cyan-500 transition-all active:scale-90 group">
-            <div class="text-xl mb-1 group-hover:-translate-y-1 transition-transform duration-300"><i class="fas fa-map"></i></div>
-            <span class="text-[9px] font-bold opacity-0 group-hover:opacity-100 absolute -bottom-1 transition-opacity">地圖</span>
+        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-cyan-500 transition-colors active:scale-90">
+            <i class="fas fa-map text-xl mb-1"></i>
+            <span class="text-[9px] font-bold">地圖</span>
         </button>
-        
-        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="bg-gradient-to-tr from-cyan-500 to-blue-500 text-white w-14 h-14 rounded-full flex items-center justify-center -mt-8 shadow-lg shadow-cyan-400/40 cursor-pointer active:scale-90 transition-transform border-[4px] border-[#fbfdfd]">
+        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="bg-cyan-600 text-white w-16 h-16 rounded-full flex items-center justify-center -mt-10 shadow-xl shadow-cyan-500/50 cursor-pointer active:scale-90 transition-transform border-4 border-white">
             <i class="fas fa-plus text-xl"></i>
         </div>
-        
-        <button id="tab-expense" onclick="switchPage('expense')" class="relative p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-all active:scale-90 group">
-             <div class="text-xl mb-1 group-hover:-translate-y-1 transition-transform duration-300"><i class="fas fa-wallet"></i></div>
-             <span class="text-[9px] font-bold opacity-0 group-hover:opacity-100 absolute -bottom-1 transition-opacity">花費</span>
+        <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors active:scale-90">
+            <i class="fas fa-coins text-xl mb-1"></i>
+            <span class="text-[9px] font-bold">花費</span>
         </button>
-        <button id="tab-checklist" onclick="switchPage('checklist')" class="relative p-2 w-14 flex flex-col items-center justify-center hover:text-purple-500 transition-all active:scale-90 group">
-             <div class="text-xl mb-1 group-hover:-translate-y-1 transition-transform duration-300"><i class="fas fa-clipboard-list"></i></div>
-             <span class="text-[9px] font-bold opacity-0 group-hover:opacity-100 absolute -bottom-1 transition-opacity">清單</span>
+        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-purple-500 transition-colors active:scale-90">
+            <i class="fas fa-clipboard-list text-xl mb-1"></i>
+            <span class="text-[9px] font-bold">清單</span>
         </button>
     </div>
+
 
 <script>
     let currentDay = 1; 
@@ -462,10 +398,10 @@
                 let iconClass = 'fas fa-sun'; 
                 if (icon.includes('01')) iconClass = 'fas fa-sun text-yellow-500';
                 else if (icon.includes('02')) iconClass = 'fas fa-cloud-sun text-yellow-400';
-                else if (icon.includes('03') || icon.includes('04')) iconClass = 'fas fa-cloud text-slate-400';
+                else if (icon.includes('03') || icon.includes('04')) iconClass = 'fas fa-cloud text-gray-400';
                 else if (icon.includes('09') || icon.includes('10')) iconClass = 'fas fa-umbrella text-blue-500';
                 else if (icon.includes('13')) iconClass = 'fas fa-snowflake text-blue-300';
-                else if (icon.includes('50')) iconClass = 'fas fa-smog text-slate-300';
+                else if (icon.includes('50')) iconClass = 'fas fa-smog text-gray-300';
 
                 document.getElementById('weather-icon-container').innerHTML = `<i class="${iconClass}"></i>`;
             }
@@ -543,13 +479,8 @@
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
         const loading = document.getElementById('loading-status');
-        loading.style.display = 'flex';
-        loading.style.opacity = '1';
-        
         firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
             loading.style.opacity = '0';
-            setTimeout(() => loading.style.display = 'none', 300);
-            
             currentItems = doc.exists ? (doc.data().schedule || []) : [];
             renderSchedule();
             calculateDailyCost();
@@ -565,12 +496,7 @@
         const el = document.getElementById('schedule-container');
         if (sortableInstance) sortableInstance.destroy();
         sortableInstance = new Sortable(el, {
-            animation: 300, 
-            delay: 200, 
-            delayOnTouchOnly: true, 
-            ghostClass: 'sortable-ghost', 
-            dragClass: 'sortable-drag',
-            handle: '.drag-handle', // 如果你想限制拖動區域，可以加這個 class，目前是全卡片
+            animation: 200, delay: 1000, delayOnTouchOnly: false, ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
             onEnd: function (evt) {
                 const item = currentItems[evt.oldIndex];
                 currentItems.splice(evt.oldIndex, 1);
@@ -583,70 +509,45 @@
     function renderSchedule() {
         const container = document.getElementById('schedule-container');
         container.innerHTML = ''; 
-        if (currentItems.length === 0) { 
-            container.innerHTML = `<div class="text-center text-slate-300 py-20 flex flex-col items-center"><i class="fas fa-wind text-4xl mb-3 opacity-50"></i><p>空空如也，點擊下方 + 新增行程</p></div>`; 
-            return; 
-        }
-        
-        // 為了讓時間軸連線好看，最後一個項目不需要連線
-        currentItems.forEach((item, index) => {
-            const isLast = index === currentItems.length - 1;
-            container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item, isLast));
-        });
+        if (currentItems.length === 0) { container.innerHTML = `<div class="text-center text-gray-400 py-10">點擊下方 + 新增行程</div>`; return; }
+        currentItems.forEach(item => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item)));
         initSortable();
     }
 
-    function createScheduleItemHTML(item, isLast) {
+    function createScheduleItemHTML(item) {
         const vibe = getCategoryVibe(item.category);
         const expenses = item.expenses || [];
         const totalItemCost = expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0);
         
         const hasEnd = !!item.endTime;
-        
-        // Cost Badge logic
-        const costBadge = totalItemCost > 0 
-            ? `<div class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded-md text-[10px] font-bold border border-yellow-100 flex items-center gap-1 shadow-sm"><i class="fas fa-coins text-[8px]"></i> ¥${totalItemCost.toLocaleString()}</div>` 
-            : '';
-            
-        let locationHTML = item.location 
-            ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank" class="text-[10px] text-blue-500 font-bold hover:underline flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 max-w-[60%] truncate" onclick="event.stopPropagation()"><i class="fas fa-location-dot"></i>${item.location}</a>` 
-            : '';
+        const timeHTML = hasEnd 
+            ? `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
+               <div class="w-0.5 bg-gray-300 flex-1 my-0.5 rounded-full opacity-50"></div>
+               <div class="text-xs font-bold text-gray-400 leading-none">${item.endTime}</div>`
+            : `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
+               <div class="w-0.5 bg-gray-200 h-full mt-1 rounded-full min-h-[2rem]"></div>`;
 
-        // Timeline line logic
-        const lineHTML = !isLast 
-            ? `<div class="timeline-line border-l-2 border-dashed border-slate-200" style="left: 1.65rem;"></div>` 
-            : '';
+        const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
+        let locationHTML = item.location ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-blue-500 mt-1 font-bold hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
         return `
-            <div class="flex gap-4 items-stretch group relative select-none cursor-grab pb-6" data-id="${item.id}">
-                <div class="flex flex-col items-center pt-1 min-w-[3.5rem] relative z-10">
-                    <div class="text-sm font-black text-slate-700 leading-none tracking-tight">${item.startTime}</div>
-                    <div class="timeline-dot w-3 h-3 rounded-full bg-${vibe.color}-400 ring-4 ring-white shadow-sm mt-2 mb-1"></div>
-                    ${!isLast ? `<div class="absolute top-8 bottom-[-1.5rem] w-0.5 bg-gradient-to-b from-slate-200 to-transparent left-1/2 -ml-px -z-10"></div>` : ''}
-                    ${hasEnd ? `<div class="text-[10px] font-bold text-slate-400 mt-1">${item.endTime}</div>` : ''}
+            <div class="flex gap-3 items-stretch group relative select-none cursor-grab" data-id="${item.id}">
+                <div class="flex flex-col items-center pt-1 min-w-[3.5rem]">
+                    ${timeHTML}
                 </div>
-
-                <div class="flex-1 bg-white p-4 rounded-3xl soft-card relative overflow-hidden transition-all active:scale-[0.98] group-hover:shadow-lg group-hover:shadow-${vibe.color}-100">
-                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-${vibe.color}-50 rounded-full blur-2xl opacity-60 pointer-events-none transition-opacity group-hover:opacity-80"></div>
-
-                    <div class="flex justify-between items-start relative z-10">
-                        <div class="flex-1 pr-2">
-                            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-${vibe.color}-600 bg-${vibe.color}-50 px-2 py-0.5 rounded-full mb-1.5 border border-${vibe.color}-100">
-                                <span class="w-1.5 h-1.5 rounded-full bg-${vibe.color}-500"></span>${vibe.label}
-                            </span>
-                            <h3 class="font-extrabold text-slate-800 text-lg leading-snug">${item.title}</h3>
+                <div class="flex-1 bg-white p-4 rounded-3xl soft-card-shadow relative overflow-hidden transition-all active:scale-[0.98] border-t-4 border-${vibe.color}-500" style="border-top-color: ${vibe.hex};">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="inline-block text-[10px] font-bold text-${vibe.color}-700 bg-${vibe.color}-50 px-2 py-0.5 rounded-full mb-1 border border-${vibe.color}-100">${vibe.label}</span>
+                            <h3 class="font-extrabold text-gray-800 text-lg leading-tight">${item.title}</h3>
                         </div>
-                        <div class="flex gap-2 shrink-0">
-                            <button class="expense-btn w-8 h-8 rounded-xl bg-slate-50 text-slate-400 hover:bg-yellow-400 hover:text-white transition-all shadow-sm flex items-center justify-center active:scale-90" data-item-id="${item.id}"><i class="fas fa-coins text-xs"></i></button>
-                            <button class="edit-btn w-8 h-8 rounded-xl bg-slate-50 text-slate-400 hover:bg-cyan-500 hover:text-white transition-all shadow-sm flex items-center justify-center active:scale-90" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
+                        <div class="flex gap-1">
+                            <button class="expense-btn w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center hover:bg-yellow-200 transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-coins"></i></button>
+                            <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-cyan-50 hover:text-cyan-500 transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
                         </div>
                     </div>
-                    
-                    ${item.content ? `<p class="text-xs text-slate-500 mt-2 leading-relaxed border-l-2 border-slate-100 pl-2">${item.content}</p>` : ''}
-                    
-                    <div class="flex items-center gap-2 mt-3 flex-wrap">
-                        ${locationHTML} ${costBadge}
-                    </div>
+                    <p class="text-sm text-gray-500 mt-2 leading-relaxed">${item.content || ''}</p>
+                    ${locationHTML} ${costBadge}
                 </div>
             </div>`;
     }
@@ -657,10 +558,10 @@
         document.getElementById('header-daily-cost').textContent = `¥ ${total.toLocaleString()}`;
     }
 
-    // 七日花費 (Pro Design Logic)
+    // 七日花費 (新增進度條邏輯)
     async function calculateAllExpenses() {
         const container = document.getElementById('expense-full-list');
-        container.innerHTML = '<div class="text-center text-slate-400 py-10"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>數據計算中...</div>';
+        container.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fas fa-spinner fa-spin text-2xl"></i> 計算中...</div>';
         
         let grandTotal = 0;
         let totalBird = 0; let totalPig = 0; let totalShared = 0;
@@ -685,42 +586,33 @@
                             else if (ex.payer === 'pig') totalPig += amt;
                             else totalShared += amt; 
 
-                            let payerIcon = ex.payer === 'bird' ? '🐦' : (ex.payer === 'pig' ? '🐷' : '🤝');
+                            let payerIcon = ex.payer === 'bird' ? '🐦' : (ex.payer === 'pig' ? '🐷' : '🐷🐦');
                             dayHTML += `
-                                <div class="flex justify-between items-center text-sm py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 px-3 -mx-3 rounded-lg transition-colors">
-                                    <div class="flex items-center gap-3 overflow-hidden flex-1 min-w-0">
-                                        <span class="text-xs bg-slate-100 w-6 h-6 flex items-center justify-center rounded-full shrink-0">${payerIcon}</span>
-                                        <div class="flex flex-col overflow-hidden">
-                                            <span class="text-slate-700 font-bold truncate text-xs">${item.title}</span>
-                                            <span class="text-slate-400 text-[10px] truncate">${ex.description}</span>
-                                        </div>
+                                <div class="flex justify-between items-center text-sm py-1.5 border-b border-gray-100 last:border-0 hover:bg-gray-50 px-2 -mx-2 rounded">
+                                    <div class="flex items-center gap-2 overflow-hidden flex-1 min-w-0">
+                                        <span class="text-xs bg-gray-200 px-1 rounded-full shrink-0">${payerIcon}</span>
+                                        <span class="text-gray-600 truncate">${item.title} - ${ex.description}</span>
                                     </div>
-                                    <span class="font-mono font-bold text-slate-700 shrink-0 ml-2 bg-slate-50 px-2 py-1 rounded">¥${amt.toLocaleString()}</span>
+                                    <span class="font-mono font-bold text-gray-800 shrink-0 ml-2">¥${amt.toLocaleString()}</span>
                                 </div>`;
                         });
                     }
                 });
 
                 if (dayTotal > 0) {
-                    htmlContent += `
-                    <div class="bg-white rounded-2xl p-4 soft-card mb-4">
-                        <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100">
-                            <h3 class="font-bold text-slate-800 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> Day ${i}</h3>
-                            <span class="bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded-lg">¥${dayTotal.toLocaleString()}</span>
-                        </div>
-                        <div class="space-y-1">${dayHTML}</div>
-                    </div>`;
+                    htmlContent += `<div class="bg-white rounded-xl p-4 shadow-md border-t-4 border-gray-300 mb-4"><div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-200"><h3 class="font-bold text-lg text-gray-800">Day ${i}</h3><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-lg">Total: ¥${dayTotal.toLocaleString()}</span></div><div>${dayHTML}</div></div>`;
                 }
             }
         }
 
         document.getElementById('total-trip-jpy').textContent = `¥ ${grandTotal.toLocaleString()}`;
-        document.getElementById('total-trip-twd').textContent = `${Math.round(grandTotal * exchangeRate).toLocaleString()}`;
+        document.getElementById('total-trip-twd').textContent = `≈ NT$ ${Math.round(grandTotal * exchangeRate).toLocaleString()}`;
         document.getElementById('total-bird').textContent = `¥ ${totalBird.toLocaleString()}`;
         document.getElementById('total-pig').textContent = `¥ ${totalPig.toLocaleString()}`;
         document.getElementById('total-shared').textContent = `¥ ${totalShared.toLocaleString()}`;
-        container.innerHTML = htmlContent || '<div class="text-center text-slate-400 py-10 bg-white rounded-2xl border border-dashed border-slate-200">目前沒有任何消費記錄</div>';
+        container.innerHTML = htmlContent || '<div class="text-center text-gray-400 py-10">目前沒有任何消費記錄</div>';
         
+        // ★★★ 方案五: 渲染進度條 ★★★
         renderProgressBars(grandTotal, totalBird, totalPig, totalShared);
     }
     
@@ -731,6 +623,7 @@
             document.getElementById('progress-shared').innerHTML = '';
             return;
         }
+
         const birdWidth = ((totalBird / grandTotal) * 100).toFixed(1);
         const pigWidth = ((totalPig / grandTotal) * 100).toFixed(1);
         const sharedWidth = ((totalShared / grandTotal) * 100).toFixed(1);
@@ -742,10 +635,9 @@
 
     function createProgressBarHTML(width, color) {
         return `
-            <div class="overflow-hidden h-2 flex rounded-full bg-slate-100 mt-2">
-                <div style="width: ${width}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-${color}-400 rounded-full transition-all duration-1000 ease-out shadow-${color}-200 shadow-md"></div>
-            </div>
-            <div class="text-right text-[9px] text-slate-400 mt-1 font-bold">${width}%</div>`;
+            <div class="overflow-hidden h-1.5 flex rounded-full bg-${color}-100">
+                <div style="width: ${width}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-${color}-400 rounded-full transition-all duration-500 ease-out"></div>
+            </div>`;
     }
 
     // 記帳 Modal
@@ -764,23 +656,9 @@
     function renderExpenseList(expenses) {
         const container = document.getElementById('expense-list');
         container.innerHTML = '';
-        if(expenses.length === 0) {
-             container.innerHTML = '<div class="text-center text-slate-300 text-xs py-4">暫無紀錄</div>';
-             return;
-        }
         expenses.forEach((ex, idx) => {
-            let payerIcon = ex.payer === 'bird' ? '🐦' : (ex.payer === 'pig' ? '🐷' : '🤝');
-            const html = `
-                <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100 shadow-sm group">
-                    <div class="flex gap-3 items-center overflow-hidden flex-1 min-w-0">
-                        <span class="text-lg shrink-0 w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-sm">${payerIcon}</span>
-                        <span class="text-sm font-bold text-slate-700 truncate">${ex.description}</span>
-                    </div>
-                    <div class="flex items-center gap-3 shrink-0 ml-2">
-                        <span class="font-mono font-bold text-slate-600 bg-white px-2 py-1 rounded border border-slate-100">¥${parseInt(ex.amount).toLocaleString()}</span>
-                        <button onclick="removeExpense(${idx})" class="w-6 h-6 rounded-full bg-red-50 text-red-300 hover:text-red-500 hover:bg-red-100 flex items-center justify-center transition"><i class="fas fa-times text-xs"></i></button>
-                    </div>
-                </div>`;
+            let payerIcon = ex.payer === 'bird' ? '🐦' : (ex.payer === 'pig' ? '🐷' : '🐷🐦');
+            const html = `<div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm"><div class="flex gap-2 items-center overflow-hidden flex-1 min-w-0"><span class="text-lg shrink-0">${payerIcon}</span><span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span></div><div class="flex items-center gap-3 shrink-0 ml-2"><span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span><button onclick="removeExpense(${idx})" class="text-red-300 hover:text-red-500 active:scale-95"><i class="fas fa-times"></i></button></div></div>`;
             container.insertAdjacentHTML('beforeend', html);
         });
     }
@@ -824,7 +702,7 @@
         renderSchedule();
     }
 
-    // Standard Logic
+    // Standard Logic (略)
     async function addScheduleItem() {
         const startTime = document.getElementById('new-start-time').value;
         const endTime = document.getElementById('new-end-time').value;
@@ -839,8 +717,6 @@
         await saveScheduleToFirestore(currentItems);
         closeModal('add-modal');
         document.getElementById('new-title').value = ''; 
-        document.getElementById('new-location').value = '';
-        document.getElementById('new-content').value = '';
     }
 
     function prepareEdit(id) {
@@ -882,14 +758,7 @@
     }
 
     function getCategoryVibe(category) {
-        const map = { 
-            'FOOD': { hex: '#f97316', color: 'orange', label: '餐飲' }, 
-            'SIGHTSEEING': { hex: '#ef4444', color: 'red', label: '景點' }, 
-            'TRANSPORT': { hex: '#0ea5e9', color: 'sky', label: '交通' }, 
-            'SHOPPING': { hex: '#ec4899', color: 'pink', label: '購物' }, 
-            'HOTEL': { hex: '#a855f7', color: 'purple', label: '住宿' }, 
-            'OTHER': { hex: '#64748b', color: 'slate', label: '其他' } 
-        };
+        const map = { 'FOOD': { hex: '#f97316', color: 'orange', label: '餐飲' }, 'SIGHTSEEING': { hex: '#ef4444', color: 'red', label: '景點' }, 'TRANSPORT': { hex: '#0ea5e9', color: 'sky', label: '交通' }, 'SHOPPING': { hex: '#ec4899', color: 'pink', label: '購物' }, 'HOTEL': { hex: '#a855f7', color: 'purple', label: '住宿' }, 'OTHER': { hex: '#6b7280', color: 'gray', label: '其他' } };
         return map[category] || map['OTHER'];
     }
 
@@ -898,19 +767,9 @@
         slider.innerHTML = '';
         tripDates.forEach(d => {
             const active = d.day === currentDay;
-            // 美化的日期滑塊：選中時有漸層與光暈
-            const activeClass = active 
-                ? 'bg-gradient-to-br from-cyan-400 to-cyan-600 text-white shadow-lg shadow-cyan-400/30 scale-105 border-none' 
-                : 'bg-white text-slate-400 soft-card hover:bg-slate-50 border border-white';
-            
-            const textOpacity = active ? 'opacity-90' : 'opacity-50';
-            
-            slider.insertAdjacentHTML('beforeend', `
-                <div class="flex-shrink-0 w-[3.5rem] h-[4.2rem] rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-300 active:scale-95 ${activeClass}" onclick="switchDay(${d.day})">
-                    <div class="text-[9px] font-bold ${textOpacity} uppercase tracking-wider">${d.week}</div>
-                    <div class="text-xl font-black leading-none my-0.5">${d.date}</div>
-                    <div class="text-[8px] font-medium mt-0.5 w-full text-center truncate px-1 ${active ? 'text-cyan-50' : 'text-slate-300'}">${d.label}</div>
-                </div>`);
+            // 日期滑塊使用 Soft UI 風格
+            const activeClass = active ? 'bg-cyan-400 text-white shadow-lg shadow-cyan-200/50 scale-105' : 'bg-white soft-card-shadow hover:bg-gray-50';
+            slider.insertAdjacentHTML('beforeend', `<div class="flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95 ${activeClass}" onclick="switchDay(${d.day})"><div class="text-[10px] font-bold ${active ? 'opacity-90' : 'opacity-60'}">${d.week}</div><div class="text-xl font-black leading-none">${d.date}</div><div class="text-[8px] font-medium mt-1 truncate max-w-[90%] ${active ? 'text-white/80' : 'text-gray-400'}">${d.label}</div></div>`);
         });
     }
     
@@ -925,18 +784,18 @@
         document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
         document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`).classList.remove('hidden');
         
-        // Tab 切換高亮邏輯
-        document.getElementById('tab-schedule').className = `relative p-2 w-14 flex flex-col items-center justify-center transition-all active:scale-90 group ${page === 'schedule' ? 'text-cyan-600' : 'text-slate-300 hover:text-cyan-500'}`;
-        document.getElementById('tab-map').className = `relative p-2 w-14 flex flex-col items-center justify-center transition-all active:scale-90 group ${page === 'map' ? 'text-cyan-600' : 'text-slate-300 hover:text-cyan-500'}`;
-        document.getElementById('tab-expense').className = `relative p-2 w-14 flex flex-col items-center justify-center transition-all active:scale-90 group ${page === 'expense' ? 'text-yellow-500' : 'text-slate-300 hover:text-yellow-500'}`;
-        document.getElementById('tab-checklist').className = `relative p-2 w-14 flex flex-col items-center justify-center transition-all active:scale-90 group ${page === 'checklist' ? 'text-purple-600' : 'text-slate-300 hover:text-purple-500'}`;
+        // Tab 顏色切換為 Cyan 主題
+        document.getElementById('tab-schedule').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors active:scale-90 ${page === 'schedule' ? 'text-cyan-600' : 'text-gray-400 hover:text-cyan-500'}`;
+        document.getElementById('tab-map').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors active:scale-90 ${page === 'map' ? 'text-cyan-600' : 'text-gray-400 hover:text-cyan-500'}`;
+        document.getElementById('tab-expense').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors active:scale-90 ${page === 'expense' ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'}`;
+        document.getElementById('tab-checklist').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors active:scale-90 ${page === 'checklist' ? 'text-purple-600' : 'text-gray-400 hover:text-purple-500'}`;
         
-        // 頁面特定邏輯
+        // 中間新增按鈕的提升動畫 (在 CSS 中處理)
+
         if(page === 'expense') calculateAllExpenses();
-        if(page === 'map') setTimeout(initMap, 300);
+        if(page === 'map') setTimeout(initMap, 200);
         
         setTimeout(adjustContentPadding, 50);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function showModal(id) { document.getElementById(id).classList.add('active'); }
@@ -949,27 +808,18 @@
             checklistItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             const container = document.getElementById('checklist-container');
             container.innerHTML = '';
-            if(checklistItems.length === 0) container.innerHTML = '<div class="text-center text-slate-300 py-10">尚無待辦事項</div>';
-            
             checklistItems.sort((a, b) => a.isCompleted - b.isCompleted).forEach(item => {
-                const completedClass = item.isCompleted ? 'completed bg-slate-50 opacity-75' : 'bg-white';
+                const completedClass = item.isCompleted ? 'completed' : '';
                 const iconClass = item.isCompleted ? 'fa-check' : '';
-                
-                const html = `
-                    <div class="check-item flex items-center p-4 rounded-xl soft-card mb-2 ${completedClass}">
-                        <div onclick="toggleChecklist('${item.id}', ${item.isCompleted})" class="check-circle cursor-pointer w-6 h-6 rounded-lg border-2 border-indigo-200 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform bg-white shrink-0">
-                            <i class="fas ${iconClass}"></i>
-                        </div>
-                        <div class="flex-1 check-text font-bold text-slate-700 select-none cursor-pointer" onclick="toggleChecklist('${item.id}', ${item.isCompleted})">${item.text}</div>
-                        <button onclick="deleteChecklist('${item.id}')" class="w-8 h-8 rounded-full hover:bg-red-50 text-slate-300 hover:text-red-500 transition flex items-center justify-center active:scale-90"><i class="fas fa-trash-alt text-xs"></i></button>
-                    </div>`;
+                // 清單項目 Soft UI 風格
+                const html = `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${completedClass} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${item.id}', ${item.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 border-purple-300 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform"><i class="fas ${iconClass}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${item.id}', ${item.isCompleted})">${item.text}</div><button onclick="deleteChecklist('${item.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
         });
     }
     async function addChecklistItem() { const v = document.getElementById('checklist-input').value.trim(); if(v) { await db.collection(CHECKLIST_COLLECTION).add({ text: v, isCompleted: false, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('checklist-input').value = ''; } }
     async function toggleChecklist(id, s) { await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !s }); }
-    async function deleteChecklist(id) { if(confirm("確定移除此項目?")) await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
+    async function deleteChecklist(id) { if(confirm("刪除?")) await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
 
     async function loadExchangeRate() { try { const doc = await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if (doc.exists) { exchangeRate = doc.data().val; document.getElementById('display-rate').textContent = exchangeRate; } } catch (e) {} }
     async function saveExchangeRate() { const r = parseFloat(document.getElementById('exchange-rate-input').value); if(r) { exchangeRate = r; document.getElementById('display-rate').textContent = r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val: r}); closeModal('rate-modal'); } }
@@ -977,11 +827,11 @@
 
     // 自動調整高度函式 
     function adjustContentPadding() {
-        const header = document.querySelector('.glass-header');
+        const header = document.querySelector('.fixed-header');
         const schedulePage = document.getElementById('schedule-page');
         if (header && schedulePage) {
             const height = header.offsetHeight;
-            schedulePage.style.paddingTop = (height + 10) + 'px';
+            schedulePage.style.paddingTop = (height + 5) + 'px';
         }
     }
 
@@ -999,7 +849,7 @@
         window.addEventListener('resize', adjustContentPadding);
     });
 
-    // 暴露全域函數 (保持功能運作)
+    // 暴露全域函數
     window.switchDay = switchDay; window.switchPage = switchPage; window.prepareRateModal = prepareRateModal;
     window.saveExchangeRate = saveExchangeRate; window.addChecklistItem = addChecklistItem;
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
