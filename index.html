@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京之旅 2026 (完美版)</title>
+    <title id="app-title">東京之旅 2026 (七日統計版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -15,7 +15,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
         
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; user-select: none; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -26,8 +26,9 @@
         .fixed-footer { position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; }
         .page-content { padding-top: 160px; padding-bottom: 7rem; min-height: 100vh; }
         
+        /* 拖曳樣式：長按後的效果 */
         .sortable-ghost { opacity: 0.4; background-color: #f3f4f6; border: 2px dashed #cbd5e1; }
-        .sortable-drag { background-color: white; transform: scale(1.02); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .sortable-drag { background-color: white; transform: scale(1.05); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); z-index: 9999; }
         
         .check-item.completed .check-text { text-decoration: line-through; color: #9ca3af; }
         .check-item.completed .check-circle { background-color: #10b981; border-color: #10b981; color: white; }
@@ -58,8 +59,8 @@
                     <i class="fas fa-cog mr-1"></i>匯率: <span id="display-rate">0.22</span>
                 </button>
                 <div class="text-right">
+                    <div class="text-[10px] text-gray-400 font-bold">今日概算</div>
                     <div class="text-lg font-black text-red-600 leading-none" id="header-daily-cost">¥ 0</div>
-                    <div class="text-[10px] text-gray-400" id="header-twd-cost">≈ NT$ 0</div>
                 </div>
             </div>
 
@@ -76,19 +77,44 @@
 
     <div id="expense-page" class="hidden page-content px-4" style="padding-top: 2rem;">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
-            <span class="bg-yellow-100 text-yellow-600 p-2 rounded-lg text-xl"><i class="fas fa-file-invoice-dollar"></i></span>
-            今日花費明細
+            <span class="bg-yellow-100 text-yellow-600 p-2 rounded-lg text-xl"><i class="fas fa-coins"></i></span>
+            七日花費統計
         </h1>
         
-        <div class="bg-gray-900 text-white p-5 rounded-2xl shadow-lg mb-6 relative overflow-hidden">
+        <div class="bg-gray-900 text-white p-5 rounded-2xl shadow-lg mb-4 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-8 -mt-8 blur-xl"></div>
-            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Total Daily Spent</p>
-            <div class="text-3xl font-black mt-1" id="page-daily-total">¥ 0</div>
-            <div class="text-sm text-gray-400 mt-1" id="page-twd-total">≈ NT$ 0</div>
+            <div class="flex justify-between items-start relative z-10">
+                <div>
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Total Trip Cost</p>
+                    <div class="text-3xl font-black mt-1" id="total-trip-jpy">¥ 0</div>
+                    <div class="text-sm text-gray-400 mt-1" id="total-trip-twd">≈ NT$ 0</div>
+                </div>
+                <button onclick="calculateAllExpenses()" class="text-gray-400 hover:text-white"><i class="fas fa-sync-alt"></i></button>
+            </div>
         </div>
 
-        <div id="expense-summary-container" class="space-y-4 pb-20">
+        <div class="grid grid-cols-3 gap-2 mb-6">
+            <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 text-center">
+                <div class="text-2xl mb-1">🐦</div>
+                <div class="text-xs text-gray-400 font-bold">Bird</div>
+                <div class="font-black text-gray-800 text-sm mt-1 truncate" id="total-bird">¥0</div>
             </div>
+            <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 text-center">
+                <div class="text-2xl mb-1">🐷</div>
+                <div class="text-xs text-gray-400 font-bold">Pig</div>
+                <div class="font-black text-gray-800 text-sm mt-1 truncate" id="total-pig">¥0</div>
+            </div>
+            <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 text-center">
+                <div class="text-2xl mb-1">🐷🐦</div>
+                <div class="text-xs text-gray-400 font-bold">Shared</div>
+                <div class="font-black text-gray-800 text-sm mt-1 truncate" id="total-shared">¥0</div>
+            </div>
+        </div>
+
+        <h2 class="font-bold text-gray-700 mb-2 ml-1">詳細明細 (Day 1-7)</h2>
+        <div id="expense-full-list" class="space-y-3 pb-20">
+            <div class="text-center text-gray-400 text-sm py-10">載入中...</div>
+        </div>
     </div>
 
     <div id="checklist-page" class="hidden page-content px-4" style="padding-top: 2rem;">
@@ -96,9 +122,9 @@
             <span class="bg-purple-100 text-purple-600 p-2 rounded-lg text-xl"><i class="fas fa-clipboard-check"></i></span>
             必買 & 準備清單
         </h1>
-        <div class="flex gap-2 mb-4">
-            <input type="text" id="checklist-input" placeholder="新增項目..." class="flex-1 p-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
-            <button onclick="addChecklistItem()" class="bg-purple-600 text-white px-4 rounded-xl font-bold shadow-md active:scale-95 transition"><i class="fas fa-plus"></i></button>
+        <div class="flex gap-2 mb-4 w-full">
+            <input type="text" id="checklist-input" placeholder="新增項目..." class="flex-1 min-w-0 p-3 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <button onclick="addChecklistItem()" class="bg-purple-600 text-white px-4 rounded-xl font-bold shadow-md active:scale-95 transition shrink-0"><i class="fas fa-plus"></i></button>
         </div>
         <div id="checklist-container" class="space-y-2 pb-20"></div>
     </div>
@@ -176,15 +202,24 @@
                 </div>
                 <button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
             </div>
+            
             <div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div>
+            
             <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto">
                 <div class="flex gap-2 mb-2">
-                    <input type="text" id="expense-desc" placeholder="品項 (如: 門票)" class="flex-1 p-2 border border-gray-300 rounded-lg text-sm">
-                    <input type="number" id="expense-amount" placeholder="金額" class="w-20 p-2 border border-gray-300 rounded-lg text-sm font-bold">
+                    <select id="expense-payer" class="w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none">
+                        <option value="bird">🐦</option>
+                        <option value="pig">🐷</option>
+                        <option value="shared">🐷🐦</option>
+                    </select>
+                    <input type="text" id="expense-desc" placeholder="品項" class="flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm">
                 </div>
-                <button onclick="addExpenseToItem()" class="w-full bg-yellow-500 text-white font-bold py-2 rounded-lg shadow hover:bg-yellow-600">
-                    <i class="fas fa-plus mr-1"></i> 加入花費
-                </button>
+                <div class="flex gap-2">
+                    <input type="number" id="expense-amount" placeholder="金額 (¥)" class="flex-1 p-2 border border-gray-300 rounded-lg text-sm font-bold">
+                    <button onclick="addExpenseToItem()" class="w-[80px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow hover:bg-yellow-600 shrink-0">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
             </div>
             <input type="hidden" id="expense-item-id">
         </div>
@@ -252,15 +287,14 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     
+    // ★★★ V4 資料庫 (全新開始) ★★★
     const SCHEDULE_COLLECTION = 'trip_schedules_v4';
     const CHECKLIST_COLLECTION = 'trip_checklist'; 
     const CONFIG_DOCUMENT_ID = 'trip_config';
 
     function getDocumentId(day) { return `tokyo_feb_2026_day_${day}`; }
 
-    // =======================================================
     // 天氣
-    // =======================================================
     const WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?id=1850147&appid=54f22a6f3141e619d73a09a6d4136e88&units=metric&lang=zh_tw`;
     async function fetchWeather() {
         try {
@@ -276,12 +310,10 @@
                 if (icon.includes('03') || icon.includes('04')) iconClass = 'fas fa-cloud text-gray-400';
                 document.getElementById('weather-icon-container').innerHTML = `<i class="${iconClass}"></i>`;
             }
-        } catch(e) { console.error(e); }
+        } catch(e) {}
     }
 
-    // =======================================================
-    // 行程 & 記帳核心
-    // =======================================================
+    // 核心行程
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
         const loading = document.getElementById('loading-status');
@@ -289,23 +321,24 @@
             loading.style.opacity = '0';
             currentItems = doc.exists ? (doc.data().schedule || []) : [];
             renderSchedule();
-            calculateTotalCost();
-            renderExpenseSummaryPage(); // 確保花費頁面也更新
+            calculateDailyCost(); // 只算今日
         });
     }
 
     async function saveScheduleToFirestore(items) {
-        try { await db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(currentDay)).set({ schedule: items, lastUpdated: firebase.firestore.FieldValue.serverTimestamp() }); } catch (e) { alert("儲存失敗"); }
+        try { await db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(currentDay)).set({ schedule: items, lastUpdated: firebase.firestore.FieldValue.serverTimestamp() }); } catch (e) {}
     }
 
+    // 長按拖曳設定
     function initSortable() {
         const el = document.getElementById('schedule-container');
         if (sortableInstance) sortableInstance.destroy();
         sortableInstance = new Sortable(el, {
-            handle: '.drag-handle',
-            animation: 150,
-            delay: 100, delayOnTouchOnly: true,
-            ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
+            animation: 200,
+            delay: 1000, // 長按1秒
+            delayOnTouchOnly: false, // 電腦版也需要長按(防止誤觸)
+            ghostClass: 'sortable-ghost',
+            dragClass: 'sortable-drag',
             onEnd: function (evt) {
                 const item = currentItems[evt.oldIndex];
                 currentItems.splice(evt.oldIndex, 1);
@@ -330,101 +363,109 @@
         const vibe = getCategoryVibe(item.category);
         const expenses = item.expenses || [];
         const totalItemCost = expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0);
-        
-        const timeDisplay = item.endTime 
-            ? `${item.startTime}<br><span class="text-[10px] opacity-50">${item.endTime}</span>` 
-            : item.startTime;
-
-        const costBadge = totalItemCost > 0 
-            ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-1 inline-block">¥ ${totalItemCost.toLocaleString()}</div>`
-            : '';
-
-        // Google Maps Link
-        let locationHTML = '';
-        if (item.location) {
-            const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}`;
-            locationHTML = `<a href="${mapUrl}" target="_blank" class="text-xs text-blue-500 mt-1 font-bold hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>`;
-        }
+        const timeDisplay = item.endTime ? `${item.startTime}<br><span class="text-[10px] opacity-50">${item.endTime}</span>` : item.startTime;
+        const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-1 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
+        let locationHTML = item.location ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-blue-500 mt-1 font-bold hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
         return `
-            <div class="flex gap-3 items-start group relative" data-id="${item.id}">
+            <div class="flex gap-3 items-start group relative select-none" data-id="${item.id}">
                 <div class="flex flex-col items-center pt-2 min-w-[3.5rem]">
                     <div class="text-sm font-black text-gray-500 font-mono bg-gray-100 px-1 rounded text-center leading-tight">${timeDisplay}</div>
                     <div class="w-0.5 bg-gray-200 h-full mt-1 rounded-full min-h-[3rem]"></div>
                 </div>
-                <div class="flex-1 bg-white p-3 rounded-2xl shadow-sm border-l-4 border-${vibe.color}-500 relative overflow-hidden" style="border-left-color: ${vibe.hex}">
+                <div class="flex-1 bg-white p-3 rounded-2xl shadow-sm border-l-4 border-${vibe.color}-500 relative overflow-hidden transition-transform active:scale-[0.98]" style="border-left-color: ${vibe.hex}">
                     <div class="flex justify-between items-start">
-                        <div>
-                            <span class="inline-block text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded mb-1">${vibe.label}</span>
-                            <h3 class="font-bold text-gray-800 text-lg leading-tight">${item.title}</h3>
-                        </div>
+                        <div><span class="inline-block text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded mb-1">${vibe.label}</span><h3 class="font-bold text-gray-800 text-lg leading-tight">${item.title}</h3></div>
                         <div class="flex gap-1">
-                            <button class="expense-btn w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center hover:bg-yellow-200 transition active:scale-90" data-item-id="${item.id}">
-                                <i class="fas fa-coins"></i>
-                            </button>
-                            <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-blue-50 hover:text-blue-500 transition active:scale-90" data-item-id="${item.id}">
-                                <i class="fas fa-pen text-xs"></i>
-                            </button>
+                            <button class="expense-btn w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center hover:bg-yellow-200 transition" data-item-id="${item.id}"><i class="fas fa-coins"></i></button>
+                            <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-blue-50 hover:text-blue-500 transition" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
                         </div>
                     </div>
                     <p class="text-sm text-gray-500 mt-1 leading-relaxed">${item.content || ''}</p>
-                    ${locationHTML}
-                    ${costBadge}
-                </div>
-                <div class="drag-handle flex items-center justify-center w-8 h-full self-center cursor-move touch-none text-gray-300 hover:text-gray-500">
-                    <i class="fas fa-bars text-lg"></i>
+                    ${locationHTML} ${costBadge}
                 </div>
             </div>`;
     }
 
-    function calculateTotalCost() {
+    function calculateDailyCost() {
         let total = 0;
-        currentItems.forEach(item => {
-            if(item.expenses) total += item.expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0);
-        });
-        const twd = Math.round(total * exchangeRate);
+        currentItems.forEach(item => { if(item.expenses) total += item.expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0); });
         document.getElementById('header-daily-cost').textContent = `¥ ${total.toLocaleString()}`;
-        document.getElementById('header-twd-cost').textContent = `≈ NT$ ${twd.toLocaleString()}`;
-        document.getElementById('page-daily-total').textContent = `¥ ${total.toLocaleString()}`;
-        document.getElementById('page-twd-total').textContent = `≈ NT$ ${twd.toLocaleString()}`;
-    }
-
-    function renderExpenseSummaryPage() {
-        const container = document.getElementById('expense-summary-container');
-        container.innerHTML = '';
-        
-        let hasExpense = false;
-        currentItems.forEach(item => {
-            if(item.expenses && item.expenses.length > 0) {
-                hasExpense = true;
-                let itemTotal = 0;
-                let detailHTML = item.expenses.map(ex => {
-                    itemTotal += parseInt(ex.amount);
-                    return `<div class="flex justify-between text-sm border-b border-gray-100 py-2 last:border-0">
-                        <span class="text-gray-600 pl-2">- ${ex.description}</span>
-                        <span class="font-mono font-bold text-gray-800">¥ ${parseInt(ex.amount).toLocaleString()}</span>
-                    </div>`;
-                }).join('');
-
-                const html = `
-                    <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-yellow-400">
-                        <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-100">
-                            <h3 class="font-bold text-lg text-gray-800">${item.title}</h3>
-                            <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-1 rounded">¥ ${itemTotal.toLocaleString()}</span>
-                        </div>
-                        <div>${detailHTML}</div>
-                    </div>`;
-                container.insertAdjacentHTML('beforeend', html);
-            }
-        });
-
-        if(!hasExpense) {
-            container.innerHTML = `<div class="text-center text-gray-400 py-10"><i class="fas fa-receipt text-4xl mb-3 opacity-30"></i><br>今日尚無任何消費記錄</div>`;
-        }
     }
 
     // =======================================================
-    // 記帳 Modal
+    // 七日花費統計
+    // =======================================================
+    async function calculateAllExpenses() {
+        const container = document.getElementById('expense-full-list');
+        container.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fas fa-spinner fa-spin text-2xl"></i> 計算中...</div>';
+        
+        let grandTotal = 0;
+        let totalBird = 0;
+        let totalPig = 0;
+        let totalShared = 0;
+        let htmlContent = '';
+
+        // 跑迴圈抓 7 天資料
+        for (let i = 1; i <= 7; i++) {
+            const docId = getDocumentId(i);
+            const doc = await db.collection(SCHEDULE_COLLECTION).doc(docId).get();
+            if (doc.exists) {
+                const items = doc.data().schedule || [];
+                let dayTotal = 0;
+                let dayHTML = '';
+
+                items.forEach(item => {
+                    if (item.expenses && item.expenses.length > 0) {
+                        item.expenses.forEach(ex => {
+                            const amt = parseInt(ex.amount) || 0;
+                            grandTotal += amt;
+                            dayTotal += amt;
+                            
+                            if (ex.payer === 'bird') totalBird += amt;
+                            else if (ex.payer === 'pig') totalPig += amt;
+                            else totalShared += amt; // shared
+
+                            let payerIcon = ex.payer === 'bird' ? '🐦' : (ex.payer === 'pig' ? '🐷' : '🐷🐦');
+                            
+                            dayHTML += `
+                                <div class="flex justify-between items-center text-sm py-1 border-b border-gray-50 last:border-0">
+                                    <div class="flex items-center gap-2 overflow-hidden">
+                                        <span class="text-xs bg-gray-100 px-1 rounded">${payerIcon}</span>
+                                        <span class="text-gray-600 truncate">${item.title} - ${ex.description}</span>
+                                    </div>
+                                    <span class="font-mono font-bold text-gray-800 shrink-0">¥${amt.toLocaleString()}</span>
+                                </div>`;
+                        });
+                    }
+                });
+
+                if (dayTotal > 0) {
+                    htmlContent += `
+                        <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-gray-300 mb-3">
+                            <div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-100">
+                                <h3 class="font-bold text-gray-800">Day ${i}</h3>
+                                <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded">Total: ¥${dayTotal.toLocaleString()}</span>
+                            </div>
+                            <div>${dayHTML}</div>
+                        </div>`;
+                }
+            }
+        }
+
+        // 更新上方數字
+        document.getElementById('total-trip-jpy').textContent = `¥ ${grandTotal.toLocaleString()}`;
+        document.getElementById('total-trip-twd').textContent = `≈ NT$ ${Math.round(grandTotal * exchangeRate).toLocaleString()}`;
+        document.getElementById('total-bird').textContent = `¥ ${totalBird.toLocaleString()}`;
+        document.getElementById('total-pig').textContent = `¥ ${totalPig.toLocaleString()}`;
+        document.getElementById('total-shared').textContent = `¥ ${totalShared.toLocaleString()}`;
+
+        // 更新列表
+        container.innerHTML = htmlContent || '<div class="text-center text-gray-400 py-10">目前沒有任何消費記錄</div>';
+    }
+
+    // =======================================================
+    // 記帳 Modal (支援付款人)
     // =======================================================
     function openExpenseModal(itemId) {
         const item = currentItems.find(i => i.id === itemId);
@@ -440,17 +481,15 @@
     function renderExpenseList(expenses) {
         const container = document.getElementById('expense-list');
         container.innerHTML = '';
-        if(expenses.length === 0) {
-            container.innerHTML = '<div class="text-center text-gray-400 text-sm py-4">尚無花費記錄</div>';
-            return;
-        }
         expenses.forEach((ex, idx) => {
+            let payerIcon = ex.payer === 'bird' ? '🐦' : (ex.payer === 'pig' ? '🐷' : '🐷🐦');
             const html = `
                 <div class="flex justify-between items-center bg-gray-50 p-2 rounded border border-gray-100">
-                    <div class="flex gap-2 items-center">
-                        <span class="text-sm font-bold text-gray-700">${ex.description}</span>
+                    <div class="flex gap-2 items-center overflow-hidden">
+                        <span class="text-lg">${payerIcon}</span>
+                        <span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3 shrink-0">
                         <span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span>
                         <button onclick="removeExpense(${idx})" class="text-red-300 hover:text-red-500"><i class="fas fa-times"></i></button>
                     </div>
@@ -461,32 +500,37 @@
 
     async function addExpenseToItem() {
         const itemId = document.getElementById('expense-item-id').value;
+        const payer = document.getElementById('expense-payer').value;
         const desc = document.getElementById('expense-desc').value || '未分類';
         const amount = parseInt(document.getElementById('expense-amount').value);
+        
         if(isNaN(amount) || amount <= 0) return;
-        const itemIndex = currentItems.findIndex(i => i.id === itemId);
-        if(itemIndex === -1) return;
-        if(!currentItems[itemIndex].expenses) currentItems[itemIndex].expenses = [];
-        currentItems[itemIndex].expenses.push({ description: desc, amount: amount });
-        renderExpenseList(currentItems[itemIndex].expenses);
+        const idx = currentItems.findIndex(i => i.id === itemId);
+        if(idx === -1) return;
+        
+        if(!currentItems[idx].expenses) currentItems[idx].expenses = [];
+        currentItems[idx].expenses.push({ description: desc, amount: amount, payer: payer }); // 存入付款人
+        
+        renderExpenseList(currentItems[idx].expenses);
         document.getElementById('expense-desc').value = '';
         document.getElementById('expense-amount').value = '';
+        
         await saveScheduleToFirestore(currentItems);
         renderSchedule();
     }
 
     async function removeExpense(expenseIdx) {
         const itemId = document.getElementById('expense-item-id').value;
-        const itemIndex = currentItems.findIndex(i => i.id === itemId);
-        if(itemIndex === -1) return;
-        currentItems[itemIndex].expenses.splice(expenseIdx, 1);
-        renderExpenseList(currentItems[itemIndex].expenses);
+        const idx = currentItems.findIndex(i => i.id === itemId);
+        if(idx === -1) return;
+        currentItems[idx].expenses.splice(expenseIdx, 1);
+        renderExpenseList(currentItems[idx].expenses);
         await saveScheduleToFirestore(currentItems);
         renderSchedule();
     }
 
     // =======================================================
-    // 新增與編輯
+    // Standard Logic
     // =======================================================
     async function addScheduleItem() {
         const startTime = document.getElementById('new-start-time').value;
@@ -501,7 +545,7 @@
         currentItems.sort((a, b) => a.startTime.localeCompare(b.startTime));
         await saveScheduleToFirestore(currentItems);
         closeModal('add-modal');
-        document.getElementById('new-title').value = ''; document.getElementById('new-location').value = ''; document.getElementById('new-content').value = '';
+        document.getElementById('new-title').value = ''; 
     }
 
     function prepareEdit(id) {
@@ -519,19 +563,20 @@
 
     async function saveEdit() {
         const id = document.getElementById('editing-item-id').value;
-        const itemIndex = currentItems.findIndex(i => i.id === id);
-        if (itemIndex === -1) return;
-        currentItems[itemIndex] = {
-            ...currentItems[itemIndex],
-            startTime: document.getElementById('edit-start-time').value,
-            endTime: document.getElementById('edit-end-time').value,
-            title: document.getElementById('edit-title').value,
-            location: document.getElementById('edit-location').value,
-            content: document.getElementById('edit-content').value,
-            category: document.getElementById('edit-category').value
-        };
-        await saveScheduleToFirestore(currentItems);
-        closeModal('edit-modal');
+        const idx = currentItems.findIndex(i => i.id === id);
+        if (idx !== -1) {
+            currentItems[idx] = {
+                ...currentItems[idx],
+                startTime: document.getElementById('edit-start-time').value,
+                endTime: document.getElementById('edit-end-time').value,
+                title: document.getElementById('edit-title').value,
+                location: document.getElementById('edit-location').value,
+                content: document.getElementById('edit-content').value,
+                category: document.getElementById('edit-category').value
+            };
+            await saveScheduleToFirestore(currentItems);
+            closeModal('edit-modal');
+        }
     }
     
     async function deleteScheduleItem() {
@@ -542,18 +587,8 @@
         closeModal('edit-modal');
     }
 
-    // =======================================================
-    // UI & Tools
-    // =======================================================
     function getCategoryVibe(category) {
-        const map = {
-            'FOOD': { hex: '#f97316', color: 'orange', label: '餐飲' },
-            'SIGHTSEEING': { hex: '#ef4444', color: 'red', label: '景點' },
-            'TRANSPORT': { hex: '#3b82f6', color: 'blue', label: '交通' },
-            'SHOPPING': { hex: '#ec4899', color: 'pink', label: '購物' },
-            'HOTEL': { hex: '#a855f7', color: 'purple', label: '住宿' },
-            'OTHER': { hex: '#6b7280', color: 'gray', label: '其他' }
-        };
+        const map = { 'FOOD': { hex: '#f97316', color: 'orange', label: '餐飲' }, 'SIGHTSEEING': { hex: '#ef4444', color: 'red', label: '景點' }, 'TRANSPORT': { hex: '#3b82f6', color: 'blue', label: '交通' }, 'SHOPPING': { hex: '#ec4899', color: 'pink', label: '購物' }, 'HOTEL': { hex: '#a855f7', color: 'purple', label: '住宿' }, 'OTHER': { hex: '#6b7280', color: 'gray', label: '其他' } };
         return map[category] || map['OTHER'];
     }
 
@@ -562,38 +597,26 @@
         slider.innerHTML = '';
         TRIP_DATES.forEach(d => {
             const active = d.day === currentDay;
-            slider.insertAdjacentHTML('beforeend', `
-                <div class="flex-shrink-0 text-center cursor-pointer px-2 ${active ? '' : 'opacity-40 hover:opacity-70'}" onclick="switchDay(${d.day})"> 
-                    <div class="text-[10px] font-bold ${active ? 'text-green-600' : 'text-gray-400'}">${d.week}</div>
-                    <div class="text-xl font-black ${active ? 'text-gray-800 border-b-2 border-green-500' : 'text-gray-400'} pb-1">${d.date}</div>
-                </div>`);
+            slider.insertAdjacentHTML('beforeend', `<div class="flex-shrink-0 text-center cursor-pointer px-2 ${active ? '' : 'opacity-40 hover:opacity-70'}" onclick="switchDay(${d.day})"><div class="text-[10px] font-bold ${active ? 'text-green-600' : 'text-gray-400'}">${d.week}</div><div class="text-xl font-black ${active ? 'text-gray-800 border-b-2 border-green-500' : 'text-gray-400'} pb-1">${d.date}</div></div>`);
         });
     }
     
-    function renderHeroAndTitle(day) {
-        const conf = TRIP_DATES.find(d => d.day === day) || TRIP_DATES[0];
-        document.getElementById('current-day-title').textContent = conf.label;
-    }
-
     function switchDay(day) {
         if (day === currentDay) return;
         currentDay = day;
-        renderDateSlider(); renderHeroAndTitle(day); listenForScheduleUpdates(day); 
+        document.getElementById('current-day-title').textContent = TRIP_DATES.find(d=>d.day===day).label;
+        renderDateSlider(); listenForScheduleUpdates(day); 
     }
 
     function switchPage(page) {
         document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
-        document.getElementById(`${page}-page`).classList.remove('hidden');
-        const tabSchedule = document.getElementById('tab-schedule');
-        const tabChecklist = document.getElementById('tab-checklist');
-        const tabExpense = document.getElementById('tab-expense');
+        document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : 'schedule')}-page`).classList.remove('hidden');
         
-        const activeClass = "text-green-600"; 
-        const inactiveClass = "text-gray-400";
+        document.getElementById('tab-schedule').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'schedule' ? 'text-green-600' : 'text-gray-400'}`;
+        document.getElementById('tab-expense').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'expense' ? 'text-yellow-500' : 'text-gray-400'}`;
+        document.getElementById('tab-checklist').className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'checklist' ? 'text-purple-600' : 'text-gray-400'}`;
         
-        tabSchedule.className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'schedule' ? activeClass : inactiveClass}`;
-        tabChecklist.className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'checklist' ? 'text-purple-600' : inactiveClass}`;
-        tabExpense.className = `p-2 w-14 flex flex-col items-center justify-center transition-colors ${page === 'expense' ? 'text-yellow-500' : inactiveClass}`;
+        if(page === 'expense') calculateAllExpenses();
     }
 
     function showModal(id) { document.getElementById(id).classList.add('active'); }
@@ -618,12 +641,10 @@
     async function toggleChecklist(id, s) { await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !s }); }
     async function deleteChecklist(id) { if(confirm("刪除?")) await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
 
-    // Rate
     async function loadExchangeRate() { try { const doc = await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if (doc.exists) { exchangeRate = doc.data().val; document.getElementById('display-rate').textContent = exchangeRate; } } catch (e) {} }
-    async function saveExchangeRate() { const r = parseFloat(document.getElementById('exchange-rate-input').value); if(r) { exchangeRate = r; document.getElementById('display-rate').textContent = r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val: r}); closeModal('rate-modal'); calculateTotalCost(); } }
+    async function saveExchangeRate() { const r = parseFloat(document.getElementById('exchange-rate-input').value); if(r) { exchangeRate = r; document.getElementById('display-rate').textContent = r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val: r}); closeModal('rate-modal'); } }
     function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
 
-    // Events
     document.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.edit-btn');
         const expenseBtn = e.target.closest('.expense-btn');
@@ -632,15 +653,14 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        renderDateSlider(); renderHeroAndTitle(currentDay); switchPage('schedule');
-        listenForScheduleUpdates(currentDay); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
+        renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
     });
 
     window.switchDay = switchDay; window.switchPage = switchPage; window.prepareRateModal = prepareRateModal;
     window.saveExchangeRate = saveExchangeRate; window.addChecklistItem = addChecklistItem;
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
     window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
-    window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense;
+    window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
 </script>
 </body>
 </html>
