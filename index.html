@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (極簡淺紫版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (經典玫瑰粉版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -18,17 +18,17 @@
         /* 引入 Noto Sans TC */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
         
-        /* ------------------ 主題色定義 ------------------ */
-        /* 淺丁香紫/薰衣草紫 (更淡、飽和度更低) */
+        /* ------------------ 主題色定義 - 玫瑰粉 ------------------ */
         :root {
-            --primary-light: #E0CFFC; /* Soft UI 主色 (淺紫) */
-            --primary-normal: #C084FC; /* 按鈕和重點元素 (丁香紫/purple-400) */
-            --primary-dark: #A855F7; /* Hover 顏色 (更深一點的紫) */
+            --primary-light: #FBCFE8; /* Soft UI 主色 (淺玫瑰粉/Rose-200) */
+            --primary-normal: #F472B6; /* 按鈕和重點元素 (標準玫瑰粉/Rose-400) */
+            --primary-dark: #EC4899; /* Hover 顏色 (深玫瑰粉/Rose-500) */
         }
         /* ------------------------------------------------ */
 
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f0f4f7; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+        /* 背景色調整為更柔和的淺灰色，與粉色更搭 */
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f7f7f9; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -40,26 +40,32 @@
 
         .fixed-header { 
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
-            background-color: #f0f4f7; 
+            background-color: #f7f7f9; /* 配合 body 背景色 */
             padding-top: 16px; padding-bottom: 4px; 
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); 
         } 
         
+        /* 底部導覽列 - 寬版圓角矩形佈局 */
         .fixed-footer { 
-            position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; 
+            position: fixed; 
+            bottom: 0; /* 貼緊底部 */
+            left: 0; 
+            right: 0; 
+            z-index: 1001; 
             background-color: white; 
-            border-radius: 9999px; 
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15), 0 5px 10px rgba(0,0,0,0.05); 
-            height: 64px; 
+            border-radius: 2rem 2rem 0 0; /* 頂部大圓角，底部直角 */
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.1), 0 0px 10px rgba(0,0,0,0.05); 
+            height: 72px; /* 略高於之前的藥丸 */
             display: flex;
             align-items: center;
             justify-content: space-around;
             padding: 0 10px;
         }
-        
+
+        /* 調整內邊距以避免被 footer 遮擋 */
         #schedule-page { padding-top: 180px; } 
         #expense-page, #checklist-page { padding-top: 20px; } 
-        #map-page { padding-top: 20px; padding-bottom: 7rem !important; } 
+        #map-page { padding-top: 20px; padding-bottom: 7.5rem !important; } /* 略微增加 padding-bottom */
         
         .soft-card-shadow {
             box-shadow: 
@@ -78,17 +84,17 @@
             transition: box-shadow 0.3s ease;
         }
 
-        .sortable-ghost { opacity: 0.2; background-color: #e2e8f0; border: 2px dashed #cbd5e1; border-radius: 1.5rem; }
+        .sortable-ghost { opacity: 0.2; background-color: #ffe4e6; border: 2px dashed #fecdd3; border-radius: 1.5rem; }
         .sortable-drag { background-color: white; transform: scale(1.03); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1.5rem; cursor: grabbing; }
         
         .check-item.completed .check-text { text-decoration: line-through; color: #9ca3af; }
-        /* 清單完成色：使用更淡的淺紫 */
+        /* 清單完成色：使用淺玫瑰粉 */
         .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: white; } 
 
         #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
         .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
 
-        /* 輸入框和按鈕聚焦 - 使用更淡的淺紫 */
+        /* 輸入框和按鈕聚焦 - 使用淺玫瑰粉 */
         .input-focus {
             transition: box-shadow 0.2s, border-color 0.2s;
         }
@@ -97,7 +103,7 @@
             box-shadow: 0 0 0 3px var(--primary-light);
         }
 
-        /* 核心按鈕發光效果 - 使用更飽和的紫 */
+        /* 核心按鈕發光效果 - 使用標準玫瑰粉 */
         .glow-btn {
             background-color: var(--primary-normal); 
             box-shadow: 0 0 15px var(--primary-light); 
@@ -240,7 +246,7 @@
 
     <div id="checklist-page" class="hidden page-content px-4">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
-            <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-dark);"><i class="fas fa-clipboard-check"></i></span>
+            <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-clipboard-check"></i></span>
             必買 & 準備清單
         </h1>
         <div class="flex gap-3 mb-6 w-full">
@@ -373,7 +379,7 @@
             <i class="fas fa-map text-xl mb-1"></i>
             <span class="text-[9px] font-bold">地圖</span>
         </button>
-        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="glow-btn text-white w-16 h-16 rounded-full flex items-center justify-center -mt-10 cursor-pointer active:scale-90 transition-transform border-4 border-white">
+        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="glow-btn text-white w-16 h-16 rounded-full flex items-center justify-center -mt-10 cursor-pointer active:scale-90 transition-transform border-4 border-white shadow-xl shadow-[var(--primary-light)]">
             <i class="fas fa-plus text-xl"></i>
         </div>
         <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors active:scale-90">
@@ -484,7 +490,7 @@
         }
     }
 
-    // 地圖 (Marker 顏色使用飽和紫)
+    // 地圖 (Marker 顏色使用標準玫瑰粉)
     async function initMap() {
         if (!mapInstance) {
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
@@ -517,7 +523,7 @@
                     
                     const itemNumber = index + 1;
                     
-                    // 自定義 Icon
+                    // 自定義 Icon 顏色使用標準玫瑰粉
                     const customIcon = L.divIcon({
                         className: 'map-icon',
                         html: itemNumber.toString(),
@@ -805,7 +811,7 @@
             'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, 
             'TRANSPORT': { hex: '#38bdf8', color: 'sky', label: '交通' }, 
             'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, 
-            'HOTEL': { hex: '#D1B4F9', color: 'purple', label: '住宿' }, // 住宿顏色調整為飽和紫
+            'HOTEL': { hex: '#F472B6', color: 'pink', label: '住宿' }, // 住宿顏色調整為標準玫瑰粉
             'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } 
         };
         return map[category] || map['OTHER'];
@@ -819,7 +825,7 @@
 
         tripDates.forEach(d => {
             const active = d.day === currentDay;
-            // 日期滑塊使用 Soft UI 風格，激活時的顏色使用飽和紫和其陰影
+            // 日期滑塊使用 Soft UI 風格，激活時的顏色使用標準玫瑰粉和其陰影
             const activeClass = active ? `bg-[${primaryColorNormal}] text-white shadow-lg shadow-[${primaryColorNormal}]/50 scale-105` : 'bg-white soft-card-shadow hover:bg-gray-50';
             slider.insertAdjacentHTML('beforeend', `<div class="flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95 ${activeClass}" onclick="switchDay(${d.day})"><div class="text-[10px] font-bold ${active ? 'opacity-90' : 'opacity-60'}">${d.week}</div><div class="text-xl font-black leading-none">${d.date}</div><div class="text-[8px] font-medium mt-1 truncate max-w-[90%] ${active ? 'text-white/80' : 'text-gray-400'}">${d.label}</div></div>`);
         });
@@ -836,7 +842,7 @@
         document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
         document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`).classList.remove('hidden');
         
-        // Tab 顏色切換為淺紫主題
+        // Tab 顏色切換為玫瑰粉主題
         const primaryColorNormal = getComputedStyle(document.documentElement).getPropertyValue('--primary-normal');
         const tabSchedule = document.getElementById('tab-schedule');
         const tabMap = document.getElementById('tab-map');
@@ -845,7 +851,7 @@
 
         tabSchedule.style.color = page === 'schedule' ? primaryColorNormal : '';
         tabMap.style.color = page === 'map' ? primaryColorNormal : '';
-        tabExpense.style.color = page === 'expense' ? '#f59e0b' : ''; 
+        tabExpense.style.color = page === 'expense' ? '#f59e0b' : ''; // 花費維持橙黃色
         tabChecklist.style.color = page === 'checklist' ? primaryColorNormal : ''; 
 
         tabSchedule.classList.toggle('text-gray-400', page !== 'schedule');
@@ -862,7 +868,7 @@
     function showModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-    // Checklist (保持不變)
+    // Checklist (完成狀態使用淺玫瑰粉)
     function listenForChecklistUpdates() {
         if (firestoreChecklistListener) firestoreChecklistListener();
         firestoreChecklistListener = db.collection(CHECKLIST_COLLECTION).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
@@ -886,14 +892,18 @@
     async function saveExchangeRate() { const r = parseFloat(document.getElementById('exchange-rate-input').value); if(r) { exchangeRate = r; document.getElementById('display-rate').textContent = r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val: r}); closeModal('rate-modal'); } }
     function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
 
-    // 自動調整高度函式 (保持不變)
+    // 自動調整高度函式 (配合寬版 footer 調整)
     function adjustContentPadding() {
         const header = document.querySelector('.fixed-header');
+        const footer = document.querySelector('.fixed-footer');
         const schedulePage = document.getElementById('schedule-page');
         if (header && schedulePage) {
-            const height = header.offsetHeight;
-            schedulePage.style.paddingTop = (height + 5) + 'px';
+            schedulePage.style.paddingTop = (header.offsetHeight + 5) + 'px';
         }
+        // 確保所有 page-content 都有足夠的底部間距
+        document.querySelectorAll('.page-content').forEach(page => {
+             page.style.paddingBottom = (footer.offsetHeight + 24) + 'px'; // footer 高度 + 一些額外間距
+        });
     }
 
     document.addEventListener('click', (e) => {
