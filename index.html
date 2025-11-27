@@ -34,7 +34,8 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 7rem; }
+        /* 增加底部 padding 以容納新的懸浮 footer */
+        .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 7rem; } 
         .page-content.hidden { opacity: 0; display: none !important; }
 
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
@@ -46,7 +47,7 @@
             background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
             background-size: cover;
             background-position: center bottom;
-            padding-top: 16px; padding-bottom: 10px; /* 稍微增加底部 padding 讓滑塊不切邊 */
+            padding-top: 16px; padding-bottom: 10px; 
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             color: white;
             transition: height 0.3s ease;
@@ -58,14 +59,27 @@
             z-index: -1; backdrop-filter: blur(2px);
         }
 
+        /* ★★★ 底部導覽列 (Footer) 樣式修改：膠囊狀、懸浮底部 ★★★ */
         .fixed-footer { 
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 1001; 
-            background-color: white; border-radius: 2rem 2rem 0 0; 
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.05); 
-            height: 72px; display: flex; align-items: center; justify-content: space-around; padding: 0 10px;
+            position: fixed; 
+            bottom: 0; 
+            /* 讓它置中並懸浮 */
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 90%; 
+            margin: 0 auto 15px auto; /* 底部間距 15px */
+            z-index: 1001; 
+            background-color: white; 
+            border-radius: 2rem; /* 四邊都是圓角 */
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15); /* 增加陰影，更像懸浮 */
+            height: 68px; /* 稍微縮小高度 */
+            display: flex; 
+            align-items: center; 
+            justify-content: space-around; 
+            padding: 0 5px; /* 微調內邊距 */
         }
 
-        /* ★★★ 修正這裡：預設高度縮小，JS 會自動微調 ★★★ */
+        /* 內容 padding 調整 */
         #schedule-page { padding-top: 210px; } 
         #expense-page, #checklist-page { padding-top: 30px; } 
         #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
@@ -425,13 +439,20 @@
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
         const loading = document.getElementById('loading-status');
+        // 確保過渡效果存在並顯示載入狀態
+        loading.style.transition = 'opacity 0.3s ease'; 
         loading.style.opacity = '1';
+
         firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
-            loading.style.opacity = '0';
             currentItems = doc.exists ? (doc.data().schedule || []) : [];
             renderSchedule();
             calculateDailyCost();
             if (!document.getElementById('map-page').classList.contains('hidden')) initMap(); 
+            
+            // ★★★ 解決：資料同步中不會消失的問題，使用 setTimeout 確保平滑淡出 ★★★
+            setTimeout(() => {
+                loading.style.opacity = '0';
+            }, 500); // 延遲 500ms 進行淡出
         });
     }
 
@@ -552,7 +573,7 @@
         slider.innerHTML = '';
         tripDates.forEach(d => {
             const active = d.day === currentDay;
-            // ★★★ 修正這裡：未選中狀態改為明顯的半透明黑/白，選中時維持紫色 ★★★
+            // 修正：未選中狀態改為明顯的半透明黑/白，選中時維持紫色
             const activeClass = active 
                 ? 'bg-[var(--primary-normal)] text-white shadow-lg shadow-purple-500/30 scale-105 border border-transparent' 
                 : 'bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/30';
@@ -631,7 +652,7 @@
     async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
     async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
 
-    // ★★★ 修正關鍵：自動計算 Header 高度，讓內容剛好接在下面 ★★★
+    // 自動計算 Header 高度，讓內容剛好接在下面
     function adjustContentPadding() {
         const h = document.getElementById('main-header');
         const p = document.getElementById('schedule-page');
@@ -639,7 +660,8 @@
             // 自動偵測高度，並加上 5px 緩衝
             p.style.paddingTop = (h.offsetHeight + 5) + 'px';
         }
-        document.querySelectorAll('.page-content').forEach(page => page.style.paddingBottom = '90px');
+        // 確保所有頁面的底部 padding 能容納懸浮 footer
+        document.querySelectorAll('.page-content').forEach(page => page.style.paddingBottom = '90px'); 
     }
 
     document.addEventListener('click', (e) => {
