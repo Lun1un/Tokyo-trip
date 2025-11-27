@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (地圖最大化版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (天氣預報版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -25,16 +25,16 @@
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background-color: #f3f4f6; } 
+        /* ★★★ Header 變矮，留更多空間給內容 ★★★ */
+        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background-color: #f3f4f6; padding-top: 10px; } 
         .fixed-footer { position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; }
         
-        /* 通用設定 */
         .page-content { padding-bottom: 7rem; min-height: 100vh; }
 
-        /* ★★★ 調整間距 ★★★ */
-        #schedule-page { padding-top: 130px; } /* 行程頁：縮小預設值 */
+        /* ★★★ 行程頁縮小到 100px ★★★ */
+        #schedule-page { padding-top: 100px; } 
         #expense-page, #checklist-page { padding-top: 20px; } 
-        #map-page { padding-top: 20px; padding-bottom: 120px !important; } /* 地圖頁：底部留給導覽列即可 */
+        #map-page { padding-top: 20px; padding-bottom: 120px !important; }
         
         .sortable-ghost { opacity: 0.3; background-color: #f3f4f6; border: 2px dashed #cbd5e1; }
         .sortable-drag { background-color: white; transform: scale(1.05) rotate(1deg); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1rem; cursor: grabbing; }
@@ -48,39 +48,39 @@
 <body class="text-gray-800">
 
     <div id="schedule-page" class="page-content">
-        <div class="fixed-header bg-white/95 backdrop-blur-md border-b border-gray-200 pt-10 pb-2 px-4 shadow-sm">
-            <div class="flex justify-between items-start mb-3">
+        <div class="fixed-header bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 shadow-sm">
+            <div class="flex justify-between items-center mb-2">
                 <div class="flex-1">
-                    <h1 class="text-2xl font-black text-gray-900 leading-tight mb-1">東京遛豬之旅 🐷</h1>
-                    <div class="inline-flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full cursor-pointer hover:bg-gray-200 transition" onclick="editDayTitle()">
-                        <span class="text-sm font-bold text-gray-600" id="current-day-title">Day 1 出發</span>
-                        <i class="fas fa-pencil-alt text-[10px] text-gray-400"></i>
+                    <div class="flex items-baseline gap-2">
+                        <h1 class="text-xl font-black text-gray-900 leading-tight">東京遛豬之旅 🐷</h1>
+                        <div class="text-[10px] text-gray-400 cursor-pointer border-b border-dashed border-gray-300" onclick="editDayTitle()" id="current-day-title">Day 1</div>
                     </div>
                 </div>
+                
                 <div class="flex flex-col items-end gap-1">
-                    <div class="bg-blue-50 border border-blue-100 rounded-full px-3 py-1 flex items-center gap-2 shadow-sm">
-                        <div id="weather-icon-container" class="text-blue-500 text-lg"><i class="fas fa-sync fa-spin"></i></div>
-                        <div class="text-right leading-none">
-                            <div id="weather-temp" class="text-sm font-bold text-gray-800">--°C</div>
-                        </div>
+                    <div class="flex items-center gap-2 bg-blue-50 px-2 py-1 rounded-lg">
+                        <div id="weather-icon" class="text-lg">☀️</div>
+                        <div id="weather-text" class="text-xs font-bold text-gray-700">24°C</div>
                     </div>
-                    <button onclick="prepareRateModal()" class="text-[10px] text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full border border-gray-200">
-                        匯率: <span id="display-rate">0.22</span>
-                    </button>
                 </div>
             </div>
             
-            <div class="flex justify-between items-center mb-2 px-1">
-                <div class="text-xs text-gray-400 font-bold uppercase tracking-wider">Today's Cost</div>
-                <div class="text-lg font-black text-red-600 leading-none" id="header-daily-cost">¥ 0</div>
+            <div class="flex justify-between items-center mb-1 px-1">
+                <button onclick="prepareRateModal()" class="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
+                    匯率: <span id="display-rate">0.22</span>
+                </button>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-[10px] text-gray-400">Today:</span>
+                    <span class="text-base font-black text-red-600 leading-none" id="header-daily-cost">¥ 0</span>
+                </div>
             </div>
 
-            <div class="flex overflow-x-auto gap-3 pb-2 hide-scrollbar z-10" id="date-slider"></div>
+            <div class="flex overflow-x-auto gap-2 pb-2 hide-scrollbar z-10" id="date-slider"></div>
         </div>
 
         <div class="px-4 space-y-5"> 
             <div id="loading-status" class="text-center text-xs text-gray-400 mt-2">
-                 <i class="fas fa-spinner fa-spin mr-1"></i> 資料同步中...
+                 <i class="fas fa-spinner fa-spin mr-1"></i> 同步中...
             </div>
             <div id="schedule-container" class="space-y-4 pb-10"></div>
         </div>
@@ -91,7 +91,7 @@
             <span class="text-blue-600"><i class="fas fa-map-marked-alt"></i></span>
             今日路線圖
         </h1>
-        <div class="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 relative overflow-hidden">
+        <div class="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 relative overflow-hidden mb-24">
             <div id="map" class="h-full w-full z-0"></div>
         </div>
     </div>
@@ -299,13 +299,13 @@
     let markers = [];
     
     let tripDates = [
-        { day: 1, label: 'Day 1 出發', week: 'WED', date: '04' },
-        { day: 2, label: 'Day 2 探索', week: 'THU', date: '05' },
-        { day: 3, label: 'Day 3 購物', week: 'FRI', date: '06' },
-        { day: 4, label: 'Day 4 動漫', week: 'SAT', date: '07' },
-        { day: 5, label: 'Day 5 樂園', week: 'SUN', date: '08' },
-        { day: 6, label: 'Day 6 橫濱', week: 'MON', date: '09' },
-        { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10' },
+        { day: 1, label: 'Day 1 出發', week: 'WED', date: '04', weather: '🌤️', temp: '14°C' },
+        { day: 2, label: 'Day 2 探索', week: 'THU', date: '05', weather: '☁️', temp: '13°C' },
+        { day: 3, label: 'Day 3 購物', week: 'FRI', date: '06', weather: '🌧️', temp: '11°C' },
+        { day: 4, label: 'Day 4 動漫', week: 'SAT', date: '07', weather: '☀️', temp: '16°C' },
+        { day: 5, label: 'Day 5 樂園', week: 'SUN', date: '08', weather: '⛅', temp: '15°C' },
+        { day: 6, label: 'Day 6 橫濱', week: 'MON', date: '09', weather: '☀️', temp: '15°C' },
+        { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10', weather: '✈️', temp: '14°C' },
     ];
 
     const firebaseConfig = {
@@ -325,17 +325,13 @@
 
     function getDocumentId(day) { return `tokyo_feb_2026_day_${day}`; }
 
-    // 天氣
-    const WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?id=1850147&appid=54f22a6f3141e619d73a09a6d4136e88&units=metric&lang=zh_tw`;
-    async function fetchWeather() {
-        try {
-            const res = await fetch(WEATHER_URL);
-            const data = await res.json();
-            if (data.cod === 200) {
-                const temp = Math.round(data.main.temp);
-                document.getElementById('weather-temp').textContent = `${temp}°C`;
-            }
-        } catch(e) {}
+    // ★★★ 更新天氣 (模擬預報) ★★★
+    function updateWeatherDisplay(day) {
+        const info = tripDates.find(d => d.day === day);
+        if (info) {
+            document.getElementById('weather-icon').textContent = info.weather;
+            document.getElementById('weather-text').textContent = info.temp;
+        }
     }
 
     // 標題編輯
@@ -362,11 +358,10 @@
         }
     }
 
-    // ★★★ 地圖功能 (Google Maps 底圖) ★★★
+    // 地圖功能 (Google Maps)
     async function initMap() {
         if (!mapInstance) {
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
-            // Google Maps Tile Layer
             L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
                 maxZoom: 20,
                 subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
@@ -656,7 +651,7 @@
         slider.innerHTML = '';
         tripDates.forEach(d => {
             const active = d.day === currentDay;
-            slider.insertAdjacentHTML('beforeend', `<div class="flex-shrink-0 text-center cursor-pointer px-2 ${active ? '' : 'opacity-40 hover:opacity-70'}" onclick="switchDay(${d.day})"><div class="text-[10px] font-bold ${active ? 'text-green-600' : 'text-gray-400'}">${d.week}</div><div class="text-xl font-black ${active ? 'text-gray-800 border-b-2 border-green-500' : 'text-gray-400'} pb-1">${d.date}</div></div>`);
+            slider.insertAdjacentHTML('beforeend', `<div class="flex-shrink-0 w-12 h-14 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all ${active ? 'bg-yellow-300 shadow-md scale-105' : 'bg-white border border-gray-100'}" onclick="switchDay(${d.day})"><div class="text-[9px] font-bold opacity-60">${d.week}</div><div class="text-lg font-black leading-none">${d.date}</div></div>`);
         });
     }
     
@@ -664,6 +659,7 @@
         if (day === currentDay) return;
         currentDay = day;
         document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === day).label;
+        updateWeatherDisplay(day);
         renderDateSlider(); listenForScheduleUpdates(day); 
     }
 
@@ -678,9 +674,6 @@
         
         if(page === 'expense') calculateAllExpenses();
         if(page === 'map') setTimeout(initMap, 200);
-        
-        // ★★★ 切換頁面時觸發調整 ★★★
-        setTimeout(adjustContentPadding, 50);
     }
 
     function showModal(id) { document.getElementById(id).classList.add('active'); }
@@ -696,7 +689,7 @@
             checklistItems.sort((a, b) => a.isCompleted - b.isCompleted).forEach(item => {
                 const completedClass = item.isCompleted ? 'completed' : '';
                 const iconClass = item.isCompleted ? 'fa-check' : '';
-                const html = `<div class="check-item flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 ${completedClass}"><div onclick="toggleChecklist('${item.id}', ${item.isCompleted})" class="check-circle cursor-pointer w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center text-xs"><i class="fas ${iconClass}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${item.id}', ${item.isCompleted})">${item.text}</div><button onclick="deleteChecklist('${item.id}')" class="text-gray-300 hover:text-red-400 px-2"><i class="fas fa-times"></i></button></div>`;
+                const html = `<div class="check-item flex items-center bg-white p-3 rounded-xl shadow-sm border border-gray-100 ${completedClass}"><div onclick="toggleChecklist('${item.id}', ${item.isCompleted})" class="check-circle cursor-pointer w-6 h-6 rounded-full border-2 border-purple-200 mr-3 flex items-center justify-center text-xs"><i class="fas ${iconClass}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${item.id}', ${item.isCompleted})">${item.text}</div><button onclick="deleteChecklist('${item.id}')" class="text-gray-300 hover:text-red-400 px-2"><i class="fas fa-times"></i></button></div>`;
                 container.insertAdjacentHTML('beforeend', html);
             });
         });
@@ -709,17 +702,6 @@
     async function saveExchangeRate() { const r = parseFloat(document.getElementById('exchange-rate-input').value); if(r) { exchangeRate = r; document.getElementById('display-rate').textContent = r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val: r}); closeModal('rate-modal'); } }
     function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
 
-    // ★★★ 自動調整高度函式 (優化版：只調整行程頁) ★★★
-    function adjustContentPadding() {
-        const header = document.querySelector('.fixed-header');
-        const schedulePage = document.getElementById('schedule-page');
-        if (header && schedulePage) {
-            const height = header.offsetHeight;
-            // 讓行程頁剛好貼齊 header 底部
-            schedulePage.style.paddingTop = height + 'px';
-        }
-    }
-
     document.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.edit-btn');
         const expenseBtn = e.target.closest('.expense-btn');
@@ -728,10 +710,8 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
-        
-        setTimeout(adjustContentPadding, 100);
-        window.addEventListener('resize', adjustContentPadding);
+        renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); 
+        updateWeatherDisplay(currentDay);
     });
 
     window.switchDay = switchDay; window.switchPage = switchPage; window.prepareRateModal = prepareRateModal;
