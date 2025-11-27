@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (天氣預報版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (即時氣象版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -25,13 +25,12 @@
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* ★★★ Header 變矮，留更多空間給內容 ★★★ */
         .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background-color: #f3f4f6; padding-top: 10px; } 
         .fixed-footer { position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; }
         
         .page-content { padding-bottom: 7rem; min-height: 100vh; }
 
-        /* ★★★ 行程頁縮小到 100px ★★★ */
+        /* ★★★ 行程頁固定留白 100px ★★★ */
         #schedule-page { padding-top: 100px; } 
         #expense-page, #checklist-page { padding-top: 20px; } 
         #map-page { padding-top: 20px; padding-bottom: 120px !important; }
@@ -59,8 +58,8 @@
                 
                 <div class="flex flex-col items-end gap-1">
                     <div class="flex items-center gap-2 bg-blue-50 px-2 py-1 rounded-lg">
-                        <div id="weather-icon" class="text-lg">☀️</div>
-                        <div id="weather-text" class="text-xs font-bold text-gray-700">24°C</div>
+                        <div id="weather-icon-container" class="text-lg text-blue-500"><i class="fas fa-sync fa-spin"></i></div>
+                        <div id="weather-temp" class="text-xs font-bold text-gray-700">--°C</div>
                     </div>
                 </div>
             </div>
@@ -80,7 +79,7 @@
 
         <div class="px-4 space-y-5"> 
             <div id="loading-status" class="text-center text-xs text-gray-400 mt-2">
-                 <i class="fas fa-spinner fa-spin mr-1"></i> 同步中...
+                 <i class="fas fa-spinner fa-spin mr-1"></i> 資料同步中...
             </div>
             <div id="schedule-container" class="space-y-4 pb-10"></div>
         </div>
@@ -299,13 +298,13 @@
     let markers = [];
     
     let tripDates = [
-        { day: 1, label: 'Day 1 出發', week: 'WED', date: '04', weather: '🌤️', temp: '14°C' },
-        { day: 2, label: 'Day 2 探索', week: 'THU', date: '05', weather: '☁️', temp: '13°C' },
-        { day: 3, label: 'Day 3 購物', week: 'FRI', date: '06', weather: '🌧️', temp: '11°C' },
-        { day: 4, label: 'Day 4 動漫', week: 'SAT', date: '07', weather: '☀️', temp: '16°C' },
-        { day: 5, label: 'Day 5 樂園', week: 'SUN', date: '08', weather: '⛅', temp: '15°C' },
-        { day: 6, label: 'Day 6 橫濱', week: 'MON', date: '09', weather: '☀️', temp: '15°C' },
-        { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10', weather: '✈️', temp: '14°C' },
+        { day: 1, label: 'Day 1 出發', week: 'WED', date: '04' },
+        { day: 2, label: 'Day 2 探索', week: 'THU', date: '05' },
+        { day: 3, label: 'Day 3 購物', week: 'FRI', date: '06' },
+        { day: 4, label: 'Day 4 動漫', week: 'SAT', date: '07' },
+        { day: 5, label: 'Day 5 樂園', week: 'SUN', date: '08' },
+        { day: 6, label: 'Day 6 橫濱', week: 'MON', date: '09' },
+        { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10' },
     ];
 
     const firebaseConfig = {
@@ -325,12 +324,34 @@
 
     function getDocumentId(day) { return `tokyo_feb_2026_day_${day}`; }
 
-    // ★★★ 更新天氣 (模擬預報) ★★★
-    function updateWeatherDisplay(day) {
-        const info = tripDates.find(d => d.day === day);
-        if (info) {
-            document.getElementById('weather-icon').textContent = info.weather;
-            document.getElementById('weather-text').textContent = info.temp;
+    // ★★★ 真實天氣 (OpenWeatherMap) ★★★
+    // 這會抓取 Tokyo (ID: 1850147) 的即時天氣
+    const WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?id=1850147&appid=54f22a6f3141e619d73a09a6d4136e88&units=metric&lang=zh_tw`;
+    
+    async function fetchWeather() {
+        try {
+            const res = await fetch(WEATHER_URL);
+            const data = await res.json();
+            if (data.cod === 200) {
+                const temp = Math.round(data.main.temp);
+                const icon = data.weather[0].icon;
+                
+                document.getElementById('weather-temp').textContent = `${temp}°C`;
+                
+                let iconClass = 'fas fa-sun text-yellow-500'; // 預設
+                // 簡單圖示對應
+                if (icon.includes('01')) iconClass = 'fas fa-sun text-yellow-500'; // 晴天
+                else if (icon.includes('02')) iconClass = 'fas fa-cloud-sun text-yellow-400'; // 少雲
+                else if (icon.includes('03') || icon.includes('04')) iconClass = 'fas fa-cloud text-gray-400'; // 多雲
+                else if (icon.includes('09') || icon.includes('10')) iconClass = 'fas fa-umbrella text-blue-500'; // 雨
+                else if (icon.includes('13')) iconClass = 'fas fa-snowflake text-blue-300'; // 雪
+                else if (icon.includes('50')) iconClass = 'fas fa-smog text-gray-300'; // 霧
+
+                document.getElementById('weather-icon-container').innerHTML = `<i class="${iconClass}"></i>`;
+            }
+        } catch(e) { 
+            console.error("Weather Error", e); 
+            document.getElementById('weather-temp').textContent = "N/A";
         }
     }
 
@@ -659,7 +680,6 @@
         if (day === currentDay) return;
         currentDay = day;
         document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === day).label;
-        updateWeatherDisplay(day);
         renderDateSlider(); listenForScheduleUpdates(day); 
     }
 
@@ -710,8 +730,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); 
-        updateWeatherDisplay(currentDay);
+        renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
     });
 
     window.switchDay = switchDay; window.switchPage = switchPage; window.prepareRateModal = prepareRateModal;
