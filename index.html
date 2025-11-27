@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (完美版面)</title>
+    <title id="app-title">東京遛豬之旅 2026 (完美間距版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -28,8 +28,13 @@
         .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background-color: #f3f4f6; } 
         .fixed-footer { position: fixed; bottom: 24px; left: 24px; right: 24px; z-index: 1001; }
         
-        /* ★★★ 預設加大間距，JS 會再自動微調 ★★★ */
-        .page-content { padding-top: 320px; padding-bottom: 7rem; min-height: 100vh; }
+        /* 通用設定 */
+        .page-content { padding-bottom: 7rem; min-height: 100vh; }
+
+        /* ★★★ 針對不同頁面設定不同的頂部間距 ★★★ */
+        #schedule-page { padding-top: 190px; } /* 行程頁：預設高度，JS會再微調 */
+        #expense-page, #checklist-page { padding-top: 80px; } /* 清單/花費頁：固定較小的高度 */
+        #map-page { padding-top: 20px; } /* 地圖頁：極限高度 */
         
         .sortable-ghost { opacity: 0.3; background-color: #f3f4f6; border: 2px dashed #cbd5e1; }
         .sortable-drag { background-color: white; transform: scale(1.05) rotate(1deg); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1rem; cursor: grabbing; }
@@ -81,17 +86,17 @@
         </div>
     </div>
 
-    <div id="map-page" class="hidden page-content px-4 h-screen flex flex-col" style="padding-top: 20px; padding-bottom: 6rem;">
+    <div id="map-page" class="hidden page-content px-4 h-screen flex flex-col">
         <h1 class="text-2xl font-black mb-2 flex items-center gap-2 text-gray-800 pl-1">
             <span class="text-blue-600"><i class="fas fa-map-marked-alt"></i></span>
             今日路線圖
         </h1>
-        <div class="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 relative overflow-hidden">
+        <div class="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 relative overflow-hidden mb-24">
             <div id="map" class="h-full w-full z-0"></div>
         </div>
     </div>
 
-    <div id="expense-page" class="hidden page-content px-4" style="padding-top: 2rem;">
+    <div id="expense-page" class="hidden page-content px-4">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
             <span class="bg-yellow-100 text-yellow-600 p-2 rounded-lg text-xl"><i class="fas fa-coins"></i></span>
             七日花費統計
@@ -133,7 +138,7 @@
         </div>
     </div>
 
-    <div id="checklist-page" class="hidden page-content px-4" style="padding-top: 2rem;">
+    <div id="checklist-page" class="hidden page-content px-4">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2">
             <span class="bg-purple-100 text-purple-600 p-2 rounded-lg text-xl"><i class="fas fa-clipboard-check"></i></span>
             必買 & 準備清單
@@ -673,6 +678,9 @@
         
         if(page === 'expense') calculateAllExpenses();
         if(page === 'map') setTimeout(initMap, 200);
+        
+        // ★★★ 切換頁面時也重新調整高度 ★★★
+        setTimeout(adjustContentPadding, 50);
     }
 
     function showModal(id) { document.getElementById(id).classList.add('active'); }
@@ -701,18 +709,14 @@
     async function saveExchangeRate() { const r = parseFloat(document.getElementById('exchange-rate-input').value); if(r) { exchangeRate = r; document.getElementById('display-rate').textContent = r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val: r}); closeModal('rate-modal'); } }
     function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
 
-    // ★★★ 動態調整內容 padding ★★★
+    // ★★★ 自動調整高度函式 ★★★
     function adjustContentPadding() {
         const header = document.querySelector('.fixed-header');
-        const contents = document.querySelectorAll('.page-content');
-        if (header && contents.length > 0) {
+        const schedulePage = document.getElementById('schedule-page');
+        if (header && schedulePage) {
             const height = header.offsetHeight;
-            contents.forEach(el => {
-                // 只調整非地圖頁面
-                if(el.id !== 'map-page') {
-                    el.style.paddingTop = (height + 20) + 'px';
-                }
-            });
+            // 只調整行程頁，其他頁面保持固定高度
+            schedulePage.style.paddingTop = (height + 10) + 'px';
         }
     }
 
@@ -726,7 +730,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
         
-        // 延遲執行 padding 調整，確保畫面渲染完成
+        // 啟動自動調整
         setTimeout(adjustContentPadding, 100);
         window.addEventListener('resize', adjustContentPadding);
     });
