@@ -1,356 +1,414 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (完美距離版)</title>
-    
-    <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
-    <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
-    <link rel="icon" type="image/png" sizes="32x32" href="https://i.meee.com.tw/rpOFJGM.jpg">
+    <title>東京 7 日行程規劃</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
     
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-light': 'var(--primary-light)',
+                        'primary-normal': 'var(--primary-normal)',
+                        'primary-dark': 'var(--primary-dark)',
+                    }
+                }
+            }
+        }
+    </script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
-        
         :root {
-            --primary-light: #E0C8FF; 
-            --primary-normal: #C084FC; 
-            --primary-dark: #A855F7; 
-            --soft-bg-color: #f8fafc; 
-        }
-
-        html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--soft-bg-color); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* 增加底部 padding 以容納新的懸浮 footer */
-        .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 7rem; } 
-        .page-content.hidden { opacity: 0; display: none !important; }
-
-        .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
-        .modal.active { opacity: 1; visibility: visible; display: flex; }
-
-        /* Header 背景圖 */
-        .fixed-header-bg {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
-            background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center bottom;
-            padding-top: 16px; padding-bottom: 10px; 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            color: white;
-            transition: height 0.3s ease;
+            /* 主題色 - 紫羅蘭 */
+            --primary-light: #c4b5fd; /* 淺紫 */
+            --primary-normal: #8b5cf6; /* 正常紫 (violet-500) */
+            --primary-dark: #7c3aed; /* 深紫 */
         }
         
-        .fixed-header-bg::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom, rgba(20, 10, 40, 0.6), rgba(20, 10, 40, 0.85));
-            z-index: -1; backdrop-filter: blur(2px);
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6;
+            -webkit-tap-highlight-color: transparent; /* 移除點擊高亮 */
         }
 
-        /* ★★★ 底部導覽列 (Footer) 樣式修改：膠囊狀、懸浮底部 ★★★ */
-        .fixed-footer { 
-            position: fixed; 
-            bottom: 0; 
-            /* 讓它置中並懸浮 */
-            left: 50%;
-            transform: translateX(-50%);
-            max-width: 90%; 
-            margin: 0 auto 15px auto; /* 底部間距 15px */
-            z-index: 1001; 
-            background-color: white; 
-            border-radius: 2rem; /* 四邊都是圓角 */
-            box-shadow: 0 5px 25px rgba(0,0,0,0.15); /* 增加陰影，更像懸浮 */
-            height: 68px; /* 稍微縮小高度 */
-            display: flex; 
-            align-items: center; 
-            justify-content: space-around; 
-            padding: 0 5px; /* 微調內邊距 */
+        /* 隱藏手機橫向滾動條 */
+        body::-webkit-scrollbar { display: none; }
+        .page-content {
+            padding-bottom: 90px; /* 為浮動 Footer 預留空間 */
         }
 
-        /* 內容 padding 調整 */
-        #schedule-page { padding-top: 210px; } 
-        #expense-page, #checklist-page { padding-top: 30px; } 
-        #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
-        
-        .soft-card-shadow { box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 1.5rem; }
+        /* 模態框樣式 */
+        .modal {
+            @apply fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center pointer-events-none opacity-0 transition-opacity duration-300;
+        }
+        .modal.active {
+            @apply opacity-100 pointer-events-auto;
+        }
+        .modal-content {
+            @apply bg-white w-full max-w-xl p-6 rounded-t-3xl transform translate-y-full transition-transform duration-300;
+        }
+        .modal.active .modal-content {
+            @apply translate-y-0;
+        }
 
+        /* 行程卡片動畫 */
         .soft-card-glow {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            border: 2px solid var(--primary-light); 
-            background-color: rgba(255, 255, 255, 0.95); 
-            border-radius: 1.5rem; 
-            position: relative; overflow: hidden;
-            transition: transform 0.2s;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        .sortable-ghost {
+            opacity: 0.2;
+            background-color: var(--primary-light) !important;
+            border: 2px dashed var(--primary-normal) !important;
         }
         
-        .sortable-ghost { opacity: 0.3; background-color: #f3e8ff; border: 2px dashed var(--primary-normal); border-radius: 1.5rem; }
-        .sortable-drag { background-color: white; transform: scale(1.02); z-index: 9999; border-radius: 1.5rem; }
-        
-        .check-item.completed .check-text { text-decoration: line-through; color: #9ca3af; }
-        .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: var(--primary-dark); } 
+        /* 時間軸線條樣式 */
+        .timeline-line {
+            width: 3px;
+            border-radius: 9999px;
+        }
 
-        #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
-        .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
-
-        .input-focus:focus { border-color: var(--primary-normal); box-shadow: 0 0 0 3px var(--primary-light); outline: none; }
-        .glow-btn { background-color: var(--primary-normal); box-shadow: 0 0 10px var(--primary-light); transition: all 0.2s; }
-        .glow-btn:hover { background-color: var(--primary-dark); }
-
-        .timeline-line { background-color: #cbd5e1; width: 2px; border-radius: 9999px; }
-        
-        .map-icon { background-color: var(--primary-normal); color: white; font-weight: bold; text-align: center; line-height: 28px; border-radius: 50%; width: 28px; height: 28px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); border: 3px solid white; }
-
-        .header-glass-card {
-            background-color: rgba(255, 255, 255, 0.15); 
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        /* 地圖圖標 */
+        .map-icon {
+            background-color: var(--primary-normal);
             color: white;
+            font-weight: bold;
+            text-align: center;
+            line-height: 28px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            font-size: 14px;
+        }
+        
+        /* CheckList 樣式 */
+        .check-item {
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+        .check-item.completed .check-circle {
+            background-color: var(--primary-normal);
+            color: white;
+            border-color: var(--primary-normal) !important;
+        }
+        .check-item.completed .check-text {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+        
+        /* Header 陰影和背景 */
+        #main-header {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            /* 讓日期選擇器看起來像浮動在背景圖上 */
+            background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.2) 100%);
+        }
+
+        /* Loading Status 樣式 */
+        #loading-status {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000; /* 確保它在最前面 */
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 10px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease; /* 淡出效果 */
+            pointer-events: none; /* 讓它不擋住後面的內容 */
         }
     </style>
 </head>
-<body class="text-gray-700">
+<body>
 
-    <div id="schedule-page" class="page-content">
-        <div class="fixed-header-bg px-4" id="main-header">
-            <div class="flex justify-between items-start mb-3 relative z-10">
-                <div class="flex-1">
-                    <h1 class="text-3xl font-black text-white tracking-tight mb-1 drop-shadow-lg">東京遛豬之旅 🐷</h1>
-                    <div class="text-xl font-bold text-white/90 cursor-pointer flex items-center gap-2" onclick="editDayTitle()">
-                        <span id="current-day-title" class="border-b border-transparent hover:border-white/50 transition">Day 1</span>
-                        <i class="fas fa-pen text-xs text-white/60"></i>
+    <div class="relative min-h-screen">
+        
+        <header id="main-header" class="fixed top-0 left-0 right-0 z-40 bg-white">
+            <div class="bg-violet-500 p-4 pb-16 relative overflow-hidden">
+                
+                <div class="absolute inset-0 opacity-10 bg-repeat" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'8\' height=\'8\' viewBox=\'0 0 8 8\'><circle fill=\'%23ffffff\' cx=\'4\' cy=\'4\' r=\'1\'/></svg>');"></div>
+
+                <div class="flex justify-between items-center text-white mb-4 z-10 relative">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-plane text-xl"></i>
+                        <h1 id="current-day-title" class="font-black text-xl leading-tight select-none" onclick="editDayTitle()">Day 1 出發</h1>
+                        <button onclick="editDayTitle()" class="text-white/70 hover:text-white active:scale-95 transition"><i class="fas fa-pen text-xs"></i></button>
+                    </div>
+                    <div class="text-right text-sm">
+                        <div id="weather-temp" class="font-bold text-lg leading-none">N/A</div>
+                        <div id="weather-desc" class="text-xs opacity-80 leading-none">東京</div>
                     </div>
                 </div>
                 
-                <div class="flex flex-col items-end gap-1 mt-1">
-                    <div id="weather-card" class="flex items-center gap-3 px-3 py-2 rounded-xl shadow-lg header-glass-card">
-                        <div id="weather-icon-container" class="text-2xl text-white"><i class="fas fa-sync fa-spin"></i></div>
-                        <div class="text-right leading-none">
-                            <div id="weather-temp" class="text-xl font-black text-white">--°C</div>
-                            <div id="weather-desc" class="text-[9px] text-white/80 font-bold uppercase mt-1">Loading</div>
-                        </div>
+                <div class="flex justify-between items-stretch gap-2 mb-4 z-10 relative">
+                    <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm flex-1 text-center text-white border border-white/20">
+                        <div class="text-xs opacity-80">今日花費</div>
+                        <div id="header-daily-cost" class="font-black text-lg leading-tight mt-0.5">¥ 0</div>
+                    </div>
+                    <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm flex-1 text-center text-white border border-white/20" onclick="prepareRateModal()">
+                        <div class="text-xs opacity-80">匯率 (JPY:TWD)</div>
+                        <div class="font-black text-lg leading-tight mt-0.5"><span id="display-rate">0.22</span></div>
+                    </div>
+                    <div id="weather-icon-container" class="bg-white/10 p-2 rounded-xl backdrop-blur-sm w-16 flex items-center justify-center text-white text-2xl border border-white/20">
+                        <i class="fas fa-sun"></i>
                     </div>
                 </div>
+
+                <div id="date-slider" class="flex gap-2 overflow-x-auto pb-2 z-10 relative">
+                    </div>
             </div>
             
-            <div class="flex justify-between items-center mb-4 px-1 relative z-10">
-                <button onclick="prepareRateModal()" class="text-[11px] text-white px-3 py-1.5 rounded-lg font-bold active:scale-95 header-glass-card hover:bg-white/20 transition">
-                    匯率: <span id="display-rate">0.22</span>
-                </button>
-                <div class="flex items-baseline gap-1 header-glass-card px-3 py-1.5 rounded-lg">
-                    <span class="text-[10px] text-white/80 font-bold uppercase">今日花費</span>
-                    <span class="text-lg font-black text-white leading-none ml-1" id="header-daily-cost">¥ 0</span>
+            <nav class="bg-white p-2 border-b border-gray-200">
+                <div class="flex justify-around text-gray-400 font-bold text-sm">
+                    <button id="tab-schedule" class="flex-1 py-1.5 rounded-lg active:bg-gray-100 transition" onclick="switchPage('schedule')"><i class="fas fa-map-marked-alt mr-1"></i>行程</button>
+                    <button id="tab-map" class="flex-1 py-1.5 rounded-lg active:bg-gray-100 transition" onclick="switchPage('map')"><i class="fas fa-map mr-1"></i>地圖</button>
+                    <button id="tab-expense" class="flex-1 py-1.5 rounded-lg active:bg-gray-100 transition" onclick="switchPage('expense')"><i class="fas fa-yen-sign mr-1"></i>花費</button>
+                    <button id="tab-checklist" class="flex-1 py-1.5 rounded-lg active:bg-gray-100 transition" onclick="switchPage('checklist')"><i class="fas fa-list-check mr-1"></i>清單</button>
                 </div>
-            </div>
-
-            <div class="flex overflow-x-auto gap-3 py-1 pb-1 hide-scrollbar z-10 relative" id="date-slider"></div>
-        </div>
-
-        <div class="px-4 space-y-5"> 
-            <div id="loading-status" class="text-center text-xs text-gray-400 mt-2 transition-opacity">
-                 <i class="fas fa-spinner fa-spin mr-1"></i> 資料同步中...
-            </div>
-            <div id="schedule-container" class="space-y-4 pb-10 min-h-[200px]"></div>
-        </div>
-    </div>
-
-    <div id="map-page" class="hidden page-content px-4 h-screen flex flex-col">
-        <div class="flex-1 bg-white rounded-3xl soft-card-shadow relative overflow-hidden">
-             <div class="absolute top-0 left-0 right-0 z-10 p-4 bg-white/70 backdrop-blur-md rounded-t-3xl border-b border-gray-100">
-                <h1 class="text-2xl font-black flex items-center gap-2 text-gray-800">
-                    <span style="color:var(--primary-normal);"><i class="fas fa-map-marked-alt"></i></span>
-                    今日路線
-                </h1>
-            </div>
-            <div id="map" class="h-full w-full pt-16"></div>
-        </div>
-    </div>
-
-    <div id="expense-page" class="hidden page-content px-4">
-        <h1 class="text-2xl font-black mb-4 flex items-center gap-2 text-gray-800">
-            <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-wallet"></i></span>
-            消費統計
-        </h1>
+            </nav>
+        </header>
         
-        <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32" style="background-color: var(--primary-normal); opacity: 0.15; border-radius: 9999px; margin-right: -4rem; margin-top: -4rem; filter: blur(3rem);"></div>
-            <div class="flex justify-between items-start relative z-10">
-                <div>
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Total Trip Cost</p>
-                    <div class="text-4xl font-extrabold mt-1" id="total-trip-jpy">¥ 0</div>
-                    <div class="text-sm mt-1 text-white/80" id="total-trip-twd">≈ NT$ 0</div>
+        <div id="schedule-page" class="page-content px-4 pt-4 relative">
+            <div id="schedule-container" class="flex flex-col gap-5">
                 </div>
-                <button onclick="calculateAllExpenses()" class="text-white hover:text-gray-300 transition active:scale-95"><i class="fas fa-sync-alt"></i></button>
+        </div>
+
+        <div id="map-page" class="page-content relative hidden">
+            <div id="map" class="w-full h-[80vh] rounded-xl shadow-lg border border-gray-200 mx-auto my-4" style="min-height: 500px;"></div>
+            <div class="text-center text-gray-500 text-sm mt-2 mb-4 px-4">地圖會顯示今日行程中具備地點資訊的項目。</div>
+        </div>
+
+        <div id="expense-page" class="page-content px-4 pt-4 hidden">
+            <h2 class="font-black text-2xl text-gray-800 mb-4 border-b pb-2">💸 總花費概覽</h2>
+
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="bg-white p-4 rounded-xl soft-card-shadow border-t-4 border-violet-500">
+                    <div class="text-sm font-bold text-gray-500">行程總花費 (JPY)</div>
+                    <div id="total-trip-jpy" class="font-extrabold text-2xl text-violet-700 mt-1">¥ 0</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl soft-card-shadow border-t-4 border-yellow-500">
+                    <div class="text-sm font-bold text-gray-500">約合 (TWD)</div>
+                    <div id="total-trip-twd" class="font-extrabold text-2xl text-yellow-700 mt-1">NT$ 0</div>
+                </div>
+            </div>
+
+            <h3 class="font-bold text-xl text-gray-800 mb-3">個人分攤</h3>
+            <div class="bg-white p-4 rounded-xl soft-card-shadow mb-6">
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-lg">🐦 Bird 支出</span>
+                    <span id="total-bird" class="font-mono font-bold text-xl text-gray-800">¥ 0</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-lg">🐷 Pig 支出</span>
+                    <span id="total-pig" class="font-mono font-bold text-xl text-gray-800">¥ 0</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-lg">共同支出</span>
+                    <span id="total-shared" class="font-mono font-bold text-xl text-gray-800">¥ 0</span>
+                </div>
+            </div>
+
+            <h3 class="font-bold text-xl text-gray-800 mb-3">消費明細 (按日)</h3>
+            <div id="expense-full-list" class="flex flex-col gap-4">
+                <div class="text-center text-gray-400 py-10">資料載入中...</div>
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-8">
-            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-blue-300">
-                <div class="text-2xl mb-1">🐦</div>
-                <div class="text-xs text-gray-400 font-bold">Dove</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-bird">¥0</div>
+        <div id="checklist-page" class="page-content px-4 pt-4 hidden">
+            <h2 class="font-black text-2xl text-gray-800 mb-4 border-b pb-2">✅ 行前準備清單</h2>
+            
+            <div class="flex gap-2 mb-6">
+                <input type="text" id="checklist-input" placeholder="新增清單項目..." class="flex-1 p-3 border border-gray-300 rounded-xl focus:ring-violet-500 focus:border-violet-500 shadow-inner">
+                <button onclick="addChecklistItem()" class="bg-violet-500 text-white w-14 h-14 rounded-xl hover:bg-violet-600 active:scale-95 transition shadow-lg shadow-violet-500/30"><i class="fas fa-plus"></i></button>
             </div>
-            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-pink-300">
-                <div class="text-2xl mb-1">🐷</div>
-                <div class="text-xs text-gray-400 font-bold">Pig</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-pig">¥0</div>
-            </div>
-            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-yellow-300">
-                <div class="text-2xl mb-1">🐷🐦</div>
-                <div class="text-xs text-gray-400 font-bold">Shared</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-shared">¥0</div>
-            </div>
+            
+            <div id="checklist-container" class="flex flex-col gap-3">
+                </div>
         </div>
-        <div id="expense-full-list" class="space-y-3 pb-20"></div>
+        
+        <div id="loading-status" class="opacity-0">
+            <i class="fas fa-spinner fa-spin mr-2 text-violet-500"></i>
+            <span class="text-gray-600 font-bold">資料同步中...</span>
+        </div>
+
+        <footer class="fixed bottom-0 left-0 right-0 z-30 p-4 pt-2">
+            <div class="flex justify-center">
+                <button onclick="showModal('add-modal')" class="bg-violet-500 text-white font-bold py-3 px-8 rounded-full shadow-2xl shadow-violet-500/50 hover:bg-violet-600 transition-all active:scale-95 flex items-center gap-2">
+                    <i class="fas fa-plus text-lg"></i>
+                    新增行程
+                </button>
+            </div>
+        </footer>
     </div>
-
-    <div id="checklist-page" class="hidden page-content px-4">
-        <h1 class="text-2xl font-black mb-4 flex items-center gap-2 text-gray-800">
-            <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-clipboard-check"></i></span>
-            必買 & 準備
-        </h1>
-        <div class="flex gap-3 mb-6 w-full">
-            <input type="text" id="checklist-input" placeholder="新增項目..." class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-white focus:outline-none">
-            <button onclick="addChecklistItem()" class="text-white px-4 rounded-xl font-bold shadow-lg shadow-[var(--primary-light)] active:scale-90 transition shrink-0 glow-btn"><i class="fas fa-plus"></i></button>
-        </div>
-        <div id="checklist-container" class="space-y-3 pb-20"></div>
-    </div>
-
-    <div id="add-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('add-modal')">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">新增行程</h2>
-            <div class="space-y-3">
-                <div class="flex gap-2">
-                    <div class="flex-1 flex gap-1 items-center bg-gray-50 border border-gray-200 rounded-xl p-2 shadow-inner">
-                        <input type="time" id="new-start-time" class="w-full bg-transparent font-bold text-center text-lg focus:outline-none" value="09:00">
-                        <span class="text-gray-300">-</span>
-                        <input type="time" id="new-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
+    
+    <div id="add-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="font-black text-2xl text-gray-800 mb-4">新增行程項目</h2>
+            <form onsubmit="event.preventDefault(); addScheduleItem()">
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div class="col-span-1">
+                        <label class="block text-sm font-medium text-gray-700">起始時間</label>
+                        <input type="time" id="new-start-time" value="09:00" required class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-sm font-medium text-gray-700">結束時間 (選填)</label>
+                        <input type="time" id="new-end-time" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
                     </div>
                 </div>
-                <select id="new-category" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                    <option value="FOOD">🍴 餐飲</option>
-                    <option value="SHOPPING">🛍 購物</option>
-                    <option value="SIGHTSEEING">⛩ 景點</option>
-                    <option value="TRANSPORT">🚄 交通</option>
-                    <option value="HOTEL">🏨 住宿</option>
-                    <option value="OTHER">💡 其他</option>
-                </select>
-                <input type="text" id="new-title" placeholder="行程標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
-                <input type="text" id="new-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
-                <textarea id="new-content" placeholder="備註..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
-            </div>
-            <div class="flex justify-end space-x-3 mt-6">
-                <button onclick="closeModal('add-modal')" class="px-5 py-2.5 text-gray-500 font-medium rounded-xl hover:bg-gray-100">取消</button>
-                <button onclick="addScheduleItem()" class="px-5 py-2.5 glow-btn text-white rounded-xl font-bold active:scale-95">新增</button>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700">項目標題</label>
+                    <input type="text" id="new-title" required class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:ring-violet-500 focus:border-violet-500">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700">地點</label>
+                    <input type="text" id="new-location" placeholder="例如：東京車站" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700">分類</label>
+                    <select id="new-category" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                        <option value="SIGHTSEEING">景點</option>
+                        <option value="FOOD">餐飲</option>
+                        <option value="SHOPPING">購物</option>
+                        <option value="TRANSPORT">交通</option>
+                        <option value="HOTEL">住宿</option>
+                        <option value="OTHER">其他</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">備註/內容</label>
+                    <textarea id="new-content" rows="3" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg"></textarea>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('add-modal')" class="py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">取消</button>
+                    <button type="submit" class="bg-violet-500 text-white py-2 px-4 rounded-lg hover:bg-violet-600">儲存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="font-black text-2xl text-gray-800 mb-4">編輯行程項目</h2>
+            <form onsubmit="event.preventDefault(); saveEdit()">
+                <input type="hidden" id="editing-item-id">
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div class="col-span-1">
+                        <label class="block text-sm font-medium text-gray-700">起始時間</label>
+                        <input type="time" id="edit-start-time" required class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-sm font-medium text-gray-700">結束時間 (選填)</label>
+                        <input type="time" id="edit-end-time" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700">項目標題</label>
+                    <input type="text" id="edit-title" required class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:ring-violet-500 focus:border-violet-500">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700">地點</label>
+                    <input type="text" id="edit-location" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                </div>
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700">分類</label>
+                    <select id="edit-category" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                        <option value="SIGHTSEEING">景點</option>
+                        <option value="FOOD">餐飲</option>
+                        <option value="SHOPPING">購物</option>
+                        <option value="TRANSPORT">交通</option>
+                        <option value="HOTEL">住宿</option>
+                        <option value="OTHER">其他</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">備註/內容</label>
+                    <textarea id="edit-content" rows="3" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg"></textarea>
+                </div>
+                <div class="flex justify-between items-center pt-4 border-t">
+                    <button type="button" onclick="deleteScheduleItem()" class="text-red-500 hover:text-red-700 font-bold">刪除</button>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeModal('edit-modal')" class="py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">取消</button>
+                        <button type="submit" class="bg-violet-500 text-white py-2 px-4 rounded-lg hover:bg-violet-600">儲存變更</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="expense-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="font-black text-2xl text-gray-800 mb-2">新增花費</h2>
+            <p id="expense-modal-title" class="text-gray-500 mb-4"></p>
+            
+            <form onsubmit="event.preventDefault(); addExpenseToItem()" class="mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <input type="hidden" id="expense-item-id">
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">金額</label>
+                        <input type="number" id="expense-amount" required class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">幣別</label>
+                        <select id="expense-currency" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                            <option value="JPY">JPY (日圓)</option>
+                            <option value="TWD">TWD (台幣)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">支付者</label>
+                        <select id="expense-payer" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                            <option value="bird">🐦 Bird</option>
+                            <option value="pig">🐷 Pig</option>
+                            <option value="shared">共同</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">描述 (選填)</label>
+                        <input type="text" id="expense-desc" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-yellow-500 text-white py-2.5 rounded-lg hover:bg-yellow-600 font-bold active:scale-[0.99]">新增花費</button>
+            </form>
+            
+            <h3 class="font-bold text-lg text-gray-800 mb-2">已記錄花費</h3>
+            <div id="expense-list" class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-2">
+                </div>
+            
+            <div class="flex justify-end pt-4 border-t mt-4">
+                <button type="button" onclick="closeModal('expense-modal')" class="py-2 px-4 bg-gray-200 rounded-lg text-gray-700 hover:bg-gray-300 font-bold">完成</button>
             </div>
         </div>
     </div>
     
-    <div id="edit-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('edit-modal')">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">編輯行程</h2>
-            <div class="space-y-3">
-                <div class="flex gap-2">
-                    <div class="flex-1 flex gap-1 items-center bg-gray-50 border border-gray-200 rounded-xl p-2 shadow-inner">
-                        <input type="time" id="edit-start-time" class="w-full bg-transparent font-bold text-center text-lg focus:outline-none">
-                        <span class="text-gray-300">-</span>
-                        <input type="time" id="edit-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
-                    </div>
+    <div id="rate-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="font-black text-2xl text-gray-800 mb-4">設定匯率 (JPY to TWD)</h2>
+            <form onsubmit="event.preventDefault(); saveExchangeRate()">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">1 JPY = ? TWD</label>
+                    <input type="number" step="0.0001" id="exchange-rate-input" required class="mt-1 block w-full p-3 text-lg border-2 border-gray-300 rounded-lg focus:ring-violet-500 focus:border-violet-500">
                 </div>
-                <select id="edit-category" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                    <option value="FOOD">🍴 餐飲</option>
-                    <option value="SHOPPING">🛍 購物</option>
-                    <option value="SIGHTSEEING">⛩ 景點</option>
-                    <option value="TRANSPORT">🚄 交通</option>
-                    <option value="HOTEL">🏨 住宿</option>
-                    <option value="OTHER">💡 其他</option>
-                </select>
-                <input type="text" id="edit-title" placeholder="標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
-                <input type="text" id="edit-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
-                <textarea id="edit-content" placeholder="詳細內容..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
-            </div>
-            <div class="flex justify-between items-center mt-6">
-                 <button onclick="deleteScheduleItem()" class="px-4 py-2 text-red-500 rounded-xl hover:bg-red-50 text-sm font-medium active:scale-95"><i class="fas fa-trash-alt mr-1"></i> 刪除</button>
-                <div class="space-x-2">
-                    <button onclick="closeModal('edit-modal')" class="px-4 py-2 text-gray-500 font-medium rounded-xl hover:bg-gray-100">取消</button>
-                    <button onclick="saveEdit()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95">儲存</button>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('rate-modal')" class="py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">取消</button>
+                    <button type="submit" class="bg-violet-500 text-white py-2 px-4 rounded-lg hover:bg-violet-600">儲存匯率</button>
                 </div>
-            </div>
-             <input type="hidden" id="editing-item-id">
+            </form>
         </div>
-    </div>
-
-    <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-start mb-4">
-                <h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2>
-                <button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600 active:scale-95"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div>
-            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-inner">
-                <div class="flex gap-2 mb-2">
-                    <select id="expense-payer" class="input-focus w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none shrink-0">
-                        <option value="bird">🐦</option>
-                        <option value="pig">🐷</option>
-                        <option value="shared">🐷🐦</option>
-                    </select>
-                    <input type="text" id="expense-desc" placeholder="品項" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm">
-                </div>
-                <div class="flex gap-2">
-                    <select id="expense-currency" class="input-focus w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0">
-                        <option value="JPY">JPY</option>
-                        <option value="TWD">TWD</option>
-                    </select>
-                    <input type="number" id="expense-amount" placeholder="金額" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold">
-                    <button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow-md hover:bg-yellow-600 shrink-0 active:scale-95">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-            </div>
-            <input type="hidden" id="expense-item-id">
-        </div>
-    </div>
-    
-    <div id="rate-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('rate-modal')">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-bold mb-2">匯率設定</h2>
-            <div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-inner">
-                <span class="text-lg font-bold text-gray-400">×</span>
-                <input type="number" step="0.0001" id="exchange-rate-input" class="input-focus flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none">
-            </div>
-            <div class="flex justify-end mt-6">
-                <button onclick="saveExchangeRate()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95">儲存</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="fixed-footer text-gray-400">
-        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[var(--primary-normal)] transition-colors active:scale-90">
-            <i class="fas fa-map-marked-alt text-xl mb-1"></i><span class="text-[9px] font-bold">行程</span>
-        </button>
-        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90">
-            <i class="fas fa-map text-xl mb-1"></i><span class="text-[9px] font-bold">地圖</span>
-        </button>
-        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="glow-btn text-white w-16 h-16 rounded-full flex items-center justify-center -mt-10 cursor-pointer active:scale-90 transition-transform border-4 border-white shadow-xl shadow-[var(--primary-light)]">
-            <i class="fas fa-plus text-xl"></i>
-        </div>
-        <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors active:scale-90">
-            <i class="fas fa-wallet text-xl mb-1"></i><span class="text-[9px] font-bold">花費</span>
-        </button>
-        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90">
-            <i class="fas fa-clipboard-list text-xl mb-1"></i><span class="text-[9px] font-bold">清單</span>
-        </button>
     </div>
 
 <script>
@@ -375,6 +433,7 @@
         { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10' },
     ];
 
+    // 請替換為您自己的 Firebase 配置
     const firebaseConfig = {
       apiKey: "AIzaSyBSIP0E7wHTxEnoGmBnqe3IrdojWSTZu0A",
       authDomain: "tokyotrip2026-24a2c.firebaseapp.com",
@@ -436,23 +495,30 @@
         }
     }
 
+    /**
+     * 監聽行程更新並修正 Loading 狀態的隱藏問題。
+     * 確保 Loading 狀態在資料渲染後立刻以 requestAnimationFrame 隱藏。
+     */
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
         const loading = document.getElementById('loading-status');
-        // 確保過渡效果存在並顯示載入狀態
+        
+        // 1. 開始時顯示 loading 提示
         loading.style.transition = 'opacity 0.3s ease'; 
         loading.style.opacity = '1';
 
         firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
             currentItems = doc.exists ? (doc.data().schedule || []) : [];
+            
+            // 2. 渲染資料
             renderSchedule();
             calculateDailyCost();
             if (!document.getElementById('map-page').classList.contains('hidden')) initMap(); 
             
-            // ★★★ 解決：資料同步中不會消失的問題，使用 setTimeout 確保平滑淡出 ★★★
-            setTimeout(() => {
+            // 3. 關鍵修正：在瀏覽器下次繪製前隱藏，確保 DOM 渲染已觸發
+            requestAnimationFrame(() => {
                 loading.style.opacity = '0';
-            }, 500); // 延遲 500ms 進行淡出
+            });
         });
     }
 
@@ -576,7 +642,7 @@
             // 修正：未選中狀態改為明顯的半透明黑/白，選中時維持紫色
             const activeClass = active 
                 ? 'bg-[var(--primary-normal)] text-white shadow-lg shadow-purple-500/30 scale-105 border border-transparent' 
-                : 'bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/30';
+                : 'bg-white/20 backdrop-blur-sm border border-white/20 text-white hover:bg-white/30';
             
             slider.insertAdjacentHTML('beforeend', `
                 <div class="flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95 ${activeClass}" onclick="switchDay(${d.day})">
@@ -588,25 +654,50 @@
     }
 
     async function initMap() {
-        if (!mapInstance) { mapInstance = L.map('map').setView([35.6895, 139.6917], 11); L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(mapInstance); }
+        if (!mapInstance) { 
+            mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
+            // 修正：使用 Leaflet 建議的 Google Maps 瓦片圖層 URL
+            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { 
+                maxZoom: 20, 
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] 
+            }).addTo(mapInstance); 
+        } else {
+             // 確保地圖在容器改變尺寸後重新繪製
+            mapInstance.invalidateSize(); 
+        }
+        
         markers.forEach(m => mapInstance.removeLayer(m)); markers = [];
         const locations = currentItems.filter(i => i.location);
         if (locations.length === 0) { mapInstance.setView([35.6895, 139.6917], 11); return; }
+        
         let bounds = L.latLngBounds();
         for (let index = 0; index < locations.length; index++) {
             const item = locations[index];
             try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.location)}`);
+                // 使用 Nominatim 進行地理編碼
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.location)}&limit=1`);
                 const data = await res.json();
+                
                 if (data && data.length > 0) {
                     const lat = data[0].lat; const lon = data[0].lon;
                     const customIcon = L.divIcon({ className: 'map-icon', html: (index + 1).toString(), iconSize: [28, 28], iconAnchor: [14, 14] });
                     const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance).bindPopup(`<b>${index + 1}. ${item.title}</b><br>${item.location}<br><span class="text-gray-500">${item.startTime}</span>`);
                     markers.push(marker); bounds.extend([lat, lon]);
                 }
-            } catch (e) {} await new Promise(r => setTimeout(r, 800)); 
+            } catch (e) {
+                // console.error("Geocoding error:", e);
+            } 
+            // 為了避免 Nominatim 服務器的限制，在每次請求之間加入延遲
+            await new Promise(r => setTimeout(r, 800)); 
         }
-        if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
+        
+        if (markers.length > 0) {
+            // 自動調整視野以容納所有標記
+            mapInstance.fitBounds(bounds, { padding: [50, 50] });
+        } else {
+            // 如果沒有標記，則重設到東京中心
+            mapInstance.setView([35.6895, 139.6917], 11);
+        }
     }
 
     function getCategoryVibe(category) {
@@ -618,39 +709,219 @@
             'HOTEL': { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'violet', label: '住宿' }, 
             'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } 
         };
+        // 確保 HOTLE 使用主題色
         if (category === 'HOTEL') return { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'purple', label: '住宿' };
         return map[category] || map['OTHER'];
     }
 
-    function switchDay(day) { if (day === currentDay) return; currentDay = day; document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === day).label; renderDateSlider(); listenForScheduleUpdates(day); }
+    function switchDay(day) { 
+        if (day === currentDay) return; 
+        currentDay = day; 
+        document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === day).label; 
+        renderDateSlider(); 
+        listenForScheduleUpdates(day); 
+    }
+    
     function switchPage(page) {
-        document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden')); document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`).classList.remove('hidden');
+        document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden')); 
+        document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`).classList.remove('hidden');
+        
         const primaryColorNormal = getComputedStyle(document.documentElement).getPropertyValue('--primary-normal');
         document.getElementById('tab-schedule').style.color = page === 'schedule' ? primaryColorNormal : '';
         document.getElementById('tab-map').style.color = page === 'map' ? primaryColorNormal : '';
-        document.getElementById('tab-expense').style.color = page === 'expense' ? '#f59e0b' : '';
+        document.getElementById('tab-expense').style.color = page === 'expense' ? '#f59e0b' : ''; // 針對花費頁面使用橘色
         document.getElementById('tab-checklist').style.color = page === 'checklist' ? primaryColorNormal : ''; 
-        if(page === 'expense') calculateAllExpenses(); if(page === 'map') setTimeout(initMap, 200); setTimeout(adjustContentPadding, 50);
+        
+        if(page === 'expense') calculateAllExpenses(); 
+        // 確保地圖只有在切換到地圖頁面時才初始化
+        if(page === 'map') setTimeout(initMap, 200); 
+        setTimeout(adjustContentPadding, 50);
     }
 
     function showModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    function openExpenseModal(itemId) { const item = currentItems.find(i => i.id === itemId); if(!item) return; document.getElementById('expense-modal-title').textContent = item.title; document.getElementById('expense-item-id').value = itemId; document.getElementById('expense-desc').value = ''; document.getElementById('expense-amount').value = ''; document.getElementById('expense-currency').value = 'JPY'; renderExpenseList(item.expenses || []); showModal('expense-modal'); }
-    function prepareEdit(id) { const item = currentItems.find(i => i.id === id); if (!item) return; document.getElementById('edit-start-time').value = item.startTime; document.getElementById('edit-end-time').value = item.endTime || ''; document.getElementById('edit-title').value = item.title; document.getElementById('edit-location').value = item.location || ''; document.getElementById('edit-content').value = item.content || ''; document.getElementById('edit-category').value = item.category; document.getElementById('editing-item-id').value = id; showModal('edit-modal'); }
-    function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
+    
+    function openExpenseModal(itemId) { 
+        const item = currentItems.find(i => i.id === itemId); 
+        if(!item) return; 
+        document.getElementById('expense-modal-title').textContent = `針對「${item.title}」新增花費`; 
+        document.getElementById('expense-item-id').value = itemId; 
+        document.getElementById('expense-desc').value = ''; 
+        document.getElementById('expense-amount').value = ''; 
+        document.getElementById('expense-currency').value = 'JPY'; 
+        renderExpenseList(item.expenses || []); 
+        showModal('expense-modal'); 
+    }
+    
+    function prepareEdit(id) { 
+        const item = currentItems.find(i => i.id === id); 
+        if (!item) return; 
+        document.getElementById('edit-start-time').value = item.startTime; 
+        document.getElementById('edit-end-time').value = item.endTime || ''; 
+        document.getElementById('edit-title').value = item.title; 
+        document.getElementById('edit-location').value = item.location || ''; 
+        document.getElementById('edit-content').value = item.content || ''; 
+        document.getElementById('edit-category').value = item.category; 
+        document.getElementById('editing-item-id').value = id; 
+        showModal('edit-modal'); 
+    }
+    
+    function prepareRateModal() { 
+        document.getElementById('exchange-rate-input').value = exchangeRate; 
+        showModal('rate-modal'); 
+    }
 
-    function renderExpenseList(expenses) { const c = document.getElementById('expense-list'); c.innerHTML = ''; expenses.forEach((ex, i) => { const icon = ex.payer==='bird'?'🐦':(ex.payer==='pig'?'🐷':'🐷🐦'); c.insertAdjacentHTML('beforeend', `<div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm"><div class="flex gap-2 items-center overflow-hidden flex-1 min-w-0"><span class="text-lg shrink-0">${icon}</span><span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span></div><div class="flex items-center gap-3 shrink-0 ml-2"><span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span><button onclick="removeExpense(${i})" class="text-red-300 hover:text-red-500 active:scale-95"><i class="fas fa-times"></i></button></div></div>`); }); }
-    async function addExpenseToItem() { const id=document.getElementById('expense-item-id').value, payer=document.getElementById('expense-payer').value, cur=document.getElementById('expense-currency').value; let desc=document.getElementById('expense-desc').value||'未分類', amt=parseInt(document.getElementById('expense-amount').value); if(isNaN(amt)||amt<=0)return; const idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; if(cur==='TWD'){ const old=amt; amt=Math.round(amt/exchangeRate); desc+=` (TWD ${old})`; } if(!currentItems[idx].expenses)currentItems[idx].expenses=[]; currentItems[idx].expenses.push({description:desc,amount:amt,payer:payer}); renderExpenseList(currentItems[idx].expenses); document.getElementById('expense-desc').value=''; document.getElementById('expense-amount').value=''; await saveScheduleToFirestore(currentItems); renderSchedule(); calculateDailyCost(); }
-    async function removeExpense(i) { const id=document.getElementById('expense-item-id').value, idx=currentItems.findIndex(x=>x.id===id); if(idx===-1)return; currentItems[idx].expenses.splice(i,1); renderExpenseList(currentItems[idx].expenses); await saveScheduleToFirestore(currentItems); renderSchedule(); calculateDailyCost(); }
-    async function addScheduleItem() { const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value; if(!t)return alert("請輸入標題"); currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,expenses:[]}); currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); await saveScheduleToFirestore(currentItems); closeModal('add-modal'); document.getElementById('new-title').value=''; }
-    async function saveEdit() { const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value}; await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
-    async function deleteScheduleItem() { if(!confirm('刪除？'))return; const id=document.getElementById('editing-item-id').value; currentItems=currentItems.filter(i=>i.id!==id); await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
-    function listenForChecklistUpdates() { if(firestoreChecklistListener)firestoreChecklistListener(); firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); const c=document.getElementById('checklist-container'); c.innerHTML=''; checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})">${i.text}</div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); }); }); }
-    async function addChecklistItem() { const v=document.getElementById('checklist-input').value.trim(); if(v){ await db.collection(CHECKLIST_COLLECTION).add({text:v,isCompleted:false,timestamp:firebase.firestore.FieldValue.serverTimestamp()}); document.getElementById('checklist-input').value=''; } }
-    async function toggleChecklist(id,s) { await db.collection(CHECKLIST_COLLECTION).doc(id).update({isCompleted:!s}); }
-    async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
-    async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
-    async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
+    function renderExpenseList(expenses) { 
+        const c = document.getElementById('expense-list'); 
+        c.innerHTML = ''; 
+        expenses.forEach((ex, i) => { 
+            const icon = ex.payer==='bird'?'🐦':(ex.payer==='pig'?'🐷':'🐷🐦'); 
+            c.insertAdjacentHTML('beforeend', `<div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm"><div class="flex gap-2 items-center overflow-hidden flex-1 min-w-0"><span class="text-lg shrink-0">${icon}</span><span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span></div><div class="flex items-center gap-3 shrink-0 ml-2"><span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span><button onclick="removeExpense(${i})" class="text-red-300 hover:text-red-500 active:scale-95"><i class="fas fa-times"></i></button></div></div>`); 
+        }); 
+        if (expenses.length === 0) c.innerHTML = '<div class="text-center text-gray-400 py-4">尚無消費記錄</div>';
+    }
+    
+    async function addExpenseToItem() { 
+        const id=document.getElementById('expense-item-id').value, payer=document.getElementById('expense-payer').value, cur=document.getElementById('expense-currency').value; 
+        let desc=document.getElementById('expense-desc').value||'未分類', amt=parseInt(document.getElementById('expense-amount').value); 
+        if(isNaN(amt)||amt<=0)return; 
+        const idx=currentItems.findIndex(i=>i.id===id); 
+        if(idx===-1)return; 
+        
+        if(cur==='TWD'){ 
+            const old=amt; 
+            amt=Math.round(amt/exchangeRate); 
+            desc+=` (TWD ${old})`; 
+        } 
+        
+        if(!currentItems[idx].expenses)currentItems[idx].expenses=[]; 
+        currentItems[idx].expenses.push({description:desc,amount:amt,payer:payer}); 
+        
+        renderExpenseList(currentItems[idx].expenses); 
+        document.getElementById('expense-desc').value=''; 
+        document.getElementById('expense-amount').value=''; 
+        
+        await saveScheduleToFirestore(currentItems); 
+        renderSchedule(); 
+        calculateDailyCost(); 
+    }
+    
+    async function removeExpense(i) { 
+        const id=document.getElementById('expense-item-id').value, idx=currentItems.findIndex(x=>x.id===id); 
+        if(idx===-1)return; 
+        
+        currentItems[idx].expenses.splice(i,1); 
+        
+        renderExpenseList(currentItems[idx].expenses); 
+        await saveScheduleToFirestore(currentItems); 
+        renderSchedule(); 
+        calculateDailyCost(); 
+    }
+    
+    async function addScheduleItem() { 
+        const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value; 
+        if(!t)return alert("請輸入標題"); 
+        
+        currentItems.push({
+            id:'item-'+Date.now(),
+            startTime:s,
+            endTime:e,
+            title:t,
+            content:c,
+            category:cat,
+            location:l,
+            expenses:[]
+        }); 
+        
+        currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); 
+        await saveScheduleToFirestore(currentItems); 
+        
+        // 重設表單
+        document.getElementById('new-title').value='';
+        document.getElementById('new-location').value='';
+        document.getElementById('new-content').value='';
+        document.getElementById('new-start-time').value='09:00';
+        document.getElementById('new-end-time').value='';
+        document.getElementById('new-category').value='SIGHTSEEING';
+        closeModal('add-modal'); 
+    }
+    
+    async function saveEdit() { 
+        const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); 
+        if(idx===-1)return; 
+        
+        currentItems[idx]={
+            ...currentItems[idx], 
+            startTime:document.getElementById('edit-start-time').value, 
+            endTime:document.getElementById('edit-end-time').value, 
+            title:document.getElementById('edit-title').value, 
+            location:document.getElementById('edit-location').value, 
+            content:document.getElementById('edit-content').value, 
+            category:document.getElementById('edit-category').value
+        }; 
+        
+        currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); // 編輯後重新排序
+        await saveScheduleToFirestore(currentItems); 
+        closeModal('edit-modal'); 
+    }
+    
+    async function deleteScheduleItem() { 
+        if(!confirm('確定要刪除此行程項目嗎？'))return; 
+        const id=document.getElementById('editing-item-id').value; 
+        currentItems=currentItems.filter(i=>i.id!==id); 
+        await saveScheduleToFirestore(currentItems); 
+        closeModal('edit-modal'); 
+    }
+    
+    function listenForChecklistUpdates() { 
+        if(firestoreChecklistListener)firestoreChecklistListener(); 
+        firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ 
+            checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); 
+            const c=document.getElementById('checklist-container'); 
+            c.innerHTML=''; 
+            // 排序：未完成的在前，已完成的在後
+            checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ 
+                const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; 
+                c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})">${i.text}</div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); 
+            }); 
+        }); 
+    }
+    
+    async function addChecklistItem() { 
+        const v=document.getElementById('checklist-input').value.trim(); 
+        if(v){ 
+            await db.collection(CHECKLIST_COLLECTION).add({text:v,isCompleted:false,timestamp:firebase.firestore.FieldValue.serverTimestamp()}); 
+            document.getElementById('checklist-input').value=''; 
+        } 
+    }
+    
+    async function toggleChecklist(id,s) { 
+        await db.collection(CHECKLIST_COLLECTION).doc(id).update({isCompleted:!s}); 
+    }
+    
+    async function deleteChecklist(id) { 
+        if(confirm("確定要刪除此清單項目嗎？"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); 
+    }
+    
+    async function loadExchangeRate() { 
+        try{
+            const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); 
+            if(d.exists){
+                exchangeRate=d.data().val; 
+                document.getElementById('display-rate').textContent=exchangeRate;
+            }
+        }catch(e){} 
+    }
+    
+    async function saveExchangeRate() { 
+        const r=parseFloat(document.getElementById('exchange-rate-input').value); 
+        if(r){
+            exchangeRate=r; 
+            document.getElementById('display-rate').textContent=r; 
+            await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); 
+            closeModal('rate-modal');
+        } 
+    }
 
     // 自動計算 Header 高度，讓內容剛好接在下面
     function adjustContentPadding() {
@@ -672,11 +943,21 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
+        // 初始化載入
+        renderDateSlider(); 
+        switchPage('schedule'); 
+        listenForScheduleUpdates(currentDay); 
+        listenForDayTitles(); 
+        listenForChecklistUpdates(); 
+        loadExchangeRate(); 
+        fetchWeather();
+        
+        // 延遲調整 padding，確保 header 繪製完成
         setTimeout(adjustContentPadding, 100);
         window.addEventListener('resize', adjustContentPadding);
     });
 
+    // 暴露全域函式給 HTML 元素
     window.switchDay = switchDay; window.switchPage = switchPage; window.prepareRateModal = prepareRateModal;
     window.saveExchangeRate = saveExchangeRate; window.addChecklistItem = addChecklistItem;
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
@@ -684,5 +965,6 @@
     window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
     window.editDayTitle = editDayTitle; window.initMap = initMap;
 </script>
+
 </body>
 </html>
