@@ -51,7 +51,7 @@
         <div class="fixed-header bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 shadow-sm">
             <div class="flex justify-between items-start mb-3">
                 <div class="flex-1">
-                    <h1 class="text-sm font-bold text-gray-400 tracking-widest uppercase mb-0.5">東京遛豬之旅 🐷</h1>
+                    <h1 class="text-2xl font-black text-gray-900 tracking-tight mb-1">東京遛豬之旅 🐷</h1>
                     <div class="text-3xl font-black text-gray-900 cursor-pointer hover:text-gray-600 transition-colors flex items-center gap-2" onclick="editDayTitle()">
                         <span id="current-day-title">Day 1</span>
                         <i class="fas fa-pen text-xs text-gray-300 align-top"></i>
@@ -463,7 +463,8 @@
         const vibe = getCategoryVibe(item.category);
         const expenses = item.expenses || [];
         const totalItemCost = expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0);
-        // ★★★ 時間格式：垂直排列 + 連線 ★★★
+        
+        // ★★★ 時間格式：垂直排列 + 連線 (已維持上一輪的調整) ★★★
         const hasEnd = !!item.endTime;
         const timeHTML = hasEnd 
             ? `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
@@ -740,7 +741,8 @@
         const schedulePage = document.getElementById('schedule-page');
         if (header && schedulePage) {
             const height = header.offsetHeight;
-            schedulePage.style.paddingTop = (height + 10) + 'px';
+            // 緊湊貼齊，+5px 是為了避免在不同瀏覽器下完全貼死而切到邊
+            schedulePage.style.paddingTop = (height + 5) + 'px';
         }
     }
 
