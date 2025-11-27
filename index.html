@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (玻璃感淡紫版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (淡紫柔和版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -18,18 +18,20 @@
         /* 引入 Noto Sans TC */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
         
-        /* ------------------ 主題色定義 - 淡紫色 ------------------ */
+        /* ------------------ 主題色定義 - 更淡更柔和的紫色 ------------------ */
         :root {
-            --primary-light: #E9D5FF; /* Soft UI 主色 (淺淡紫/Violet-200) */
-            --primary-normal: #A855F7; /* 按鈕和重點元素 (標準紫/Violet-500) */
-            --primary-dark: #9333EA; /* Hover 顏色 (深紫/Violet-600) */
-            /* 新增一個用於玻璃感的極淺底色，用於背景和卡片邊緣 */
-            --soft-bg-color: #f0f4ff; /* 極淺藍灰 */
+            /* 變得更淡的淺紫色，用於背景光暈和邊框 */
+            --primary-light: #E0C8FF; 
+            /* 變得比較粉嫩的標準紫，用於按鈕和重點 */
+            --primary-normal: #C084FC; 
+            /* Hover 顏色，稍微深一點點 */
+            --primary-dark: #A855F7; 
+            /* 背景色維持不變 */
+            --soft-bg-color: #f0f4ff; 
         }
         /* ------------------------------------------------ */
 
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        /* 背景色調整為新的極淺藍灰 */
         body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--soft-bg-color); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -42,12 +44,12 @@
 
         .fixed-header { 
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
-            background-color: var(--soft-bg-color); /* 配合 body 背景色 */
+            background-color: var(--soft-bg-color); 
             padding-top: 16px; padding-bottom: 4px; 
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); 
         } 
         
-        /* 底部導覽列 - 寬版圓角矩形佈局 */
+        /* 底部導覽列 */
         .fixed-footer { 
             position: fixed; 
             bottom: 0; 
@@ -64,12 +66,10 @@
             padding: 0 10px;
         }
 
-        /* 調整內邊距以避免被 footer 遮擋 */
         #schedule-page { padding-top: 180px; } 
         #expense-page, #checklist-page { padding-top: 20px; } 
         #map-page { padding-top: 20px; padding-bottom: 7.5rem !important; } 
         
-        /* 基礎 Soft UI 陰影 */
         .soft-card-shadow {
             box-shadow: 
                 6px 6px 12px rgba(174, 174, 192, 0.4), 
@@ -79,31 +79,28 @@
 
         /* 增強玻璃感的卡片樣式 */
         .soft-card-glow {
-            /* 調整陰影顏色，使其更具立體感 */
             box-shadow: 
                 4px 4px 8px rgba(0, 0, 0, 0.1), 
                 -4px -4px 8px rgba(255, 255, 255, 0.7);
-            /* 增加邊緣半透明邊框 */
-            border: 1px solid rgba(255, 255, 255, 0.5); 
-            background-color: rgba(255, 255, 255, 0.85); /* 增加背景半透明度 */
-            backdrop-filter: blur(8px); /* 增加模糊效果 */
+            /* ★★★ 修改這裡：邊框改為淡紫色 ★★★ */
+            border: 2px solid var(--primary-light); 
+            background-color: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(8px); 
             border-radius: 1.5rem; 
             position: relative;
             overflow: hidden;
             transition: box-shadow 0.3s ease, transform 0.2s;
         }
         
-        .sortable-ghost { opacity: 0.2; background-color: #f3e8ff; border: 2px dashed #d8b4fe; border-radius: 1.5rem; }
+        .sortable-ghost { opacity: 0.2; background-color: #f3e8ff; border: 2px dashed var(--primary-normal); border-radius: 1.5rem; }
         .sortable-drag { background-color: white; transform: scale(1.03); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); z-index: 9999; border-radius: 1.5rem; cursor: grabbing; }
         
         .check-item.completed .check-text { text-decoration: line-through; color: #9ca3af; }
-        /* 清單完成色：使用淺淡紫 */
         .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: var(--primary-dark); } 
 
         #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
         .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
 
-        /* 輸入框和按鈕聚焦 - 使用淺淡紫 */
         .input-focus {
             transition: box-shadow 0.2s, border-color 0.2s;
         }
@@ -112,7 +109,6 @@
             box-shadow: 0 0 0 3px var(--primary-light);
         }
 
-        /* 核心按鈕發光效果 - 使用標準紫 */
         .glow-btn {
             background-color: var(--primary-normal); 
             box-shadow: 0 0 15px var(--primary-light); 
@@ -123,7 +119,6 @@
             box-shadow: 0 0 20px var(--primary-light);
         }
 
-        /* 時間軸連線 */
         .timeline-line {
             background-color: #cbd5e1; 
             width: 2px;
@@ -134,7 +129,6 @@
             background-color: var(--primary-normal); 
         }
 
-        /* 地圖 Marker 自定義樣式 */
         .map-icon {
             background-color: var(--primary-normal); 
             color: white;
@@ -225,7 +219,7 @@
                     <div class="text-4xl font-extrabold mt-1" id="total-trip-jpy">¥ 0</div>
                     <div class="text-sm mt-1 text-white" id="total-trip-twd">≈ NT$ 0</div>
                 </div>
-                <button onclick="calculateAllExpenses()" class="text-gray-400 active:scale-95" style="color:var(--primary-normal);"><i class="fas fa-sync-alt"></i></button>
+                <button onclick="calculateAllExpenses()" class="text-white hover:text-gray-200 transition-colors active:scale-95"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
 
@@ -424,7 +418,7 @@
         { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10' },
     ];
 
-    // Firebase configuration (保持不變)
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBSIP0E7wHTxEnoGmBnqe3IrdojWSTZu0A",
       authDomain: "tokyotrip2026-24a2c.firebaseapp.com",
@@ -442,7 +436,7 @@
 
     function getDocumentId(day) { return `tokyo_feb_2026_day_${day}`; }
 
-    // 天氣 API (保持不變)
+    // 天氣 API
     const WEATHER_URL = `https://api.openweathermap.org/data/2.5/weather?id=1850147&appid=54f22a6f3141e619d73a09a6d4136e88&units=metric&lang=zh_tw`;
     async function fetchWeather() {
         try {
@@ -474,7 +468,7 @@
         }
     }
 
-    // 標題編輯 (保持不變)
+    // 標題編輯
     function listenForDayTitles() {
         if (firestoreTitlesListener) firestoreTitlesListener();
         firestoreTitlesListener = db.collection(CONFIG_DOCUMENT_ID).doc('titles').onSnapshot(doc => {
@@ -499,7 +493,7 @@
         }
     }
 
-    // 地圖 (Marker 顏色使用標準紫)
+    // 地圖
     async function initMap() {
         if (!mapInstance) {
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
@@ -532,7 +526,6 @@
                     
                     const itemNumber = index + 1;
                     
-                    // 自定義 Icon 顏色使用標準紫
                     const customIcon = L.divIcon({
                         className: 'map-icon',
                         html: itemNumber.toString(),
@@ -553,7 +546,7 @@
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
     }
 
-    // 行程核心 (保持不變)
+    // 行程核心
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
         const loading = document.getElementById('loading-status');
@@ -610,13 +603,13 @@
         const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
         let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-blue-500 mt-1 font-bold hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
-        // Soft Card Glow - 增強玻璃感：使用分類色 HEX 作為內陰影光暈，並保持半透明背景和模糊
+        // ★★★ 修改這裡：邊框使用淡紫色變數 ★★★
         const glowStyle = `
             box-shadow: 
                 4px 4px 8px rgba(0, 0, 0, 0.1), 
                 -4px -4px 8px rgba(255, 255, 255, 0.7),
-                inset 0 4px 0 0 ${vibe.hex}cc; /* 頂部內陰影光暈，增加透明度 */
-            border: 1px solid rgba(255, 255, 255, 0.5); 
+                inset 0 4px 0 0 ${vibe.hex}cc;
+            border: 2px solid var(--primary-light);
             background-color: rgba(255, 255, 255, 0.85); 
             backdrop-filter: blur(8px);
         `;
@@ -912,7 +905,7 @@
     async function saveExchangeRate() { const r = parseFloat(document.getElementById('exchange-rate-input').value); if(r) { exchangeRate = r; document.getElementById('display-rate').textContent = r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val: r}); closeModal('rate-modal'); } }
     function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
 
-    // 自動調整高度函式 (配合寬版 footer 調整)
+    // 自動調整高度函式
     function adjustContentPadding() {
         const header = document.querySelector('.fixed-header');
         const footer = document.querySelector('.fixed-footer');
@@ -920,9 +913,8 @@
         if (header && schedulePage) {
             schedulePage.style.paddingTop = (header.offsetHeight + 5) + 'px';
         }
-        // 確保所有 page-content 都有足夠的底部間距
         document.querySelectorAll('.page-content').forEach(page => {
-             page.style.paddingBottom = (footer.offsetHeight + 24) + 'px'; // footer 高度 + 一些額外間距
+             page.style.paddingBottom = (footer.offsetHeight + 24) + 'px';
         });
     }
 
