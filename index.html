@@ -2,8 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (極致動畫版)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title id="app-title">東京遛豬之旅 2026 (底部修復版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -34,15 +34,13 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 7rem; } 
+        .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 8rem; } 
         .page-content.hidden { opacity: 0; display: none !important; }
 
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
         /* --- 動畫特效區 --- */
-        
-        /* 1. 卡片彈性進場 (Staggered Entry) */
         @keyframes elastic-slide-up {
             0% { opacity: 0; transform: translateY(40px) scale(0.9); }
             60% { opacity: 1; transform: translateY(-5px) scale(1.01); }
@@ -53,7 +51,6 @@
             opacity: 0; 
         }
 
-        /* 2. 地圖大頭針落地 (Pin Drop) */
         @keyframes drop-pin {
             0% { transform: translateY(-100px) scale(0); opacity: 0; }
             60% { transform: translateY(10px) scale(1.1); opacity: 1; }
@@ -61,27 +58,24 @@
             100% { transform: translateY(0) scale(1); opacity: 1; }
         }
         .map-icon {
-            /* 應用動畫，並根據 index 加入延遲 (在 JS 中處理 index) */
             animation: drop-pin 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
             transform-origin: bottom center;
-            opacity: 0; /* 初始隱藏 */
+            opacity: 0; 
         }
 
-        /* 3. 清單劃線動畫 (Strikethrough) */
         .check-text {
             background-image: linear-gradient(transparent 45%, #9ca3af 45%, #9ca3af 55%, transparent 55%);
             background-repeat: no-repeat;
-            background-size: 0% 100%; /* 初始長度 0 */
+            background-size: 0% 100%; 
             background-position: left center;
             transition: background-size 0.4s ease-out, color 0.3s ease;
         }
         .check-item.completed .check-text {
-            background-size: 100% 100%; /* 畫到底 */
+            background-size: 100% 100%; 
             color: #9ca3af;
-            text-decoration: none !important; /* 覆蓋原本的 text-decoration */
+            text-decoration: none !important; 
         }
 
-        /* 4. 呼吸與懸浮 (Hover Lift) */
         @keyframes breathe {
             0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(192, 132, 252, 0); }
             50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(192, 132, 252, 0.4); }
@@ -95,10 +89,10 @@
             background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
             background-size: cover;
             background-position: center bottom;
-            padding-top: 16px; padding-bottom: 10px; 
+            padding-top: 16px; padding-bottom: 15px; 
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             color: white;
-            transition: height 0.3s ease;
+            transition: all 0.3s ease;
         }
         .fixed-header-bg::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
@@ -106,17 +100,29 @@
             z-index: -1; backdrop-filter: blur(2px);
         }
 
+        /* ★★★ 修正重點：底部導覽列位置 ★★★ */
         .fixed-footer { 
-            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-            max-width: 90%; margin: 0 auto 15px auto; z-index: 1001; 
-            background-color: white; border-radius: 2rem; 
-            box-shadow: 0 5px 25px rgba(0,0,0,0.15); height: 68px; 
-            display: flex; align-items: center; justify-content: space-around; padding: 0 5px; 
+            position: fixed; 
+            /* 使用 max() 確保在 iPhone 等有 Home Indicator 的手機上往上推 */
+            bottom: max(25px, env(safe-area-inset-bottom)); 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 90%; 
+            max-width: 400px; /* 限制最大寬度，避免在大螢幕太寬 */
+            z-index: 1001; 
+            background-color: white; 
+            border-radius: 2rem; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); /* 加深陰影，增加懸浮感 */
+            height: 70px; /* 稍微加高一點點 */
+            display: flex; 
+            align-items: center; 
+            justify-content: space-around; 
+            padding: 0 5px; 
             animation: elastic-slide-up 0.6s ease-out 0.2s forwards;
             opacity: 0;
         }
 
-        #schedule-page { padding-top: 210px; } 
+        #schedule-page { padding-top: 220px; } 
         #expense-page, #checklist-page { padding-top: 30px; } 
         #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
         
@@ -128,11 +134,11 @@
             background-color: rgba(255, 255, 255, 0.95); 
             border-radius: 1.5rem; 
             position: relative; overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* 平滑過渡 */
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
         }
         .soft-card-glow:hover {
-            transform: translateY(-3px); /* 輕微上浮 */
-            box-shadow: 0 10px 25px rgba(168, 85, 247, 0.15); /* 陰影加深 */
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 25px rgba(168, 85, 247, 0.15); 
             border-color: var(--primary-normal);
         }
         .soft-card-glow:active {
@@ -153,18 +159,18 @@
 
         .timeline-line { background-color: #cbd5e1; width: 2px; border-radius: 9999px; }
         
-        /* Map Icon 基礎樣式 */
         .map-icon { background-color: var(--primary-normal); color: white; font-weight: bold; text-align: center; line-height: 28px; border-radius: 50%; width: 28px; height: 28px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); border: 3px solid white; }
 
         .header-glass-card {
-            background-color: rgba(255, 255, 255, 0.15); 
+            background-color: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
         }
         
         #map-page .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 80px !important; }
-        #map-page .leaflet-control-container .leaflet-bottom { bottom: 90px !important; }
+        /* 讓地圖控制項也跟著往上推 */
+        #map-page .leaflet-control-container .leaflet-bottom { bottom: 110px !important; }
 
         .leaflet-control-custom-btn {
             background-color: white; width: 34px; height: 34px; border-radius: 4px;
@@ -178,7 +184,7 @@
 
     <div id="schedule-page" class="page-content">
         <div class="fixed-header-bg px-4" id="main-header">
-            <div class="flex justify-between items-start mb-3 relative z-10">
+            <div class="flex justify-between items-start mb-3 relative z-10 anim-header-entry">
                 <div class="flex-1">
                     <h1 class="text-3xl font-black text-white tracking-tight mb-1 drop-shadow-lg animate-[fade-in_0.6s_ease-out]">東京遛豬之旅 🐷</h1>
                     <div class="text-xl font-bold text-white/90 cursor-pointer flex items-center gap-2" onclick="editDayTitle()">
@@ -188,7 +194,7 @@
                 </div>
                 
                 <div class="flex flex-col items-end gap-1 mt-1">
-                    <div id="weather-card" class="flex items-center gap-3 px-3 py-2 rounded-xl shadow-lg header-glass-card hover:scale-105 transition duration-300">
+                    <div id="weather-card" class="flex items-center gap-3 px-3 py-2 rounded-xl shadow-lg header-glass-card hover:bg-white/30 transition duration-300">
                         <div id="weather-icon-container" class="text-2xl text-white"><i class="fas fa-sync fa-spin"></i></div>
                         <div class="text-right leading-none">
                             <div id="weather-temp" class="text-xl font-black text-white">--°C</div>
@@ -198,7 +204,7 @@
                 </div>
             </div>
             
-            <div class="flex justify-between items-center mb-4 px-1 relative z-10">
+            <div class="flex justify-between items-center mb-4 px-1 relative z-10 anim-header-entry" style="animation-delay: 0.1s;">
                 <button onclick="prepareRateModal()" class="text-[11px] text-white px-3 py-1.5 rounded-lg font-bold active:scale-95 header-glass-card hover:bg-white/20 transition">
                     匯率: <span id="display-rate">0.22</span>
                 </button>
@@ -208,7 +214,7 @@
                 </div>
             </div>
 
-            <div class="flex overflow-x-auto gap-3 py-1 pb-1 hide-scrollbar z-10 relative" id="date-slider"></div>
+            <div class="flex overflow-x-auto gap-3 py-1 pb-1 hide-scrollbar z-10 relative anim-header-entry" style="animation-delay: 0.2s;" id="date-slider"></div>
         </div>
 
         <div class="px-4 space-y-5"> 
@@ -440,6 +446,7 @@
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
         const loading = document.getElementById('loading-status');
+        loading.style.transition = 'opacity 0.3s ease'; 
         loading.style.opacity = '1';
 
         firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
@@ -447,7 +454,7 @@
             renderSchedule();
             calculateDailyCost();
             if (!document.getElementById('map-page').classList.contains('hidden')) initMap(); 
-            setTimeout(() => { loading.style.opacity = '0'; }, 300); 
+            setTimeout(() => { loading.style.opacity = '0'; }, 500); 
         });
     }
 
@@ -535,7 +542,9 @@
         let total = 0;
         currentItems.forEach(item => { if(item.expenses) total += item.expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0); });
         const el = document.getElementById('header-daily-cost');
-        if(el) el.textContent = `¥ ${total.toLocaleString()}`;
+        if(el) {
+            animateValue(el, parseInt(el.textContent.replace(/\D/g,'')) || 0, total, 1000);
+        }
     }
 
     // 數字滾動動畫函數
