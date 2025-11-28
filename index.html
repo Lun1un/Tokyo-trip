@@ -52,15 +52,17 @@
             opacity: 0; 
         }
 
-        /* ★★★ 修正：地圖大頭針樣式 (移除所有動畫，強制顯示) ★★★ */
+        /* ★★★ 修正：地圖大頭針樣式 (移除所有動畫，強制顯示) - 已修正旋轉問題 ★★★ */
         .map-icon {
             background-color: var(--primary-normal) !important;
             color: white !important;
             font-weight: 900;
             text-align: center;
             line-height: 30px;
+            /* 保留這個邊框半徑來維持大頭針形狀 */
             border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
+            /* 移除旋轉，讓圖標保持正向 */
+            transform: none; 
             width: 30px !important;
             height: 30px !important;
             box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
@@ -72,7 +74,8 @@
             animation: none !important; /* 移除所有動畫 */
         }
         .map-icon span {
-            transform: rotate(45deg);
+            /* 移除反向旋轉，因為外層已無旋轉 */
+            transform: none; 
             display: block;
             font-size: 14px;
         }
