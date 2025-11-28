@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (拖曳優化版)</title>
+    <title>東京遛豬之旅 2026 (最終修正版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -69,7 +69,8 @@
             height: 30px !important;
             box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
             border: 3px solid white;
-            animation: drop-pin 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            /* 移除 animation 延遲，改為直接執行，避免隱形 */
+            animation: drop-pin 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
             display: flex !important;
             align-items: center;
             justify-content: center;
@@ -160,10 +161,10 @@
             background-color: rgba(255, 255, 255, 0.95); 
             border-radius: 1.5rem; 
             position: relative; overflow: hidden;
-            /* 移除 transition 避免與拖曳衝突，改在 hover 時單獨加 */
+            /* 移除 transition，避免拖曳時的 CSS 衝突 */
         }
         
-        /* 拖曳時的樣式 */
+        /* SortableJS 樣式 */
         .sortable-ghost { 
             opacity: 0.4 !important; 
             background-color: #f3e8ff !important; 
@@ -208,6 +209,14 @@
             align-items: center; justify-content: center; color: #4b5563; font-size: 16px; transition: all 0.2s;
         }
         .leaflet-control-custom-btn:hover { background-color: #f3f4f6; color: var(--primary-normal); }
+
+        /* 確保 Loading 文字隱藏 */
+        #loading-status {
+            display: none !important;
+            height: 0;
+            overflow: hidden;
+            opacity: 0;
+        }
     </style>
 </head>
 <body class="text-gray-700">
@@ -248,8 +257,7 @@
         </div>
 
         <div class="px-4 space-y-5"> 
-            <div id="loading-status" style="display:none;"></div>
-            <div id="schedule-container" class="space-y-4 pb-10 min-h-[200px]"></div>
+            <div id="loading-status"></div> <div id="schedule-container" class="space-y-4 pb-10 min-h-[200px]"></div>
         </div>
     </div>
 
@@ -323,7 +331,6 @@
                         <input type="time" id="new-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
-                
                 <div class="flex gap-2">
                     <select id="new-category" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                         <option value="FOOD">🍴 餐飲</option><option value="SHOPPING">🛍 購物</option><option value="SIGHTSEEING">⛩ 景點</option><option value="TRANSPORT">🚄 交通</option><option value="HOTEL">🏨 住宿</option><option value="OTHER">💡 其他</option>
@@ -332,7 +339,6 @@
                         <option value="">(交通方式)</option><option value="walk">🚶 步行</option><option value="car">🚗 開車</option><option value="taxi">🚕 計程車</option><option value="bus">🚌 公車</option><option value="subway">🚇 地鐵</option><option value="skyliner">🚅 Skyliner</option><option value="plane">✈️ 飛機</option>
                     </select>
                 </div>
-
                 <input type="text" id="new-title" placeholder="行程標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
                 <input type="text" id="new-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                 <textarea id="new-content" placeholder="備註..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
@@ -475,8 +481,7 @@
 
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
-        const loading = document.getElementById('loading-status');
-        
+        // 確保載入時不顯示文字，但功能運作
         firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
             currentItems = doc.exists ? (doc.data().schedule || []) : [];
             renderSchedule();
@@ -493,7 +498,11 @@
         const el = document.getElementById('schedule-container');
         if (sortableInstance) sortableInstance.destroy();
         sortableInstance = new Sortable(el, {
-            animation: 200, delay: 1000, delayOnTouchOnly: false, ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
+            animation: 200, 
+            delay: 500, // ★★★ 拖曳延遲改為 0.5 秒 ★★★
+            delayOnTouchOnly: true, // 僅在觸控裝置上啟用延遲
+            ghostClass: 'sortable-ghost', 
+            dragClass: 'sortable-drag',
             onEnd: function (evt) {
                 const item = currentItems[evt.oldIndex];
                 currentItems.splice(evt.oldIndex, 1);
@@ -531,7 +540,8 @@
             : `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
                <div class="timeline-line bg-gray-200 h-full mt-1 min-h-[2rem]"></div>`;
 
-        const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
+        // ★★★ 修改：花費移到下方，且稍微調整樣式 ★★★
+        const costBadge = totalItemCost > 0 ? `<div class="mt-2 inline-block bg-yellow-50 text-yellow-700 px-2 py-1 rounded text-xs font-bold border border-yellow-100">¥ ${totalItemCost.toLocaleString()}</div>` : '';
         let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 mt-1 font-bold hover:text-[var(--primary-normal)] hover:underline inline-block max-w-[85%] truncate" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
         let transportHTML = '';
@@ -563,7 +573,8 @@
                             </div>
                         </div>
                         <p class="text-sm text-gray-500 mt-2 leading-relaxed">${item.content || ''}</p>
-                        ${locationHTML} ${costBadge}
+                        ${locationHTML}
+                        ${costBadge} 
                     </div>
                 </div>
             </div>`;
@@ -720,21 +731,7 @@
     async function addScheduleItem() { const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value, trans=document.getElementById('new-transport').value; if(!t)return alert("請輸入標題"); currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,transport:trans,expenses:[]}); currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); await saveScheduleToFirestore(currentItems); closeModal('add-modal'); document.getElementById('new-title').value=''; }
     async function saveEdit() { const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value, transport:document.getElementById('edit-transport').value}; await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
     async function deleteScheduleItem() { if(!confirm('刪除？'))return; const id=document.getElementById('editing-item-id').value; currentItems=currentItems.filter(i=>i.id!==id); await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
-    
-    // 修正清單劃線邏輯：使用 span 包裹文字
-    function listenForChecklistUpdates() { 
-        if(firestoreChecklistListener)firestoreChecklistListener(); 
-        firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ 
-            checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); 
-            const c=document.getElementById('checklist-container'); 
-            c.innerHTML=''; 
-            checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ 
-                const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; 
-                // 加入 span class="check-text"
-                c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})"><span class="check-text">${i.text}</span></div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); 
-            }); 
-        }); 
-    }
+    function listenForChecklistUpdates() { if(firestoreChecklistListener)firestoreChecklistListener(); firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); const c=document.getElementById('checklist-container'); c.innerHTML=''; checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})"><span class="check-text">${i.text}</span></div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); }); }); }
     async function addChecklistItem() { const v=document.getElementById('checklist-input').value.trim(); if(v){ await db.collection(CHECKLIST_COLLECTION).add({text:v,isCompleted:false,timestamp:firebase.firestore.FieldValue.serverTimestamp()}); document.getElementById('checklist-input').value=''; } }
     async function toggleChecklist(id,s) { await db.collection(CHECKLIST_COLLECTION).doc(id).update({isCompleted:!s}); }
     async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
