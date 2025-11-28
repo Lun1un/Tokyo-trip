@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (顯示修復版)</title>
+    <title>東京遛豬之旅 2026 (櫻花慶典終極版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="icon" type="image/png" sizes="32x32" href="https://i.meee.com.tw/rpOFJGM.jpg">
     
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -40,9 +41,23 @@
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* --- 動畫與樣式 --- */
-        
-        /* 卡片進場 */
+        /* --- 🌸 櫻花特效樣式 --- */
+        .sakura {
+            position: fixed;
+            top: -10%;
+            background-color: #ffd1dc; /* 櫻花粉 */
+            border-radius: 100% 0 100% 0;
+            animation: fall linear infinite;
+            z-index: 9998; /* 在 Modal 之下，但在內容之上 */
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        @keyframes fall {
+            0% { top: -10%; transform: translateX(0) rotate(0deg); opacity: 0.8; }
+            100% { top: 100%; transform: translateX(100px) rotate(360deg); opacity: 0; }
+        }
+
+        /* --- 動畫特效區 --- */
         @keyframes elastic-slide-up {
             0% { opacity: 0; transform: translateY(40px); }
             100% { opacity: 1; transform: translateY(0); }
@@ -52,17 +67,15 @@
             opacity: 0; 
         }
 
-        /* ★★★ 修正：地圖大頭針樣式 (移除所有動畫，強制顯示) - 已修正旋轉問題 ★★★ */
+        /* 地圖大頭針樣式 (強制顯示) */
         .map-icon {
             background-color: var(--primary-normal) !important;
             color: white !important;
             font-weight: 900;
             text-align: center;
             line-height: 30px;
-            /* 保留這個邊框半徑來維持大頭針形狀 */
             border-radius: 50% 50% 50% 0;
-            /* 移除旋轉，讓圖標保持正向 */
-            transform: none; 
+            transform: rotate(-45deg);
             width: 30px !important;
             height: 30px !important;
             box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
@@ -70,12 +83,10 @@
             display: flex !important;
             align-items: center;
             justify-content: center;
-            opacity: 1 !important; /* 強制不透明 */
-            animation: none !important; /* 移除所有動畫 */
+            opacity: 1 !important;
         }
         .map-icon span {
-            /* 移除反向旋轉，因為外層已無旋轉 */
-            transform: none; 
+            transform: rotate(45deg);
             display: block;
             font-size: 14px;
         }
@@ -212,7 +223,7 @@
         <div class="fixed-header-bg px-4" id="main-header">
             <div class="flex justify-between items-start mb-3 relative z-10 anim-header-entry">
                 <div class="flex-1">
-                    <h1 class="text-3xl font-black text-white tracking-tight mb-1 drop-shadow-lg">東京遛豬之旅 🐷</h1>
+                    <h1 class="text-3xl font-black text-white tracking-tight mb-1 drop-shadow-lg animate-[fade-in_0.6s_ease-out]">東京遛豬之旅 🐷</h1>
                     <div class="text-xl font-bold text-white/90 cursor-pointer flex items-center gap-2" onclick="editDayTitle()">
                         <span id="current-day-title" class="border-b border-transparent hover:border-white/50 transition">Day 1</span>
                         <i class="fas fa-pen text-xs text-white/60"></i>
@@ -266,6 +277,7 @@
             <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-wallet"></i></span>
             消費統計
         </h1>
+        
         <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden anim-card-entry">
             <div class="absolute top-0 right-0 w-32 h-32" style="background-color: var(--primary-normal); opacity: 0.15; border-radius: 9999px; margin-right: -4rem; margin-top: -4rem; filter: blur(3rem);"></div>
             <div class="flex justify-between items-start relative z-10">
@@ -277,6 +289,7 @@
                 <button onclick="calculateAllExpenses()" class="text-white hover:text-gray-300 transition active:scale-95"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
+
         <div class="grid grid-cols-3 gap-3 mb-8 anim-card-entry" style="animation-delay: 0.1s;">
             <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-blue-300">
                 <div class="text-2xl mb-1">🐦</div><div class="text-xs text-gray-400 font-bold">Dove</div>
@@ -723,9 +736,68 @@
     async function addScheduleItem() { const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value, trans=document.getElementById('new-transport').value; if(!t)return alert("請輸入標題"); currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,transport:trans,expenses:[]}); currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); await saveScheduleToFirestore(currentItems); closeModal('add-modal'); document.getElementById('new-title').value=''; }
     async function saveEdit() { const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value, transport:document.getElementById('edit-transport').value}; await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
     async function deleteScheduleItem() { if(!confirm('刪除？'))return; const id=document.getElementById('editing-item-id').value; currentItems=currentItems.filter(i=>i.id!==id); await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
-    function listenForChecklistUpdates() { if(firestoreChecklistListener)firestoreChecklistListener(); firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); const c=document.getElementById('checklist-container'); c.innerHTML=''; checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})"><span class="check-text">${i.text}</span></div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); }); }); }
+    
+    // --- 🌸 櫻花產生器 ---
+    function createSakura() {
+        const sakuraContainer = document.createElement('div');
+        document.body.appendChild(sakuraContainer);
+
+        const petalCount = 15; // 花瓣數量 (不要太多以免卡頓)
+        
+        for (let i = 0; i < petalCount; i++) {
+            const petal = document.createElement('div');
+            petal.classList.add('sakura');
+            
+            // 隨機大小、位置、動畫時間
+            const size = Math.random() * 10 + 5 + 'px';
+            const left = Math.random() * 100 + 'vw';
+            const duration = Math.random() * 5 + 5 + 's'; // 5~10秒飄落
+            const delay = Math.random() * 5 + 's';
+
+            petal.style.width = size;
+            petal.style.height = size;
+            petal.style.left = left;
+            petal.style.animationDuration = duration;
+            petal.style.animationDelay = delay;
+
+            sakuraContainer.appendChild(petal);
+        }
+    }
+
+    // 啟動櫻花
+    createSakura();
+
+    // --- 🎉 修改 checklist toggle 函式，加入禮炮 ---
+    function listenForChecklistUpdates() { 
+        if(firestoreChecklistListener)firestoreChecklistListener(); 
+        firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ 
+            checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); 
+            const c=document.getElementById('checklist-container'); 
+            c.innerHTML=''; 
+            checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ 
+                const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; 
+                c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})"><span class="check-text">${i.text}</span></div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); 
+            }); 
+        }); 
+    }
+
+    async function toggleChecklist(id, currentStatus) { 
+        // 1. 如果是從「未完成」變成「完成」，觸發禮炮
+        if (!currentStatus) {
+            if(window.confetti) {
+                 window.confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#A855F7', '#E0C8FF', '#FFC0CB']
+                });
+            }
+        }
+        // 2. 執行資料庫更新
+        await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !currentStatus }); 
+    }
+
     async function addChecklistItem() { const v=document.getElementById('checklist-input').value.trim(); if(v){ await db.collection(CHECKLIST_COLLECTION).add({text:v,isCompleted:false,timestamp:firebase.firestore.FieldValue.serverTimestamp()}); document.getElementById('checklist-input').value=''; } }
-    async function toggleChecklist(id,s) { await db.collection(CHECKLIST_COLLECTION).doc(id).update({isCompleted:!s}); }
     async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
     async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
     async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
