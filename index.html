@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (功能強化版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (最終完美版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -114,7 +114,13 @@
             color: white;
         }
         
+        /* 調整地圖控制項位置 */
         #map-page .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 80px !important; }
+        
+        /* ★★★ 修正：將右下角的控制項（定位按鈕）往上推 90px，避開 Footer ★★★ */
+        #map-page .leaflet-control-container .leaflet-bottom {
+            bottom: 90px !important;
+        }
 
         /* 自定義地圖按鈕樣式 */
         .leaflet-control-custom-btn {
@@ -409,7 +415,7 @@
     let firestoreTitlesListener = null;
     let mapInstance = null;
     let markers = [];
-    let routeOrigin = null; // 用於儲存點對點導航的起點
+    let routeOrigin = null; 
     
     let tripDates = [
         { day: 1, label: 'Day 1 出發', week: 'WED', date: '04' },
@@ -539,7 +545,6 @@
         const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
         let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 mt-1 font-bold hover:text-[var(--primary-normal)] hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
-        // 交通工具顯示
         let transportHTML = '';
         if (item.transport) {
             const transportMap = {
@@ -646,7 +651,6 @@
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
             L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(mapInstance); 
             
-            // ★★★ 新增：定位按鈕 ★★★
             const locBtn = L.Control.extend({
                 options: { position: 'bottomright' },
                 onAdd: function(map) {
@@ -677,8 +681,6 @@
                     const customIcon = L.divIcon({ className: 'map-icon', html: (index + 1).toString(), iconSize: [28, 28], iconAnchor: [14, 14] });
                     const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance);
                     
-                    // ★★★ 新增：點對點導航邏輯 ★★★
-                    // 在 Popup 中加入按鈕
                     const popupContent = `
                         <div class="text-center">
                             <b>${index + 1}. ${item.title}</b><br>${item.location}<br>
@@ -698,7 +700,6 @@
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
     }
     
-    // ★★★ 導航相關函式 ★★★
     window.setRouteOrigin = (lat, lon, title) => {
         routeOrigin = { lat, lon };
         alert(`已設定「${title}」為起點！請點擊另一個地標選擇「導航至此」。`);
@@ -707,14 +708,12 @@
     
     window.navigateHere = (lat, lon) => {
         if (!routeOrigin) {
-            // 如果沒有設定起點，預設從「目前位置」導航 (Google Maps 預設行為)
             const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
             window.open(url, '_blank');
         } else {
-            // 如果有設定起點，進行點對點導航
             const url = `https://www.google.com/maps/dir/?api=1&origin=${routeOrigin.lat},${routeOrigin.lon}&destination=${lat},${lon}`;
             window.open(url, '_blank');
-            routeOrigin = null; // 重置起點
+            routeOrigin = null; 
         }
         mapInstance.closePopup();
     };
