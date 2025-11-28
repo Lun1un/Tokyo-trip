@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title id="app-title">東京遛豬之旅 2026 (底部修復版)</title>
+    <title>東京遛豬之旅 2026 (完美介面版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -101,25 +101,26 @@
         }
 
         /* ★★★ 修正重點：底部導覽列位置 ★★★ */
+        /* 使用 left/right 絕對定位確保不超出螢幕 */
         .fixed-footer { 
             position: fixed; 
-            /* 使用 max() 確保在 iPhone 等有 Home Indicator 的手機上往上推 */
-            bottom: max(25px, env(safe-area-inset-bottom)); 
-            left: 50%; 
-            transform: translateX(-50%);
-            width: 90%; 
-            max-width: 400px; /* 限制最大寬度，避免在大螢幕太寬 */
+            bottom: 24px; /* 稍微懸浮 */
+            left: 20px;   /* 強制左邊界 */
+            right: 20px;  /* 強制右邊界 */
+            margin: 0 auto; /* 置中 */
+            max-width: 400px; /* 在大螢幕限制最大寬度 */
             z-index: 1001; 
             background-color: white; 
             border-radius: 2rem; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2); /* 加深陰影，增加懸浮感 */
-            height: 70px; /* 稍微加高一點點 */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15); /* 漂亮的陰影 */
+            height: 70px;
             display: flex; 
             align-items: center; 
-            justify-content: space-around; 
-            padding: 0 5px; 
+            justify-content: space-between; /* 平均分配空間 */
+            padding: 0 15px; /* 內縮一點，確保按鈕不貼邊 */
             animation: elastic-slide-up 0.6s ease-out 0.2s forwards;
             opacity: 0;
+            box-sizing: border-box; /* 確保 padding 包含在寬度內 */
         }
 
         #schedule-page { padding-top: 220px; } 
@@ -169,7 +170,6 @@
         }
         
         #map-page .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 80px !important; }
-        /* 讓地圖控制項也跟著往上推 */
         #map-page .leaflet-control-container .leaflet-bottom { bottom: 110px !important; }
 
         .leaflet-control-custom-btn {
@@ -446,7 +446,6 @@
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
         const loading = document.getElementById('loading-status');
-        loading.style.transition = 'opacity 0.3s ease'; 
         loading.style.opacity = '1';
 
         firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
@@ -454,7 +453,7 @@
             renderSchedule();
             calculateDailyCost();
             if (!document.getElementById('map-page').classList.contains('hidden')) initMap(); 
-            setTimeout(() => { loading.style.opacity = '0'; }, 500); 
+            setTimeout(() => { loading.style.opacity = '0'; }, 300); 
         });
     }
 
