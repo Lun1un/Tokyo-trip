@@ -59,10 +59,10 @@
             100% { transform: scale(1) translate(0, 0); }
         }
 
-        /* --- ⌨️ 打字機特效 (修正版) --- */
+        /* --- ⌨️ 打字機特效 (8em) --- */
         @keyframes typing {
             from { width: 0; }
-            to { width: 8em; } /* 修正：設定為 8em */
+            to { width: 8em; } 
         }
         @keyframes blink-caret {
             from, to { border-color: transparent; }
@@ -187,9 +187,36 @@
         /* Checklist Tab Styles */
         .check-tab-active { background-color: white; color: var(--primary-normal); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .check-tab-inactive { color: #9ca3af; background-color: transparent; }
+
+        /* --- ✨ 新增：黑色氣泡提示 (取代 alert) --- */
+        .toast {
+            position: fixed;
+            bottom: 110px; /* 在導航列上方 */
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background-color: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
     </style>
 </head>
 <body class="text-gray-700">
+
+    <div id="toast-msg" class="toast"></div>
 
     <div id="schedule-page" class="page-content">
         <div class="fixed-header-container" id="main-header">
@@ -669,6 +696,16 @@
         });
     }
 
+    // ✨ 顯示氣泡提示的函式
+    function showToast(msg) {
+        const t = document.getElementById('toast-msg');
+        if(t) {
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+    }
+
     async function initMap() {
         if (!mapInstance) { 
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
@@ -714,7 +751,13 @@
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
     }
     
-    window.setRouteOrigin = (lat, lon, title) => { routeOrigin = { lat, lon }; alert(`已設定「${title}」為起點！`); mapInstance.closePopup(); };
+    // ✨ 修改：設定起點時不再跳 alert，改用 showToast
+    window.setRouteOrigin = (lat, lon, title) => { 
+        routeOrigin = { lat, lon }; 
+        showToast(`🚩 已設定「${title}」為起點`); 
+        mapInstance.closePopup(); 
+    };
+
     window.navigateHere = (lat, lon) => { if (!routeOrigin) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`, '_blank'); } else { window.open(`https://www.google.com/maps/dir/?api=1&origin=${routeOrigin.lat},${routeOrigin.lon}&destination=${lat},${lon}`, '_blank'); routeOrigin = null; } mapInstance.closePopup(); };
 
     function getCategoryVibe(category) {
