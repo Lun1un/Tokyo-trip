@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (完美介面版)</title>
+    <title>東京遛豬之旅 2026 (動畫修復版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -41,6 +41,8 @@
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
         /* --- 動畫特效區 --- */
+        
+        /* 1. 卡片彈性進場 */
         @keyframes elastic-slide-up {
             0% { opacity: 0; transform: translateY(40px) scale(0.9); }
             60% { opacity: 1; transform: translateY(-5px) scale(1.01); }
@@ -51,31 +53,66 @@
             opacity: 0; 
         }
 
+        /* 2. 地圖大頭針落地 (修正版：不使用opacity 0，避免隱形) */
         @keyframes drop-pin {
-            0% { transform: translateY(-100px) scale(0); opacity: 0; }
-            60% { transform: translateY(10px) scale(1.1); opacity: 1; }
-            80% { transform: translateY(-5px) scale(0.95); }
-            100% { transform: translateY(0) scale(1); opacity: 1; }
+            0% { transform: translateY(-50px) scale(0); }
+            60% { transform: translateY(10px) scale(1.2); }
+            80% { transform: translateY(-5px) scale(0.9); }
+            100% { transform: translateY(0) scale(1); }
         }
+        /* 確保 Map Icon 樣式正確 */
         .map-icon {
-            animation: drop-pin 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-            transform-origin: bottom center;
-            opacity: 0; 
+            background-color: var(--primary-normal);
+            color: white;
+            font-weight: 900;
+            text-align: center;
+            line-height: 30px; /* 垂直置中文字 */
+            border-radius: 50% 50% 50% 0; /* 水滴狀 */
+            transform: rotate(-45deg); /* 旋轉成水滴 */
+            width: 30px !important;
+            height: 30px !important;
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+            border: 3px solid white;
+            /* 應用動畫 */
+            animation: drop-pin 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+        /* 讓裡面的數字轉回來 */
+        .map-icon span {
+            transform: rotate(45deg);
+            display: block;
+            font-size: 14px;
         }
 
-        .check-text {
+        /* 3. 清單劃線動畫 (修正版：針對 span 標籤) */
+        .strikethrough-text {
+            position: relative;
+            display: inline-block;
+            transition: color 0.3s ease;
             background-image: linear-gradient(transparent 45%, #9ca3af 45%, #9ca3af 55%, transparent 55%);
             background-repeat: no-repeat;
-            background-size: 0% 100%; 
+            background-size: 0% 100%; /* 初始長度 0 */
             background-position: left center;
-            transition: background-size 0.4s ease-out, color 0.3s ease;
+            transition: background-size 0.5s ease-out, color 0.3s ease;
+            padding-right: 2px;
         }
-        .check-item.completed .check-text {
-            background-size: 100% 100%; 
-            color: #9ca3af;
-            text-decoration: none !important; 
+        
+        .check-item.completed .strikethrough-text {
+            background-size: 100% 100%; /* 畫到底 */
+            color: #9ca3af; /* 文字變灰 */
+        }
+        
+        .check-item.completed .check-circle {
+            background-color: var(--primary-light);
+            border-color: var(--primary-light);
+            color: var(--primary-dark);
+            transform: scale(1.1) rotate(360deg); /* 轉圈圈特效 */
+            transition: all 0.4s ease;
         }
 
+        /* 4. 呼吸動畫 */
         @keyframes breathe {
             0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(192, 132, 252, 0); }
             50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(192, 132, 252, 0.4); }
@@ -100,27 +137,26 @@
             z-index: -1; backdrop-filter: blur(2px);
         }
 
-        /* ★★★ 修正重點：底部導覽列位置 ★★★ */
-        /* 使用 left/right 絕對定位確保不超出螢幕 */
+        /* 底部導覽列 */
         .fixed-footer { 
             position: fixed; 
-            bottom: 24px; /* 稍微懸浮 */
-            left: 20px;   /* 強制左邊界 */
-            right: 20px;  /* 強制右邊界 */
-            margin: 0 auto; /* 置中 */
-            max-width: 400px; /* 在大螢幕限制最大寬度 */
+            bottom: 24px; 
+            left: 20px;   
+            right: 20px;  
+            margin: 0 auto; 
+            max-width: 400px; 
             z-index: 1001; 
             background-color: white; 
             border-radius: 2rem; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15); /* 漂亮的陰影 */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
             height: 70px;
             display: flex; 
             align-items: center; 
-            justify-content: space-between; /* 平均分配空間 */
-            padding: 0 15px; /* 內縮一點，確保按鈕不貼邊 */
+            justify-content: space-between; 
+            padding: 0 15px; 
             animation: elastic-slide-up 0.6s ease-out 0.2s forwards;
             opacity: 0;
-            box-sizing: border-box; /* 確保 padding 包含在寬度內 */
+            box-sizing: border-box; 
         }
 
         #schedule-page { padding-top: 220px; } 
@@ -149,8 +185,6 @@
         .sortable-ghost { opacity: 0.3; background-color: #f3e8ff; border: 2px dashed var(--primary-normal); border-radius: 1.5rem; }
         .sortable-drag { background-color: white; transform: scale(1.02); z-index: 9999; border-radius: 1.5rem; }
         
-        .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: var(--primary-dark); transform: scale(1.1); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); } 
-
         #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
         .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
 
@@ -160,8 +194,6 @@
 
         .timeline-line { background-color: #cbd5e1; width: 2px; border-radius: 9999px; }
         
-        .map-icon { background-color: var(--primary-normal); color: white; font-weight: bold; text-align: center; line-height: 28px; border-radius: 50%; width: 28px; height: 28px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); border: 3px solid white; }
-
         .header-glass-card {
             background-color: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(8px);
@@ -584,10 +616,8 @@
             }
         }
         
-        // 觸發數字動畫
         animateValue(document.getElementById('total-trip-jpy'), 0, grandTotal, 1000);
         document.getElementById('total-trip-twd').textContent = `≈ NT$ ${Math.round(grandTotal * exchangeRate).toLocaleString()}`;
-        
         animateValue(document.getElementById('total-bird'), 0, totalBird, 1000);
         animateValue(document.getElementById('total-pig'), 0, totalPig, 1000);
         animateValue(document.getElementById('total-shared'), 0, totalShared, 1000);
@@ -645,17 +675,9 @@
                 const data = await res.json();
                 if (data && data.length > 0) {
                     const lat = data[0].lat; const lon = data[0].lon;
-                    const customIcon = L.divIcon({ className: 'map-icon', html: (index + 1).toString(), iconSize: [28, 28], iconAnchor: [14, 14] });
-                    // 加入動畫延遲，產生從天而降的感覺
-                    customIcon.options.className += ` delay-${index}`;
-                    
+                    const customIcon = L.divIcon({ className: 'map-icon', html: `<span>${index + 1}</span>`, iconSize: [30, 30], iconAnchor: [15, 30] });
                     const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance);
                     
-                    // 設定動畫延遲 (動態插入 style)
-                    const style = document.createElement('style');
-                    style.innerHTML = `.delay-${index} { animation-delay: ${index * 0.1}s; }`;
-                    document.head.appendChild(style);
-
                     const popupContent = `<div class="text-center"><b>${index + 1}. ${item.title}</b><br>${item.location}<br><span class="text-gray-500 text-xs">${item.startTime}</span><br><div class="mt-2 flex gap-2 justify-center"><button onclick="setRouteOrigin(${lat}, ${lon}, '${item.title}')" class="bg-blue-500 text-white px-2 py-1 rounded text-xs">🚩 設為起點</button><button onclick="navigateHere(${lat}, ${lon})" class="bg-green-500 text-white px-2 py-1 rounded text-xs">🏁 導航至此</button></div></div>`;
                     marker.bindPopup(popupContent);
                     
@@ -699,7 +721,21 @@
     async function addScheduleItem() { const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value, trans=document.getElementById('new-transport').value; if(!t)return alert("請輸入標題"); currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,transport:trans,expenses:[]}); currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); await saveScheduleToFirestore(currentItems); closeModal('add-modal'); document.getElementById('new-title').value=''; }
     async function saveEdit() { const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value, transport:document.getElementById('edit-transport').value}; await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
     async function deleteScheduleItem() { if(!confirm('刪除？'))return; const id=document.getElementById('editing-item-id').value; currentItems=currentItems.filter(i=>i.id!==id); await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
-    function listenForChecklistUpdates() { if(firestoreChecklistListener)firestoreChecklistListener(); firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); const c=document.getElementById('checklist-container'); c.innerHTML=''; checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})">${i.text}</div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); }); }); }
+    
+    // ★★★ 修正清單劃線：使用 span 包裹文字 ★★★
+    function listenForChecklistUpdates() { 
+        if(firestoreChecklistListener)firestoreChecklistListener(); 
+        firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ 
+            checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); 
+            const c=document.getElementById('checklist-container'); 
+            c.innerHTML=''; 
+            checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ 
+                const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; 
+                // 注意這裡：加入了 span class="strikethrough-text"
+                c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})"><span class="strikethrough-text">${i.text}</span></div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); 
+            }); 
+        }); 
+    }
     async function addChecklistItem() { const v=document.getElementById('checklist-input').value.trim(); if(v){ await db.collection(CHECKLIST_COLLECTION).add({text:v,isCompleted:false,timestamp:firebase.firestore.FieldValue.serverTimestamp()}); document.getElementById('checklist-input').value=''; } }
     async function toggleChecklist(id,s) { await db.collection(CHECKLIST_COLLECTION).doc(id).update({isCompleted:!s}); }
     async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
