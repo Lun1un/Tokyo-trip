@@ -2,8 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (最終修正版)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title id="app-title">東京遛豬之旅 2026 (完美距離版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -34,122 +34,53 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 8rem; } 
+        /* 增加底部 padding 以容納新的懸浮 footer */
+        .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 7rem; } 
         .page-content.hidden { opacity: 0; display: none !important; }
 
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* --- 動畫特效區 --- */
-        @keyframes elastic-slide-up {
-            0% { opacity: 0; transform: translateY(40px) scale(0.9); }
-            60% { opacity: 1; transform: translateY(-5px) scale(1.01); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .anim-card-entry {
-            animation: elastic-slide-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            opacity: 0; 
-        }
-
-        @keyframes drop-pin {
-            0% { transform: translateY(-50px) scale(0); }
-            60% { transform: translateY(10px) scale(1.2); }
-            80% { transform: translateY(-5px) scale(0.9); }
-            100% { transform: translateY(0) scale(1); }
-        }
-        .map-icon {
-            background-color: var(--primary-normal);
-            color: white;
-            font-weight: 900;
-            text-align: center;
-            line-height: 30px;
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            width: 30px !important;
-            height: 30px !important;
-            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
-            border: 3px solid white;
-            /* 移除 animation 延遲，改為直接執行，避免隱形 */
-            animation: drop-pin 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-        }
-        .map-icon span {
-            transform: rotate(45deg);
-            display: block;
-            font-size: 14px;
-        }
-
-        .check-text {
-            position: relative;
-            display: inline-block;
-            transition: color 0.3s ease;
-            background-image: linear-gradient(transparent 45%, #9ca3af 45%, #9ca3af 55%, transparent 55%);
-            background-repeat: no-repeat;
-            background-size: 0% 100%;
-            background-position: left center;
-            transition: background-size 0.5s ease-out, color 0.3s ease;
-            padding-right: 2px;
-        }
-        .check-item.completed .check-text {
-            background-size: 100% 100%;
-            color: #9ca3af;
-        }
-        .check-item.completed .check-circle {
-            background-color: var(--primary-light);
-            border-color: var(--primary-light);
-            color: var(--primary-dark);
-            transform: scale(1.1) rotate(360deg);
-            transition: all 0.4s ease;
-        }
-
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(192, 132, 252, 0); }
-            50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(192, 132, 252, 0.4); }
-        }
-        .anim-pulse { animation: breathe 3s infinite ease-in-out; }
-
-        /* ------------------- */
-
+        /* Header 背景圖 */
         .fixed-header-bg {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
             background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
             background-size: cover;
             background-position: center bottom;
-            padding-top: 16px; padding-bottom: 15px; 
+            padding-top: 16px; padding-bottom: 10px; 
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             color: white;
-            transition: all 0.3s ease;
+            transition: height 0.3s ease;
         }
+        
         .fixed-header-bg::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(to bottom, rgba(20, 10, 40, 0.6), rgba(20, 10, 40, 0.85));
             z-index: -1; backdrop-filter: blur(2px);
         }
 
+        /* ★★★ 底部導覽列 (Footer) 樣式修改：膠囊狀、懸浮底部 ★★★ */
         .fixed-footer { 
             position: fixed; 
-            bottom: 24px; 
-            left: 20px;   
-            right: 20px;  
-            margin: 0 auto; 
-            max-width: 400px; 
+            bottom: 0; 
+            /* 讓它置中並懸浮 */
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 90%; 
+            margin: 0 auto 15px auto; /* 底部間距 15px */
             z-index: 1001; 
             background-color: white; 
-            border-radius: 2rem; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
-            height: 70px;
+            border-radius: 2rem; /* 四邊都是圓角 */
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15); /* 增加陰影，更像懸浮 */
+            height: 68px; /* 稍微縮小高度 */
             display: flex; 
             align-items: center; 
-            justify-content: space-between; 
-            padding: 0 15px; 
-            animation: elastic-slide-up 0.6s ease-out 0.2s forwards;
-            opacity: 0;
-            box-sizing: border-box; 
+            justify-content: space-around; 
+            padding: 0 5px; /* 微調內邊距 */
         }
 
-        #schedule-page { padding-top: 220px; } 
+        /* 內容 padding 調整 */
+        #schedule-page { padding-top: 210px; } 
         #expense-page, #checklist-page { padding-top: 30px; } 
         #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
         
@@ -161,29 +92,15 @@
             background-color: rgba(255, 255, 255, 0.95); 
             border-radius: 1.5rem; 
             position: relative; overflow: hidden;
-            /* 移除 transition，避免拖曳時的 CSS 衝突 */
+            transition: transform 0.2s;
         }
         
-        /* SortableJS 樣式 */
-        .sortable-ghost { 
-            opacity: 0.4 !important; 
-            background-color: #f3e8ff !important; 
-            border: 2px dashed var(--primary-normal) !important; 
-            border-radius: 1.5rem; 
-            animation: none !important;
-            transition: none !important;
-        }
-        .sortable-drag { 
-            background-color: white !important; 
-            transform: scale(1.05) !important; 
-            z-index: 9999 !important; 
-            border-radius: 1.5rem; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important;
-            animation: none !important;
-            transition: none !important;
-            opacity: 1 !important;
-        }
+        .sortable-ghost { opacity: 0.3; background-color: #f3e8ff; border: 2px dashed var(--primary-normal); border-radius: 1.5rem; }
+        .sortable-drag { background-color: white; transform: scale(1.02); z-index: 9999; border-radius: 1.5rem; }
         
+        .check-item.completed .check-text { text-decoration: line-through; color: #9ca3af; }
+        .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: var(--primary-dark); } 
+
         #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
         .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
 
@@ -193,29 +110,19 @@
 
         .timeline-line { background-color: #cbd5e1; width: 2px; border-radius: 9999px; }
         
+        .map-icon { background-color: var(--primary-normal); color: white; font-weight: bold; text-align: center; line-height: 28px; border-radius: 50%; width: 28px; height: 28px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); border: 3px solid white; }
+
         .header-glass-card {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
         }
         
-        #map-page .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 80px !important; }
-        #map-page .leaflet-control-container .leaflet-bottom { bottom: 110px !important; }
-
-        .leaflet-control-custom-btn {
-            background-color: white; width: 34px; height: 34px; border-radius: 4px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.65); cursor: pointer; display: flex;
-            align-items: center; justify-content: center; color: #4b5563; font-size: 16px; transition: all 0.2s;
-        }
-        .leaflet-control-custom-btn:hover { background-color: #f3f4f6; color: var(--primary-normal); }
-
-        /* 確保 Loading 文字隱藏 */
-        #loading-status {
-            display: none !important;
-            height: 0;
-            overflow: hidden;
-            opacity: 0;
+        /* ★★★ 修正：地圖縮放按鈕被今日路線遮蔽的問題 ★★★ */
+        /* 將 Leaflet 的左上角控制項往下推，確保在固定標頭下方 */
+        #map-page .leaflet-control-container .leaflet-top.leaflet-left {
+            margin-top: 80px !important; 
         }
     </style>
 </head>
@@ -223,9 +130,9 @@
 
     <div id="schedule-page" class="page-content">
         <div class="fixed-header-bg px-4" id="main-header">
-            <div class="flex justify-between items-start mb-3 relative z-10 anim-header-entry">
+            <div class="flex justify-between items-start mb-3 relative z-10">
                 <div class="flex-1">
-                    <h1 class="text-3xl font-black text-white tracking-tight mb-1 drop-shadow-lg animate-[fade-in_0.6s_ease-out]">東京遛豬之旅 🐷</h1>
+                    <h1 class="text-3xl font-black text-white tracking-tight mb-1 drop-shadow-lg">東京遛豬之旅 🐷</h1>
                     <div class="text-xl font-bold text-white/90 cursor-pointer flex items-center gap-2" onclick="editDayTitle()">
                         <span id="current-day-title" class="border-b border-transparent hover:border-white/50 transition">Day 1</span>
                         <i class="fas fa-pen text-xs text-white/60"></i>
@@ -233,7 +140,7 @@
                 </div>
                 
                 <div class="flex flex-col items-end gap-1 mt-1">
-                    <div id="weather-card" class="flex items-center gap-3 px-3 py-2 rounded-xl shadow-lg header-glass-card hover:bg-white/30 transition duration-300">
+                    <div id="weather-card" class="flex items-center gap-3 px-3 py-2 rounded-xl shadow-lg header-glass-card">
                         <div id="weather-icon-container" class="text-2xl text-white"><i class="fas fa-sync fa-spin"></i></div>
                         <div class="text-right leading-none">
                             <div id="weather-temp" class="text-xl font-black text-white">--°C</div>
@@ -243,21 +150,24 @@
                 </div>
             </div>
             
-            <div class="flex justify-between items-center mb-4 px-1 relative z-10 anim-header-entry" style="animation-delay: 0.1s;">
+            <div class="flex justify-between items-center mb-4 px-1 relative z-10">
                 <button onclick="prepareRateModal()" class="text-[11px] text-white px-3 py-1.5 rounded-lg font-bold active:scale-95 header-glass-card hover:bg-white/20 transition">
                     匯率: <span id="display-rate">0.22</span>
                 </button>
                 <div class="flex items-baseline gap-1 header-glass-card px-3 py-1.5 rounded-lg">
                     <span class="text-[10px] text-white/80 font-bold uppercase">今日花費</span>
-                    <span class="text-lg font-black text-white leading-none ml-1 count-up" id="header-daily-cost">¥ 0</span>
+                    <span class="text-lg font-black text-white leading-none ml-1" id="header-daily-cost">¥ 0</span>
                 </div>
             </div>
 
-            <div class="flex overflow-x-auto gap-3 py-1 pb-1 hide-scrollbar z-10 relative anim-header-entry" style="animation-delay: 0.2s;" id="date-slider"></div>
+            <div class="flex overflow-x-auto gap-3 py-1 pb-1 hide-scrollbar z-10 relative" id="date-slider"></div>
         </div>
 
         <div class="px-4 space-y-5"> 
-            <div id="loading-status"></div> <div id="schedule-container" class="space-y-4 pb-10 min-h-[200px]"></div>
+            <div id="loading-status" class="text-center text-xs text-gray-400 mt-2 transition-opacity">
+                 <i class="fas fa-spinner fa-spin mr-1"></i> 資料同步中...
+            </div>
+            <div id="schedule-container" class="space-y-4 pb-10 min-h-[200px]"></div>
         </div>
     </div>
 
@@ -279,30 +189,33 @@
             消費統計
         </h1>
         
-        <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden anim-card-entry">
+        <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32" style="background-color: var(--primary-normal); opacity: 0.15; border-radius: 9999px; margin-right: -4rem; margin-top: -4rem; filter: blur(3rem);"></div>
             <div class="flex justify-between items-start relative z-10">
                 <div>
                     <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Total Trip Cost</p>
-                    <div class="text-4xl font-extrabold mt-1 count-up-target" id="total-trip-jpy" data-value="0">¥ 0</div>
+                    <div class="text-4xl font-extrabold mt-1" id="total-trip-jpy">¥ 0</div>
                     <div class="text-sm mt-1 text-white/80" id="total-trip-twd">≈ NT$ 0</div>
                 </div>
                 <button onclick="calculateAllExpenses()" class="text-white hover:text-gray-300 transition active:scale-95"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-8 anim-card-entry" style="animation-delay: 0.1s;">
+        <div class="grid grid-cols-3 gap-3 mb-8">
             <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-blue-300">
-                <div class="text-2xl mb-1">🐦</div><div class="text-xs text-gray-400 font-bold">Dove</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate count-up-target" id="total-bird" data-value="0">¥0</div>
+                <div class="text-2xl mb-1">🐦</div>
+                <div class="text-xs text-gray-400 font-bold">Dove</div>
+                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-bird">¥0</div>
             </div>
             <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-pink-300">
-                <div class="text-2xl mb-1">🐷</div><div class="text-xs text-gray-400 font-bold">Pig</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate count-up-target" id="total-pig" data-value="0">¥0</div>
+                <div class="text-2xl mb-1">🐷</div>
+                <div class="text-xs text-gray-400 font-bold">Pig</div>
+                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-pig">¥0</div>
             </div>
             <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-yellow-300">
-                <div class="text-2xl mb-1">🐷🐦</div><div class="text-xs text-gray-400 font-bold">Shared</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate count-up-target" id="total-shared" data-value="0">¥0</div>
+                <div class="text-2xl mb-1">🐷🐦</div>
+                <div class="text-xs text-gray-400 font-bold">Shared</div>
+                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-shared">¥0</div>
             </div>
         </div>
         <div id="expense-full-list" class="space-y-3 pb-20"></div>
@@ -331,14 +244,14 @@
                         <input type="time" id="new-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
-                <div class="flex gap-2">
-                    <select id="new-category" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                        <option value="FOOD">🍴 餐飲</option><option value="SHOPPING">🛍 購物</option><option value="SIGHTSEEING">⛩ 景點</option><option value="TRANSPORT">🚄 交通</option><option value="HOTEL">🏨 住宿</option><option value="OTHER">💡 其他</option>
-                    </select>
-                    <select id="new-transport" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                        <option value="">(交通方式)</option><option value="walk">🚶 步行</option><option value="car">🚗 開車</option><option value="taxi">🚕 計程車</option><option value="bus">🚌 公車</option><option value="subway">🚇 地鐵</option><option value="skyliner">🚅 Skyliner</option><option value="plane">✈️ 飛機</option>
-                    </select>
-                </div>
+                <select id="new-category" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                    <option value="FOOD">🍴 餐飲</option>
+                    <option value="SHOPPING">🛍 購物</option>
+                    <option value="SIGHTSEEING">⛩ 景點</option>
+                    <option value="TRANSPORT">🚄 交通</option>
+                    <option value="HOTEL">🏨 住宿</option>
+                    <option value="OTHER">💡 其他</option>
+                </select>
                 <input type="text" id="new-title" placeholder="行程標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
                 <input type="text" id="new-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                 <textarea id="new-content" placeholder="備註..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
@@ -361,14 +274,14 @@
                         <input type="time" id="edit-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
-                <div class="flex gap-2">
-                    <select id="edit-category" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                        <option value="FOOD">🍴 餐飲</option><option value="SHOPPING">🛍 購物</option><option value="SIGHTSEEING">⛩ 景點</option><option value="TRANSPORT">🚄 交通</option><option value="HOTEL">🏨 住宿</option><option value="OTHER">💡 其他</option>
-                    </select>
-                    <select id="edit-transport" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                        <option value="">(交通方式)</option><option value="walk">🚶 步行</option><option value="car">🚗 開車</option><option value="taxi">🚕 計程車</option><option value="bus">🚌 公車</option><option value="subway">🚇 地鐵</option><option value="skyliner">🚅 Skyliner</option><option value="plane">✈️ 飛機</option>
-                    </select>
-                </div>
+                <select id="edit-category" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                    <option value="FOOD">🍴 餐飲</option>
+                    <option value="SHOPPING">🛍 購物</option>
+                    <option value="SIGHTSEEING">⛩ 景點</option>
+                    <option value="TRANSPORT">🚄 交通</option>
+                    <option value="HOTEL">🏨 住宿</option>
+                    <option value="OTHER">💡 其他</option>
+                </select>
                 <input type="text" id="edit-title" placeholder="標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
                 <input type="text" id="edit-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                 <textarea id="edit-content" placeholder="詳細內容..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
@@ -384,15 +297,66 @@
         </div>
     </div>
 
-    <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()"><div class="flex justify-between items-start mb-4"><h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2><button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600 active:scale-95"><i class="fas fa-times text-xl"></i></button></div><div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div><div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-inner"><div class="flex gap-2 mb-2"><select id="expense-payer" class="input-focus w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none shrink-0"><option value="bird">🐦</option><option value="pig">🐷</option><option value="shared">🐷🐦</option></select><input type="text" id="expense-desc" placeholder="品項" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm"></div><div class="flex gap-2"><select id="expense-currency" class="input-focus w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0"><option value="JPY">JPY</option><option value="TWD">TWD</option></select><input type="number" id="expense-amount" placeholder="金額" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold"><button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow-md hover:bg-yellow-600 shrink-0 active:scale-95"><i class="fas fa-plus"></i></button></div></div><input type="hidden" id="expense-item-id"></div></div>
-    <div id="rate-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('rate-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()"><h2 class="text-xl font-bold mb-2">匯率設定</h2><div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-inner"><span class="text-lg font-bold text-gray-400">×</span><input type="number" step="0.0001" id="exchange-rate-input" class="input-focus flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none"></div><div class="flex justify-end mt-6"><button onclick="saveExchangeRate()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95">儲存</button></div></div></div>
+    <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-4">
+                <h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2>
+                <button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600 active:scale-95"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div>
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-inner">
+                <div class="flex gap-2 mb-2">
+                    <select id="expense-payer" class="input-focus w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none shrink-0">
+                        <option value="bird">🐦</option>
+                        <option value="pig">🐷</option>
+                        <option value="shared">🐷🐦</option>
+                    </select>
+                    <input type="text" id="expense-desc" placeholder="品項" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm">
+                </div>
+                <div class="flex gap-2">
+                    <select id="expense-currency" class="input-focus w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0">
+                        <option value="JPY">JPY</option>
+                        <option value="TWD">TWD</option>
+                    </select>
+                    <input type="number" id="expense-amount" placeholder="金額" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold">
+                    <button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow-md hover:bg-yellow-600 shrink-0 active:scale-95">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" id="expense-item-id">
+        </div>
+    </div>
+    
+    <div id="rate-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('rate-modal')">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
+            <h2 class="text-xl font-bold mb-2">匯率設定</h2>
+            <div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-inner">
+                <span class="text-lg font-bold text-gray-400">×</span>
+                <input type="number" step="0.0001" id="exchange-rate-input" class="input-focus flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none">
+            </div>
+            <div class="flex justify-end mt-6">
+                <button onclick="saveExchangeRate()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95">儲存</button>
+            </div>
+        </div>
+    </div>
 
     <div class="fixed-footer text-gray-400">
-        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-map-marked-alt text-xl mb-1"></i><span class="text-[9px] font-bold">行程</span></button>
-        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-map text-xl mb-1"></i><span class="text-[9px] font-bold">地圖</span></button>
-        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="glow-btn text-white w-16 h-16 rounded-full flex items-center justify-center -mt-10 cursor-pointer active:scale-90 transition-transform border-4 border-white shadow-xl shadow-[var(--primary-light)] anim-pulse"><i class="fas fa-plus text-xl"></i></div>
-        <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors active:scale-90"><i class="fas fa-wallet text-xl mb-1"></i><span class="text-[9px] font-bold">花費</span></button>
-        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-clipboard-list text-xl mb-1"></i><span class="text-[9px] font-bold">清單</span></button>
+        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[var(--primary-normal)] transition-colors active:scale-90">
+            <i class="fas fa-map-marked-alt text-xl mb-1"></i><span class="text-[9px] font-bold">行程</span>
+        </button>
+        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90">
+            <i class="fas fa-map text-xl mb-1"></i><span class="text-[9px] font-bold">地圖</span>
+        </button>
+        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="glow-btn text-white w-16 h-16 rounded-full flex items-center justify-center -mt-10 cursor-pointer active:scale-90 transition-transform border-4 border-white shadow-xl shadow-[var(--primary-light)]">
+            <i class="fas fa-plus text-xl"></i>
+        </div>
+        <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors active:scale-90">
+            <i class="fas fa-wallet text-xl mb-1"></i><span class="text-[9px] font-bold">花費</span>
+        </button>
+        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90">
+            <i class="fas fa-clipboard-list text-xl mb-1"></i><span class="text-[9px] font-bold">清單</span>
+        </button>
     </div>
 
 <script>
@@ -406,7 +370,6 @@
     let firestoreTitlesListener = null;
     let mapInstance = null;
     let markers = [];
-    let routeOrigin = null; 
     
     let tripDates = [
         { day: 1, label: 'Day 1 出發', week: 'WED', date: '04' },
@@ -481,12 +444,21 @@
 
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
-        // 確保載入時不顯示文字，但功能運作
+        const loading = document.getElementById('loading-status');
+        // 確保過渡效果存在並顯示載入狀態
+        loading.style.transition = 'opacity 0.3s ease'; 
+        loading.style.opacity = '1';
+
         firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
             currentItems = doc.exists ? (doc.data().schedule || []) : [];
             renderSchedule();
             calculateDailyCost();
             if (!document.getElementById('map-page').classList.contains('hidden')) initMap(); 
+            
+            // ★★★ 解決：資料同步中不會消失的問題，使用 setTimeout 確保平滑淡出 ★★★
+            setTimeout(() => {
+                loading.style.opacity = '0';
+            }, 500); // 延遲 500ms 進行淡出
         });
     }
 
@@ -498,11 +470,7 @@
         const el = document.getElementById('schedule-container');
         if (sortableInstance) sortableInstance.destroy();
         sortableInstance = new Sortable(el, {
-            animation: 200, 
-            delay: 0, // ★★★ 拖曳延遲已設為 0ms，若要 0.1s 請改為 100 ★★★
-            delayOnTouchOnly: true, // 僅在觸控裝置上啟用延遲
-            ghostClass: 'sortable-ghost', 
-            dragClass: 'sortable-drag',
+            animation: 200, **delay: 200**, delayOnTouchOnly: false, ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
             onEnd: function (evt) {
                 const item = currentItems[evt.oldIndex];
                 currentItems.splice(evt.oldIndex, 1);
@@ -516,18 +484,11 @@
         const container = document.getElementById('schedule-container');
         container.innerHTML = ''; 
         if (currentItems.length === 0) { container.innerHTML = `<div class="text-center text-gray-400 py-10">點擊下方 + 新增行程</div>`; return; }
-        currentItems.forEach((item, index) => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item, index)));
+        currentItems.forEach(item => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item)));
         initSortable();
-        
-        setTimeout(() => {
-            document.querySelectorAll('.anim-card-entry').forEach(el => {
-                el.classList.remove('anim-card-entry');
-                el.style.opacity = '1';
-            });
-        }, 600);
     }
 
-    function createScheduleItemHTML(item, index) {
+    function createScheduleItemHTML(item) {
         const vibe = getCategoryVibe(item.category);
         const expenses = item.expenses || [];
         const totalItemCost = expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0);
@@ -540,47 +501,28 @@
             : `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
                <div class="timeline-line bg-gray-200 h-full mt-1 min-h-[2rem]"></div>`;
 
-        // ★★★ 修正: 將花費與地圖連結分開，花費位於連結下方 ★★★
-        const costBadge = totalItemCost > 0 
-            ? `<div class="mt-2"><span class="inline-block bg-yellow-50 text-yellow-700 px-2 py-1 rounded text-xs font-bold border border-yellow-100">¥ ${totalItemCost.toLocaleString()}</span></div>` 
-            : '';
-        
-        let locationAndCostHTML = '';
-        if (item.location || totalItemCost > 0) {
-            // 地圖連結作為獨立一行
-            let locationLink = item.location 
-                ? `<div class="mt-2"><a href="http://maps.google.com/maps?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 font-bold hover:text-[var(--primary-normal)] hover:underline inline-block max-w-[85%] truncate" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a></div>` 
-                : '';
-            
-            locationAndCostHTML = `<div>
-                ${locationLink}
-                ${costBadge}
-            </div>`;
-        }
+        const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
+        let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 mt-1 font-bold hover:text-[var(--primary-normal)] hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
-
-        let transportHTML = '';
-        if (item.transport) {
-            const transportMap = { 'walk': '🚶', 'car': '🚗', 'taxi': '🚕', 'bus': '🚌', 'subway': '🚇', 'skyliner': '🚅', 'plane': '✈️' };
-            const icon = transportMap[item.transport] || '';
-            if(icon) transportHTML = `<span class="inline-block text-sm ml-2 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200 text-gray-600">${icon}</span>`;
-        }
+        const glowStyle = `
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 2px solid var(--primary-light);
+            background-color: rgba(255, 255, 255, 0.95);
+        `;
 
         const badgeColor = `background-color: ${vibe.hex}20; color: ${vibe.hex}; border: 1px solid ${vibe.hex}40;`;
-        const delayStyle = `animation-delay: ${index * 0.08}s`;
 
         return `
-            <div class="flex gap-3 items-stretch group relative select-none cursor-grab anim-card-entry" style="${delayStyle}" data-id="${item.id}">
+            <div class="flex gap-3 items-stretch group relative select-none cursor-grab" data-id="${item.id}">
                 <div class="flex flex-col items-center pt-1 min-w-[3.5rem]">
                     ${timeHTML}
                 </div>
-                <div class="flex-1 soft-card-glow relative overflow-hidden transition-all active:scale-[0.98]">
+                <div class="flex-1 soft-card-glow relative overflow-hidden transition-all active:scale-[0.98]" style="${glowStyle}">
                     <div class="p-4">
                         <div class="flex justify-between items-start">
                             <div>
                                 <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-1" style="${badgeColor}">${vibe.label}</span>
-                                ${transportHTML}
-                                <h3 class="font-extrabold text-gray-800 text-lg leading-tight mt-1">${item.title}</h3>
+                                <h3 class="font-extrabold text-gray-800 text-lg leading-tight">${item.title}</h3>
                             </div>
                             <div class="flex gap-1">
                                 <button class="expense-btn w-8 h-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center hover:bg-yellow-100 transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-wallet"></i></button>
@@ -588,7 +530,7 @@
                             </div>
                         </div>
                         <p class="text-sm text-gray-500 mt-2 leading-relaxed">${item.content || ''}</p>
-                        ${locationAndCostHTML}
+                        ${locationHTML} ${costBadge}
                     </div>
                 </div>
             </div>`;
@@ -598,22 +540,7 @@
         let total = 0;
         currentItems.forEach(item => { if(item.expenses) total += item.expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0); });
         const el = document.getElementById('header-daily-cost');
-        if(el) {
-            animateValue(el, parseInt(el.textContent.replace(/\D/g,'')) || 0, total, 1000);
-        }
-    }
-
-    function animateValue(obj, start, end, duration) {
-        let startTimestamp = null;
-        const step = (timestamp) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            obj.innerHTML = '¥ ' + Math.floor(progress * (end - start) + start).toLocaleString();
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            }
-        };
-        window.requestAnimationFrame(step);
+        if(el) el.textContent = `¥ ${total.toLocaleString()}`;
     }
 
     async function calculateAllExpenses() {
@@ -636,16 +563,14 @@
                         });
                     }
                 });
-                if (dayTotal > 0) htmlContent += `<div class="bg-white rounded-xl p-4 soft-card-shadow border-t-4 border-gray-300 mb-4 anim-card-entry" style="animation-delay: ${i*0.1}s"><div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-200"><h3 class="font-bold text-lg text-gray-800">Day ${i}</h3><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-lg">Total: ¥${dayTotal.toLocaleString()}</span></div><div>${dayHTML}</div></div>`;
+                if (dayTotal > 0) htmlContent += `<div class="bg-white rounded-xl p-4 soft-card-shadow border-t-4 border-gray-300 mb-4"><div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-200"><h3 class="font-bold text-lg text-gray-800">Day ${i}</h3><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-lg">Total: ¥${dayTotal.toLocaleString()}</span></div><div>${dayHTML}</div></div>`;
             }
         }
-        
-        animateValue(document.getElementById('total-trip-jpy'), 0, grandTotal, 1000);
+        document.getElementById('total-trip-jpy').textContent = `¥ ${grandTotal.toLocaleString()}`;
         document.getElementById('total-trip-twd').textContent = `≈ NT$ ${Math.round(grandTotal * exchangeRate).toLocaleString()}`;
-        animateValue(document.getElementById('total-bird'), 0, totalBird, 1000);
-        animateValue(document.getElementById('total-pig'), 0, totalPig, 1000);
-        animateValue(document.getElementById('total-shared'), 0, totalShared, 1000);
-
+        document.getElementById('total-bird').textContent = `¥ ${totalBird.toLocaleString()}`;
+        document.getElementById('total-pig').textContent = `¥ ${totalPig.toLocaleString()}`;
+        document.getElementById('total-shared').textContent = `¥ ${totalShared.toLocaleString()}`;
         container.innerHTML = htmlContent || '<div class="text-center text-gray-400 py-10">目前沒有任何消費記錄</div>';
     }
 
@@ -654,12 +579,13 @@
         slider.innerHTML = '';
         tripDates.forEach(d => {
             const active = d.day === currentDay;
+            // 修正：未選中狀態改為明顯的半透明黑/白，選中時維持紫色
             const activeClass = active 
-                ? 'bg-[var(--primary-normal)] text-white shadow-lg shadow-purple-500/30 scale-105 border border-transparent active' 
+                ? 'bg-[var(--primary-normal)] text-white shadow-lg shadow-purple-500/30 scale-105 border border-transparent' 
                 : 'bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/30';
             
             slider.insertAdjacentHTML('beforeend', `
-                <div class="date-slider-item flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95 ${activeClass}" onclick="switchDay(${d.day})">
+                <div class="flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95 ${activeClass}" onclick="switchDay(${d.day})">
                     <div class="text-[10px] font-bold ${active ? 'opacity-90' : 'opacity-80'}">${d.week}</div>
                     <div class="text-xl font-black leading-none">${d.date}</div>
                     <div class="text-[8px] font-medium mt-1 truncate max-w-[90%] ${active ? 'text-white/80' : 'text-white/70'}">${d.label}</div>
@@ -668,29 +594,10 @@
     }
 
     async function initMap() {
-        if (!mapInstance) { 
-            mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
-            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(mapInstance); 
-            
-            const locBtn = L.Control.extend({
-                options: { position: 'bottomright' },
-                onAdd: function(map) {
-                    const btn = L.DomUtil.create('div', 'leaflet-control-custom-btn');
-                    btn.innerHTML = '<i class="fas fa-crosshairs"></i>';
-                    btn.onclick = () => { map.locate({setView: true, maxZoom: 16}); };
-                    return btn;
-                }
-            });
-            mapInstance.addControl(new locBtn());
-            
-            mapInstance.on('locationfound', (e) => {
-                L.circleMarker(e.latlng, { radius: 8, color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.8 }).addTo(mapInstance).bindPopup("目前位置").openPopup();
-            });
-        }
-        
+        if (!mapInstance) { mapInstance = L.map('map').setView([35.6895, 139.6917], 11); L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(mapInstance); }
         markers.forEach(m => mapInstance.removeLayer(m)); markers = [];
         const locations = currentItems.filter(i => i.location);
-        
+        if (locations.length === 0) { mapInstance.setView([35.6895, 139.6917], 11); return; }
         let bounds = L.latLngBounds();
         for (let index = 0; index < locations.length; index++) {
             const item = locations[index];
@@ -699,24 +606,24 @@
                 const data = await res.json();
                 if (data && data.length > 0) {
                     const lat = data[0].lat; const lon = data[0].lon;
-                    const customIcon = L.divIcon({ className: 'map-icon', html: `<span>${index + 1}</span>`, iconSize: [30, 30], iconAnchor: [15, 30] });
-                    const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance);
-                    
-                    const popupContent = `<div class="text-center"><b>${index + 1}. ${item.title}</b><br>${item.location}<br><span class="text-gray-500 text-xs">${item.startTime}</span><br><div class="mt-2 flex gap-2 justify-center"><button onclick="setRouteOrigin(${lat}, ${lon}, '${item.title}')" class="bg-blue-500 text-white px-2 py-1 rounded text-xs">🚩 設為起點</button><button onclick="navigateHere(${lat}, ${lon})" class="bg-green-500 text-white px-2 py-1 rounded text-xs">🏁 導航至此</button></div></div>`;
-                    marker.bindPopup(popupContent);
-                    
+                    const customIcon = L.divIcon({ className: 'map-icon', html: (index + 1).toString(), iconSize: [28, 28], iconAnchor: [14, 14] });
+                    const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance).bindPopup(`<b>${index + 1}. ${item.title}</b><br>${item.location}<br><span class="text-gray-500">${item.startTime}</span>`);
                     markers.push(marker); bounds.extend([lat, lon]);
                 }
             } catch (e) {} await new Promise(r => setTimeout(r, 800)); 
         }
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
     }
-    
-    window.setRouteOrigin = (lat, lon, title) => { routeOrigin = { lat, lon }; alert(`已設定「${title}」為起點！`); mapInstance.closePopup(); };
-    window.navigateHere = (lat, lon) => { if (!routeOrigin) { window.open(`http://maps.google.com/maps?daddr=${lat},${lon}`, '_blank'); } else { window.open(`http://maps.google.com/maps?saddr=${routeOrigin.lat},${routeOrigin.lon}&daddr=${lat},${lon}`, '_blank'); routeOrigin = null; } mapInstance.closePopup(); };
 
     function getCategoryVibe(category) {
-        const map = { 'FOOD': { hex: '#fb923c', color: 'orange', label: '餐飲' }, 'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, 'TRANSPORT': { hex: '#38bdf8', color: 'sky', label: '交通' }, 'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, 'HOTEL': { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'violet', label: '住宿' }, 'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } };
+        const map = { 
+            'FOOD': { hex: '#fb923c', color: 'orange', label: '餐飲' }, 
+            'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, 
+            'TRANSPORT': { hex: '#38bdf8', color: 'sky', label: '交通' }, 
+            'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, 
+            'HOTEL': { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'violet', label: '住宿' }, 
+            'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } 
+        };
         if (category === 'HOTEL') return { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'purple', label: '住宿' };
         return map[category] || map['OTHER'];
     }
@@ -735,31 +642,31 @@
     function showModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
     function openExpenseModal(itemId) { const item = currentItems.find(i => i.id === itemId); if(!item) return; document.getElementById('expense-modal-title').textContent = item.title; document.getElementById('expense-item-id').value = itemId; document.getElementById('expense-desc').value = ''; document.getElementById('expense-amount').value = ''; document.getElementById('expense-currency').value = 'JPY'; renderExpenseList(item.expenses || []); showModal('expense-modal'); }
-    
-    function prepareEdit(id) { const item = currentItems.find(i => i.id === id); if (!item) return; document.getElementById('edit-start-time').value = item.startTime; document.getElementById('edit-end-time').value = item.endTime || ''; document.getElementById('edit-title').value = item.title; document.getElementById('edit-location').value = item.location || ''; document.getElementById('edit-content').value = item.content || ''; document.getElementById('edit-category').value = item.category; document.getElementById('edit-transport').value = item.transport || ''; document.getElementById('editing-item-id').value = id; showModal('edit-modal'); }
+    function prepareEdit(id) { const item = currentItems.find(i => i.id === id); if (!item) return; document.getElementById('edit-start-time').value = item.startTime; document.getElementById('edit-end-time').value = item.endTime || ''; document.getElementById('edit-title').value = item.title; document.getElementById('edit-location').value = item.location || ''; document.getElementById('edit-content').value = item.content || ''; document.getElementById('edit-category').value = item.category; document.getElementById('editing-item-id').value = id; showModal('edit-modal'); }
     function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
 
     function renderExpenseList(expenses) { const c = document.getElementById('expense-list'); c.innerHTML = ''; expenses.forEach((ex, i) => { const icon = ex.payer==='bird'?'🐦':(ex.payer==='pig'?'🐷':'🐷🐦'); c.insertAdjacentHTML('beforeend', `<div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm"><div class="flex gap-2 items-center overflow-hidden flex-1 min-w-0"><span class="text-lg shrink-0">${icon}</span><span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span></div><div class="flex items-center gap-3 shrink-0 ml-2"><span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span><button onclick="removeExpense(${i})" class="text-red-300 hover:text-red-500 active:scale-95"><i class="fas fa-times"></i></button></div></div>`); }); }
     async function addExpenseToItem() { const id=document.getElementById('expense-item-id').value, payer=document.getElementById('expense-payer').value, cur=document.getElementById('expense-currency').value; let desc=document.getElementById('expense-desc').value||'未分類', amt=parseInt(document.getElementById('expense-amount').value); if(isNaN(amt)||amt<=0)return; const idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; if(cur==='TWD'){ const old=amt; amt=Math.round(amt/exchangeRate); desc+=` (TWD ${old})`; } if(!currentItems[idx].expenses)currentItems[idx].expenses=[]; currentItems[idx].expenses.push({description:desc,amount:amt,payer:payer}); renderExpenseList(currentItems[idx].expenses); document.getElementById('expense-desc').value=''; document.getElementById('expense-amount').value=''; await saveScheduleToFirestore(currentItems); renderSchedule(); calculateDailyCost(); }
     async function removeExpense(i) { const id=document.getElementById('expense-item-id').value, idx=currentItems.findIndex(x=>x.id===id); if(idx===-1)return; currentItems[idx].expenses.splice(i,1); renderExpenseList(currentItems[idx].expenses); await saveScheduleToFirestore(currentItems); renderSchedule(); calculateDailyCost(); }
-    async function addScheduleItem() { const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value, trans=document.getElementById('new-transport').value; if(!t)return alert("請輸入標題"); currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,transport:trans,expenses:[]}); currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); await saveScheduleToFirestore(currentItems); closeModal('add-modal'); document.getElementById('new-title').value=''; }
-    async function saveEdit() { const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value, transport:document.getElementById('edit-transport').value}; await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
+    async function addScheduleItem() { const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value; if(!t)return alert("請輸入標題"); currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,expenses:[]}); currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); await saveScheduleToFirestore(currentItems); closeModal('add-modal'); document.getElementById('new-title').value=''; }
+    async function saveEdit() { const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value}; await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
     async function deleteScheduleItem() { if(!confirm('刪除？'))return; const id=document.getElementById('editing-item-id').value; currentItems=currentItems.filter(i=>i.id!==id); await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
-    function listenForChecklistUpdates() { if(firestoreChecklistListener)firestoreChecklistListener(); firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); const c=document.getElementById('checklist-container'); c.innerHTML=''; checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})"><span class="check-text">${i.text}</span></div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); }); }); }
+    function listenForChecklistUpdates() { if(firestoreChecklistListener)firestoreChecklistListener(); firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); const c=document.getElementById('checklist-container'); c.innerHTML=''; checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})">${i.text}</div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); }); }); }
     async function addChecklistItem() { const v=document.getElementById('checklist-input').value.trim(); if(v){ await db.collection(CHECKLIST_COLLECTION).add({text:v,isCompleted:false,timestamp:firebase.firestore.FieldValue.serverTimestamp()}); document.getElementById('checklist-input').value=''; } }
     async function toggleChecklist(id,s) { await db.collection(CHECKLIST_COLLECTION).doc(id).update({isCompleted:!s}); }
     async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
     async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
     async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
 
-    // 自動修正標題高度
+    // 自動計算 Header 高度，讓內容剛好接在下面
     function adjustContentPadding() {
         const h = document.getElementById('main-header');
         const p = document.getElementById('schedule-page');
         if(h && p) {
-            const headerHeight = h.offsetHeight;
-            p.style.paddingTop = (headerHeight + 5) + 'px';
+            // 自動偵測高度，並加上 5px 緩衝
+            p.style.paddingTop = (h.offsetHeight + 5) + 'px';
         }
+        // 確保所有頁面的底部 padding 能容納懸浮 footer
         document.querySelectorAll('.page-content').forEach(page => page.style.paddingBottom = '90px'); 
     }
 
