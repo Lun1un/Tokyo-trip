@@ -499,7 +499,7 @@
         if (sortableInstance) sortableInstance.destroy();
         sortableInstance = new Sortable(el, {
             animation: 200, 
-            delay: 500, // ★★★ 拖曳延遲改為 0.5 秒 ★★★
+            delay: 0, // ★★★ 拖曳延遲已改為 0 毫秒 ★★★
             delayOnTouchOnly: true, // 僅在觸控裝置上啟用延遲
             ghostClass: 'sortable-ghost', 
             dragClass: 'sortable-drag',
@@ -540,9 +540,20 @@
             : `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
                <div class="timeline-line bg-gray-200 h-full mt-1 min-h-[2rem]"></div>`;
 
-        // ★★★ 修改：花費移到下方，且稍微調整樣式 ★★★
-        const costBadge = totalItemCost > 0 ? `<div class="mt-2 inline-block bg-yellow-50 text-yellow-700 px-2 py-1 rounded text-xs font-bold border border-yellow-100">¥ ${totalItemCost.toLocaleString()}</div>` : '';
-        let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 mt-1 font-bold hover:text-[var(--primary-normal)] hover:underline inline-block max-w-[85%] truncate" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
+        // ★★★ 修改：將花費與地圖連結放在一個區塊，使花費位於地圖連結下方 ★★★
+        const costBadge = totalItemCost > 0 ? `<span class="inline-block bg-yellow-50 text-yellow-700 px-2 py-1 rounded text-xs font-bold border border-yellow-100 mt-2">¥ ${totalItemCost.toLocaleString()}</span>` : '';
+        
+        let locationAndCostHTML = '';
+        if (item.location || totalItemCost > 0) {
+            // 修正地圖連結的 URL 格式
+            let locationLink = item.location ? `<a href="http://googleusercontent.com/maps.google.com/search?api=1&query=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 font-bold hover:text-[var(--primary-normal)] hover:underline inline-block max-w-[85%] truncate" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
+            
+            locationAndCostHTML = `<div class="mt-2">
+                ${locationLink}
+                ${costBadge}
+            </div>`;
+        }
+
 
         let transportHTML = '';
         if (item.transport) {
@@ -573,8 +584,7 @@
                             </div>
                         </div>
                         <p class="text-sm text-gray-500 mt-2 leading-relaxed">${item.content || ''}</p>
-                        ${locationHTML}
-                        ${costBadge} 
+                        ${locationAndCostHTML}
                     </div>
                 </div>
             </div>`;
@@ -699,7 +709,7 @@
     }
     
     window.setRouteOrigin = (lat, lon, title) => { routeOrigin = { lat, lon }; alert(`已設定「${title}」為起點！`); mapInstance.closePopup(); };
-    window.navigateHere = (lat, lon) => { if (!routeOrigin) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`, '_blank'); } else { window.open(`https://www.google.com/maps/dir/?api=1&origin=${routeOrigin.lat},${routeOrigin.lon}&destination=${lat},${lon}`, '_blank'); routeOrigin = null; } mapInstance.closePopup(); };
+    window.navigateHere = (lat, lon) => { if (!routeOrigin) { window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`, '_blank'); } else { window.open(`https://www.google.com/maps/dir/${routeOrigin.lat},${routeOrigin.lon}/${lat},${lon}`, '_blank'); routeOrigin = null; } mapInstance.closePopup(); };
 
     function getCategoryVibe(category) {
         const map = { 'FOOD': { hex: '#fb923c', color: 'orange', label: '餐飲' }, 'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, 'TRANSPORT': { hex: '#38bdf8', color: 'sky', label: '交通' }, 'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, 'HOTEL': { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'violet', label: '住宿' }, 'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } };
