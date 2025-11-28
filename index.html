@@ -436,22 +436,28 @@
     ];
 
     function updateCountdown() {
-        const tripDate = new Date("2026-02-04T00:00:00").getTime();
+        const tripStartDate = new Date("2026-02-04T00:00:00").getTime();
+        const tripEndDate = new Date("2026-02-11T00:00:00").getTime(); // Day 7 is Feb 10, so trip ends Feb 11 00:00
         const now = new Date().getTime();
-        const distance = tripDate - now;
+        const timerElement = document.getElementById("countdown-timer");
 
-        if (distance < 0) {
-            document.getElementById("countdown-timer").innerHTML = "<i class='fas fa-plane-departure'></i> 旅程已開始！";
-            return;
+        if (now < tripStartDate) {
+            // Before Trip
+            const distance = tripStartDate - now;
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            timerElement.innerHTML = `<i class="fas fa-hourglass-half text-yellow-300 mr-1"></i> 還有 ${days}天 ${hours}時 ${minutes}分 ${seconds}秒`;
+        } else if (now < tripEndDate) {
+            // During Trip
+            const distanceToEnd = tripEndDate - now;
+            const daysLeft = Math.ceil(distanceToEnd / (1000 * 60 * 60 * 24));
+            timerElement.innerHTML = `<i class="fas fa-plane-departure text-green-300 mr-1"></i> 旅程進行中 (剩餘 ${daysLeft} 天)`;
+        } else {
+            // After Trip
+            timerElement.innerHTML = `<i class="fas fa-home text-white mr-1"></i> 旅程已圓滿結束`;
         }
-
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        document.getElementById("countdown-timer").innerHTML = 
-            `<i class="fas fa-hourglass-half text-yellow-300 mr-1"></i> 還有 ${days}天 ${hours}時 ${minutes}分 ${seconds}秒`;
     }
     setInterval(updateCountdown, 1000);
 
