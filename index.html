@@ -22,7 +22,7 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&display=swap'); /* 倒數計時器字型 */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&display=swap');
         
         :root {
             --primary-light: #E0C8FF; 
@@ -59,10 +59,10 @@
             100% { transform: scale(1) translate(0, 0); }
         }
 
-        /* --- ⌨️ 打字機特效 --- */
+        /* --- ⌨️ 打字機特效 (修正版) --- */
         @keyframes typing {
             from { width: 0; }
-            to { width: 100%; }
+            to { width: 9em; } /* 修正：設定為文字的大約寬度，而不是 100% */
         }
         @keyframes blink-caret {
             from, to { border-color: transparent; }
@@ -74,19 +74,19 @@
             border-right: 2px solid white;
             width: 0;
             animation: 
-                typing 2s steps(30, end) forwards,
+                typing 2s steps(20, end) forwards, /* steps 稍微調低一點讓節奏更對 */
                 blink-caret 0.75s step-end infinite;
             display: inline-block;
             vertical-align: bottom;
+            max-width: 100%;
         }
 
-        /* Header 背景設定 (修正結構以支援動畫) */
         .fixed-header-container {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
             height: auto;
-            overflow: hidden; /* 確保放大的圖片不會超出 */
+            overflow: hidden; 
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            border-bottom-left-radius: 1.5rem; /* 圓角更有設計感 */
+            border-bottom-left-radius: 1.5rem; 
             border-bottom-right-radius: 1.5rem;
         }
 
@@ -96,7 +96,7 @@
             background-size: cover;
             background-position: center bottom;
             z-index: -2;
-            animation: ken-burns 20s ease-in-out infinite alternate; /* 應用背景動畫 */
+            animation: ken-burns 20s ease-in-out infinite alternate;
         }
         
         .fixed-header-overlay {
@@ -183,6 +183,10 @@
         .leaflet-control-custom-btn:hover { background-color: #f3f4f6; color: var(--primary-normal); }
 
         #loading-status { display: none !important; }
+
+        /* Checklist Tab Styles */
+        .check-tab-active { background-color: white; color: var(--primary-normal); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .check-tab-inactive { color: #9ca3af; background-color: transparent; }
     </style>
 </head>
 <body class="text-gray-700">
@@ -195,7 +199,7 @@
             <div class="header-content">
                 <div class="flex justify-between items-start mb-2 relative z-10">
                     <div class="flex-1">
-                        <h1 class="text-2xl font-black text-white tracking-tight mb-1 drop-shadow-lg">
+                        <h1 class="text-2xl font-black text-white tracking-tight mb-1 drop-shadow-lg w-fit">
                             <span class="typewriter-text">東京遛豬之旅 🐷</span>
                         </h1>
                         
@@ -290,10 +294,16 @@
     <div id="checklist-page" class="hidden page-content px-4">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2 text-gray-800">
             <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-clipboard-check"></i></span>
-            必買 & 準備
+            攜帶🎒購物清單🛍️
         </h1>
+
+        <div class="bg-gray-100 p-1 rounded-xl flex gap-1 mb-4 shadow-inner">
+            <button id="check-tab-bird" onclick="switchChecklistTab('bird')" class="flex-1 py-2 text-sm font-bold rounded-lg transition-all check-tab-active">🐦 鳥的</button>
+            <button id="check-tab-pig" onclick="switchChecklistTab('pig')" class="flex-1 py-2 text-sm font-bold rounded-lg transition-all check-tab-inactive">🐷 豬的</button>
+        </div>
+
         <div class="flex gap-3 mb-6 w-full">
-            <input type="text" id="checklist-input" placeholder="新增項目..." class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-white focus:outline-none">
+            <input type="text" id="checklist-input" placeholder="新增清單..." class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-white focus:outline-none">
             <button onclick="addChecklistItem()" class="text-white px-4 rounded-xl font-bold shadow-lg shadow-[var(--primary-light)] active:scale-90 transition shrink-0 glow-btn"><i class="fas fa-plus"></i></button>
         </div>
         <div id="checklist-container" class="space-y-3 pb-20"></div>
@@ -379,6 +389,7 @@
     let currentItems = []; 
     let exchangeRate = 0.22; 
     let checklistItems = [];
+    let currentChecklistOwner = 'bird'; // 預設為鳥的清單
     let sortableInstance = null;
     let firestoreScheduleListener = null;
     let firestoreChecklistListener = null;
@@ -397,7 +408,6 @@
         { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10' },
     ];
 
-    // 倒數計時器邏輯
     function updateCountdown() {
         const tripDate = new Date("2026-02-04T00:00:00").getTime();
         const now = new Date().getTime();
@@ -541,7 +551,6 @@
             : `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
                <div class="timeline-line bg-gray-200 h-full mt-1 min-h-[2rem]"></div>`;
 
-        // ★★★ 修正：花費金額強制換行 ★★★
         const costBadge = totalItemCost > 0 ? 
             `<div class="mt-3 block">
                 <span class="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-lg text-xs font-bold border border-yellow-200 shadow-sm">
@@ -743,48 +752,58 @@
     function createSakura() {
         const sakuraContainer = document.createElement('div');
         document.body.appendChild(sakuraContainer);
-
-        const petalCount = 15; // 花瓣數量 (不要太多以免卡頓)
-        
+        const petalCount = 15; 
         for (let i = 0; i < petalCount; i++) {
             const petal = document.createElement('div');
             petal.classList.add('sakura');
-            
-            // 隨機大小、位置、動畫時間
             const size = Math.random() * 10 + 5 + 'px';
             const left = Math.random() * 100 + 'vw';
-            const duration = Math.random() * 5 + 5 + 's'; // 5~10秒飄落
+            const duration = Math.random() * 5 + 5 + 's'; 
             const delay = Math.random() * 5 + 's';
-
             petal.style.width = size;
             petal.style.height = size;
             petal.style.left = left;
             petal.style.animationDuration = duration;
             petal.style.animationDelay = delay;
-
             sakuraContainer.appendChild(petal);
         }
     }
-
-    // 啟動櫻花
     createSakura();
 
-    // --- 🎉 修改 checklist toggle 函式，加入禮炮 ---
+    // --- Checklist Logic Update with Tabs ---
+    function switchChecklistTab(owner) {
+        currentChecklistOwner = owner;
+        document.getElementById('check-tab-bird').className = owner === 'bird' ? 'flex-1 py-2 text-sm font-bold rounded-lg transition-all check-tab-active' : 'flex-1 py-2 text-sm font-bold rounded-lg transition-all check-tab-inactive';
+        document.getElementById('check-tab-pig').className = owner === 'pig' ? 'flex-1 py-2 text-sm font-bold rounded-lg transition-all check-tab-active' : 'flex-1 py-2 text-sm font-bold rounded-lg transition-all check-tab-inactive';
+        renderChecklist(); 
+    }
+
+    function renderChecklist() {
+        const c = document.getElementById('checklist-container'); 
+        c.innerHTML = ''; 
+        // Filter items: show if owner matches OR if owner is undefined (legacy items show in both)
+        const filteredItems = checklistItems.filter(i => i.owner === currentChecklistOwner || !i.owner);
+        
+        if (filteredItems.length === 0) {
+            c.innerHTML = `<div class="text-center text-gray-400 py-10">這個清單還沒有項目哦</div>`;
+            return;
+        }
+
+        filteredItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ 
+            const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; 
+            c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})"><span class="check-text">${i.text}</span></div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); 
+        }); 
+    }
+
     function listenForChecklistUpdates() { 
         if(firestoreChecklistListener)firestoreChecklistListener(); 
         firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ 
             checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); 
-            const c=document.getElementById('checklist-container'); 
-            c.innerHTML=''; 
-            checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ 
-                const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; 
-                c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})"><span class="check-text">${i.text}</span></div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); 
-            }); 
+            renderChecklist();
         }); 
     }
 
     async function toggleChecklist(id, currentStatus) { 
-        // 1. 如果是從「未完成」變成「完成」，觸發禮炮
         if (!currentStatus) {
             if(window.confetti) {
                  window.confetti({
@@ -795,11 +814,22 @@
                 });
             }
         }
-        // 2. 執行資料庫更新
         await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !currentStatus }); 
     }
 
-    async function addChecklistItem() { const v=document.getElementById('checklist-input').value.trim(); if(v){ await db.collection(CHECKLIST_COLLECTION).add({text:v,isCompleted:false,timestamp:firebase.firestore.FieldValue.serverTimestamp()}); document.getElementById('checklist-input').value=''; } }
+    async function addChecklistItem() { 
+        const v=document.getElementById('checklist-input').value.trim(); 
+        if(v){ 
+            await db.collection(CHECKLIST_COLLECTION).add({
+                text: v,
+                isCompleted: false,
+                owner: currentChecklistOwner, // Save current tab as owner
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }); 
+            document.getElementById('checklist-input').value=''; 
+        } 
+    }
+    
     async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
     async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
     async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
@@ -833,7 +863,7 @@
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
     window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
     window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
-    window.editDayTitle = editDayTitle; window.initMap = initMap;
+    window.editDayTitle = editDayTitle; window.initMap = initMap; window.switchChecklistTab = switchChecklistTab;
 </script>
 </body>
 </html>
