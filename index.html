@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (最終完美版)</title>
+    <title>東京遛豬之旅 2026 (最終修復版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -34,27 +34,31 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
+        /* 簡單的淡入動畫，確保不會隱藏內容 */
+        @keyframes simple-fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: simple-fade-in 0.4s ease-out forwards;
+        }
+
         .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 7rem; } 
         .page-content.hidden { opacity: 0; display: none !important; }
 
-        /* Modal 動畫 */
-        @keyframes modal-fade-in { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        @keyframes modal-fade-out { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
-        .modal { opacity: 0; visibility: hidden; display: flex; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
-        .modal.active { opacity: 1; visibility: visible; }
-        .modal.active > div { animation: modal-fade-in 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        .modal.closing > div { animation: modal-fade-out 0.2s ease-out forwards; } /* 關閉動畫 */
+        .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
+        .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-
+        /* Header 設定 */
         .fixed-header-bg {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
             background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
             background-size: cover;
             background-position: center bottom;
-            padding-top: 16px; padding-bottom: 10px; 
+            padding-top: 16px; padding-bottom: 15px; /* 增加底部間距 */
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             color: white;
-            transition: height 0.3s ease;
+            transition: all 0.3s ease;
         }
         
         .fixed-header-bg::before {
@@ -63,80 +67,29 @@
             z-index: -1; backdrop-filter: blur(2px);
         }
 
-        /* Footer 進入動畫 */
-        @keyframes footer-slide-up {
-            from { transform: translateX(-50%) translateY(100px); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
+        /* 底部導覽列 */
         .fixed-footer { 
-            position: fixed; 
-            bottom: 0; 
-            left: 50%;
-            transform: translateX(-50%);
-            max-width: 90%; 
-            margin: 0 auto 15px auto; 
-            z-index: 1001; 
-            background-color: white; 
-            border-radius: 2rem; 
-            box-shadow: 0 5px 25px rgba(0,0,0,0.15); 
-            height: 68px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-around; 
-            padding: 0 5px; 
-            animation: footer-slide-up 0.5s ease-out forwards; /* 應用動畫 */
-            animation-delay: 0.3s; /* 稍微延遲 */
-            opacity: 0; /* 初始隱藏 */
-        }
-        
-        /* 新增按鈕旋轉動畫 */
-        @keyframes rotate-pulse {
-            0% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.05) rotate(5deg); }
-            100% { transform: scale(1) rotate(0deg); }
-        }
-        #add-schedule-btn {
-            animation: rotate-pulse 2s ease-in-out infinite;
-        }
-        #add-schedule-btn:hover {
-            animation-play-state: paused; /* 懸停時停止動畫 */
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+            max-width: 90%; margin: 0 auto 15px auto; z-index: 1001; 
+            background-color: white; border-radius: 2rem; 
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15); height: 68px; 
+            display: flex; align-items: center; justify-content: space-around; padding: 0 5px; 
         }
 
-
-        #schedule-page { padding-top: 210px; } 
+        /* 預設頂部距離，JS 會自動修正 */
+        #schedule-page { padding-top: 220px; } 
         #expense-page, #checklist-page { padding-top: 30px; } 
         #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
         
         .soft-card-shadow { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border-radius: 1.5rem; }
 
-        /* 行程卡片進入動畫 */
-        @keyframes slide-in-bottom {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .schedule-item-card {
-            opacity: 0; /* 初始隱藏 */
-            animation: slide-in-bottom 0.4s ease-out forwards;
-        }
-        /* 動態計算動畫延遲 */
-        .schedule-item-card:nth-child(1) { animation-delay: 0.1s; }
-        .schedule-item-card:nth-child(2) { animation-delay: 0.15s; }
-        .schedule-item-card:nth-child(3) { animation-delay: 0.2s; }
-        .schedule-item-card:nth-child(4) { animation-delay: 0.25s; }
-        .schedule-item-card:nth-child(5) { animation-delay: 0.3s; }
-        /* 更多的 nth-child 可以繼續添加 */
-
-
+        /* 行程卡片：移除所有顏色邊框，改用純白半透明 */
         .soft-card-glow {
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            border: 2px solid var(--primary-light); 
+            border: 1px solid rgba(255, 255, 255, 0.8); /* 純白邊框 */
             background-color: rgba(255, 255, 255, 0.95); 
             border-radius: 1.5rem; 
             position: relative; overflow: hidden;
-            transition: transform 0.2s ease-in-out; /* 點擊縮放動畫 */
-        }
-        .soft-card-glow:active {
-            transform: scale(0.98);
         }
         
         .sortable-ghost { opacity: 0.3; background-color: #f3e8ff; border: 2px dashed var(--primary-normal); border-radius: 1.5rem; }
@@ -156,63 +109,22 @@
         
         .map-icon { background-color: var(--primary-normal); color: white; font-weight: bold; text-align: center; line-height: 28px; border-radius: 50%; width: 28px; height: 28px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); border: 3px solid white; }
 
+        /* Header 內的小卡片 (天氣/匯率/花費) - 玻璃效果 */
         .header-glass-card {
-            background-color: rgba(255, 255, 255, 0.15); 
+            background-color: rgba(255, 255, 255, 0.2); /* 提高不透明度 */
             backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
         }
         
-        /* 調整地圖控制項位置 */
         #map-page .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 80px !important; }
-        
-        /* ★★★ 修正：將右下角的控制項（定位按鈕）往上推 90px，避開 Footer ★★★ */
-        #map-page .leaflet-control-container .leaflet-bottom {
-            bottom: 90px !important;
-        }
+        #map-page .leaflet-control-container .leaflet-bottom { bottom: 90px !important; }
 
-        /* 自定義地圖按鈕樣式 */
         .leaflet-control-custom-btn {
-            background-color: white;
-            width: 34px;
-            height: 34px;
-            border-radius: 4px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.65);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #4b5563;
-            font-size: 16px;
-            transition: all 0.2s;
+            background-color: white; width: 34px; height: 34px; border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.65); cursor: pointer; display: flex;
+            align-items: center; justify-content: center; color: #4b5563; font-size: 16px; transition: all 0.2s;
         }
-        .leaflet-control-custom-btn:hover {
-            background-color: #f3f4f6;
-            color: var(--primary-normal);
-        }
-
-        /* 日期滑動條活躍狀態動畫 */
-        .date-slider-item.active {
-            border: 2px solid white;
-            animation: pulse-border 1.5s infinite;
-        }
-        @keyframes pulse-border {
-            0% { border-color: rgba(255, 255, 255, 0.5); }
-            50% { border-color: rgba(255, 255, 255, 1); }
-            100% { border-color: rgba(255, 255, 255, 0.5); }
-        }
-
-        /* 天氣卡片淡入動畫 */
-        @keyframes fade-in {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        #weather-card {
-            animation: fade-in 0.5s ease-out forwards;
-            animation-delay: 0.8s;
-            opacity: 0; /* 初始隱藏 */
-        }
-        
     </style>
 </head>
 <body class="text-gray-700">
@@ -277,7 +189,6 @@
             <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-wallet"></i></span>
             消費統計
         </h1>
-        
         <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32" style="background-color: var(--primary-normal); opacity: 0.15; border-radius: 9999px; margin-right: -4rem; margin-top: -4rem; filter: blur(3rem);"></div>
             <div class="flex justify-between items-start relative z-10">
@@ -289,23 +200,10 @@
                 <button onclick="calculateAllExpenses()" class="text-white hover:text-gray-300 transition active:scale-95"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
-
         <div class="grid grid-cols-3 gap-3 mb-8">
-            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-blue-300">
-                <div class="text-2xl mb-1">🐦</div>
-                <div class="text-xs text-gray-400 font-bold">Dove</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-bird">¥0</div>
-            </div>
-            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-pink-300">
-                <div class="text-2xl mb-1">🐷</div>
-                <div class="text-xs text-gray-400 font-bold">Pig</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-pig">¥0</div>
-            </div>
-            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-yellow-300">
-                <div class="text-2xl mb-1">🐷🐦</div>
-                <div class="text-xs text-gray-400 font-bold">Shared</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-shared">¥0</div>
-            </div>
+            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center"><div class="text-2xl mb-1">🐦</div><div class="text-xs text-gray-400 font-bold">Dove</div><div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-bird">¥0</div></div>
+            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center"><div class="text-2xl mb-1">🐷</div><div class="text-xs text-gray-400 font-bold">Pig</div><div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-pig">¥0</div></div>
+            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center"><div class="text-2xl mb-1">🐷🐦</div><div class="text-xs text-gray-400 font-bold">Shared</div><div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-shared">¥0</div></div>
         </div>
         <div id="expense-full-list" class="space-y-3 pb-20"></div>
     </div>
@@ -333,7 +231,6 @@
                         <input type="time" id="new-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
-                
                 <div class="flex gap-2">
                     <select id="new-category" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                         <option value="FOOD">🍴 餐飲</option>
@@ -354,7 +251,6 @@
                         <option value="plane">✈️ 飛機</option>
                     </select>
                 </div>
-
                 <input type="text" id="new-title" placeholder="行程標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
                 <input type="text" id="new-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                 <textarea id="new-content" placeholder="備註..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
@@ -377,7 +273,6 @@
                         <input type="time" id="edit-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
-                
                 <div class="flex gap-2">
                     <select id="edit-category" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                         <option value="FOOD">🍴 餐飲</option>
@@ -398,7 +293,6 @@
                         <option value="plane">✈️ 飛機</option>
                     </select>
                 </div>
-
                 <input type="text" id="edit-title" placeholder="標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
                 <input type="text" id="edit-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                 <textarea id="edit-content" placeholder="詳細內容..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
@@ -414,11 +308,434 @@
         </div>
     </div>
 
-    <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-start mb-4">
-                <h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2>
-                <button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600 active:scale-95"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div>
-            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-
+    <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()"><div class="flex justify-between items-start mb-4"><h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2><button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600 active:scale-95"><i class="fas fa-times text-xl"></i></button></div><div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div><div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-inner"><div class="flex gap-2 mb-2"><select id="expense-payer" class="input-focus w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none shrink-0"><option value="bird">🐦</option><option value="pig">🐷</option><option value="shared">🐷🐦</option></select><input type="text" id="expense-desc" placeholder="品項" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm"></div><div class="flex gap-2"><select id="expense-currency" class="input-focus w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0"><option value="JPY">JPY</option><option value="TWD">TWD</option></select><input type="number" id="expense-amount" placeholder="金額" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold"><button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow-md hover:bg-yellow-600 shrink-0 active:scale-95"><i class="fas fa-plus"></i></button></div></div><input type="hidden" id="expense-item-id"></div></div>
+    <div id="rate-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('rate-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()"><h2 class="text-xl font-bold mb-2">匯率設定</h2><div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-inner"><span class="text-lg font-bold text-gray-400">×</span><input type="number" step="0.0001" id="exchange-rate-input" class="input-focus flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none"></div><div class="flex justify-end mt-6"><button onclick="saveExchangeRate()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95">儲存</button></div></div></div>
+
+    <div class="fixed-footer text-gray-400">
+        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-map-marked-alt text-xl mb-1"></i><span class="text-[9px] font-bold">行程</span></button>
+        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-map text-xl mb-1"></i><span class="text-[9px] font-bold">地圖</span></button>
+        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="glow-btn text-white w-16 h-16 rounded-full flex items-center justify-center -mt-10 cursor-pointer active:scale-90 transition-transform border-4 border-white shadow-xl shadow-[var(--primary-light)]"><i class="fas fa-plus text-xl"></i></div>
+        <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors active:scale-90"><i class="fas fa-wallet text-xl mb-1"></i><span class="text-[9px] font-bold">花費</span></button>
+        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-clipboard-list text-xl mb-1"></i><span class="text-[9px] font-bold">清單</span></button>
+    </div>
+
+<script>
+    let currentDay = 1; 
+    let currentItems = []; 
+    let exchangeRate = 0.22; 
+    let checklistItems = [];
+    let sortableInstance = null;
+    let firestoreScheduleListener = null;
+    let firestoreChecklistListener = null;
+    let firestoreTitlesListener = null;
+    let mapInstance = null;
+    let markers = [];
+    let routeOrigin = null; 
+    
+    let tripDates = [
+        { day: 1, label: 'Day 1 出發', week: 'WED', date: '04' },
+        { day: 2, label: 'Day 2 探索', week: 'THU', date: '05' },
+        { day: 3, label: 'Day 3 購物', week: 'FRI', date: '06' },
+        { day: 4, label: 'Day 4 動漫', week: 'SAT', date: '07' },
+        { day: 5, label: 'Day 5 樂園', week: 'SUN', date: '08' },
+        { day: 6, label: 'Day 6 橫濱', week: 'MON', date: '09' },
+        { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10' },
+    ];
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBSIP0E7wHTxEnoGmBnqe3IrdojWSTZu0A",
+      authDomain: "tokyotrip2026-24a2c.firebaseapp.com",
+      projectId: "tokyotrip2026-24a2c",
+      storageBucket: "tokyotrip2026-24a2c.firebasestorage.app",
+      messagingSenderId: "473041619302",
+      appId: "1:473041619302:web:477c0eee8903999012a0a7"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const SCHEDULE_COLLECTION = 'trip_schedules_v4';
+    const CHECKLIST_COLLECTION = 'trip_checklist'; 
+    const CONFIG_DOCUMENT_ID = 'trip_config';
+
+    function getDocumentId(day) { return `tokyo_feb_2026_day_${day}`; }
+
+    async function fetchWeather() {
+        try {
+            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?id=1850147&appid=54f22a6f3141e619d73a09a6d4136e88&units=metric&lang=zh_tw`);
+            const data = await res.json();
+            if (data.cod === 200) {
+                const temp = Math.round(data.main.temp);
+                const icon = data.weather[0].icon;
+                const desc = data.weather[0].description;
+                document.getElementById('weather-temp').textContent = `${temp}°C`;
+                document.getElementById('weather-desc').textContent = desc;
+                let iconClass = 'fas fa-sun'; 
+                if (icon.includes('02')) iconClass = 'fas fa-cloud-sun';
+                else if (icon.includes('03') || icon.includes('04')) iconClass = 'fas fa-cloud';
+                else if (icon.includes('09') || icon.includes('10')) iconClass = 'fas fa-cloud-showers-heavy';
+                else if (icon.includes('13')) iconClass = 'fas fa-snowflake';
+                else if (icon.includes('50')) iconClass = 'fas fa-smog';
+                document.getElementById('weather-icon-container').innerHTML = `<i class="${iconClass}"></i>`;
+            }
+        } catch(e) { document.getElementById('weather-desc').textContent = "N/A"; }
+    }
+
+    function listenForDayTitles() {
+        if (firestoreTitlesListener) firestoreTitlesListener();
+        firestoreTitlesListener = db.collection(CONFIG_DOCUMENT_ID).doc('titles').onSnapshot(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                tripDates.forEach(d => { if (data[`day${d.day}`]) d.label = data[`day${d.day}`]; });
+            }
+            document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === currentDay).label;
+            renderDateSlider();
+        });
+    }
+
+    async function editDayTitle() {
+        const currentLabel = tripDates.find(d => d.day === currentDay).label;
+        const newLabel = prompt("編輯今日標題:", currentLabel);
+        if (newLabel && newLabel !== currentLabel) {
+            try {
+                document.getElementById('current-day-title').textContent = newLabel;
+                tripDates.find(d => d.day === currentDay).label = newLabel;
+                await db.collection(CONFIG_DOCUMENT_ID).doc('titles').set({ [`day${currentDay}`]: newLabel }, { merge: true });
+            } catch (e) {}
+        }
+    }
+
+    function listenForScheduleUpdates(day) {
+        if (firestoreScheduleListener) firestoreScheduleListener();
+        const loading = document.getElementById('loading-status');
+        loading.style.opacity = '1';
+
+        firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
+            currentItems = doc.exists ? (doc.data().schedule || []) : [];
+            renderSchedule();
+            calculateDailyCost();
+            if (!document.getElementById('map-page').classList.contains('hidden')) initMap(); 
+            setTimeout(() => { loading.style.opacity = '0'; }, 300); 
+        });
+    }
+
+    async function saveScheduleToFirestore(items) {
+        try { await db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(currentDay)).set({ schedule: items, lastUpdated: firebase.firestore.FieldValue.serverTimestamp() }); } catch (e) {}
+    }
+
+    function initSortable() {
+        const el = document.getElementById('schedule-container');
+        if (sortableInstance) sortableInstance.destroy();
+        sortableInstance = new Sortable(el, {
+            animation: 200, delay: 1000, delayOnTouchOnly: false, ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
+            onEnd: function (evt) {
+                const item = currentItems[evt.oldIndex];
+                currentItems.splice(evt.oldIndex, 1);
+                currentItems.splice(evt.newIndex, 0, item);
+                saveScheduleToFirestore(currentItems);
+            },
+        });
+    }
+
+    function renderSchedule() {
+        const container = document.getElementById('schedule-container');
+        container.innerHTML = ''; 
+        if (currentItems.length === 0) { 
+            container.innerHTML = `<div class="text-center text-gray-400 py-10">點擊下方 + 新增行程</div>`; 
+            return; 
+        }
+        currentItems.forEach(item => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item)));
+        initSortable();
+    }
+
+    function createScheduleItemHTML(item) {
+        const vibe = getCategoryVibe(item.category);
+        const expenses = item.expenses || [];
+        const totalItemCost = expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0);
+        
+        const hasEnd = !!item.endTime;
+        const timeHTML = hasEnd 
+            ? `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
+               <div class="timeline-line bg-gray-300 flex-1 my-0.5 opacity-50"></div>
+               <div class="text-xs font-bold text-gray-400 leading-none">${item.endTime}</div>`
+            : `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
+               <div class="timeline-line bg-gray-200 h-full mt-1 min-h-[2rem]"></div>`;
+
+        const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
+        let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 mt-1 font-bold hover:text-[var(--primary-normal)] hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
+
+        // 交通工具顯示
+        let transportHTML = '';
+        if (item.transport) {
+            const transportMap = {
+                'walk': '🚶', 'car': '🚗', 'taxi': '🚕', 'bus': '🚌', 
+                'subway': '🚇', 'skyliner': '🚅', 'plane': '✈️'
+            };
+            const icon = transportMap[item.transport] || '';
+            if(icon) {
+                transportHTML = `<span class="inline-block text-sm ml-2 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200 text-gray-600">${icon}</span>`;
+            }
+        }
+
+        const badgeColor = `background-color: ${vibe.hex}20; color: ${vibe.hex}; border: 1px solid ${vibe.hex}40;`;
+
+        // 關鍵修復：這裡加入了 animate-fade-in 確保動畫執行，且移除了可能導致隱藏的 CSS
+        return `
+            <div class="flex gap-3 items-stretch group relative select-none cursor-grab animate-fade-in" data-id="${item.id}">
+                <div class="flex flex-col items-center pt-1 min-w-[3.5rem]">
+                    ${timeHTML}
+                </div>
+                <div class="flex-1 soft-card-glow transition-all active:scale-[0.98]">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-1" style="${badgeColor}">${vibe.label}</span>
+                                ${transportHTML}
+                                <h3 class="font-extrabold text-gray-800 text-lg leading-tight mt-1">${item.title}</h3>
+                            </div>
+                            <div class="flex gap-1">
+                                <button class="expense-btn w-8 h-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center hover:bg-yellow-100 transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-wallet"></i></button>
+                                <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-[var(--primary-normal)]/10 hover:text-[var(--primary-normal)] transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2 leading-relaxed">${item.content || ''}</p>
+                        ${locationHTML} ${costBadge}
+                    </div>
+                </div>
+            </div>`;
+    }
+    
+    function calculateDailyCost() {
+        let total = 0;
+        if(currentItems && currentItems.length > 0) {
+            currentItems.forEach(item => { if(item.expenses) total += item.expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0); });
+        }
+        const el = document.getElementById('header-daily-cost');
+        if(el) el.textContent = `¥ ${total.toLocaleString()}`;
+    }
+
+    async function calculateAllExpenses() {
+        const container = document.getElementById('expense-full-list');
+        container.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fas fa-spinner fa-spin text-2xl"></i> 計算中...</div>';
+        let grandTotal = 0; let totalBird = 0; let totalPig = 0; let totalShared = 0;
+        let htmlContent = '';
+        for (let i = 1; i <= 7; i++) {
+            const doc = await db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(i)).get();
+            if (doc.exists) {
+                const items = doc.data().schedule || [];
+                let dayTotal = 0; let dayHTML = '';
+                items.forEach(item => {
+                    if (item.expenses && item.expenses.length > 0) {
+                        item.expenses.forEach(ex => {
+                            const amt = parseInt(ex.amount) || 0; grandTotal += amt; dayTotal += amt;
+                            if (ex.payer === 'bird') totalBird += amt; else if (ex.payer === 'pig') totalPig += amt; else totalShared += amt; 
+                            let payerIcon = ex.payer === 'bird' ? '🐦' : (ex.payer === 'pig' ? '🐷' : '🐷🐦');
+                            dayHTML += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-gray-100 last:border-0 hover:bg-gray-50 px-2 -mx-2 rounded"><div class="flex items-center gap-2 overflow-hidden flex-1 min-w-0"><span class="text-xs bg-gray-200 px-1 rounded-full shrink-0">${payerIcon}</span><span class="text-gray-600 truncate">${item.title} - ${ex.description}</span></div><span class="font-mono font-bold text-gray-800 shrink-0 ml-2">¥${amt.toLocaleString()}</span></div>`;
+                        });
+                    }
+                });
+                if (dayTotal > 0) htmlContent += `<div class="bg-white rounded-xl p-4 soft-card-shadow border-t-4 border-gray-300 mb-4"><div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-200"><h3 class="font-bold text-lg text-gray-800">Day ${i}</h3><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-lg">Total: ¥${dayTotal.toLocaleString()}</span></div><div>${dayHTML}</div></div>`;
+            }
+        }
+        document.getElementById('total-trip-jpy').textContent = `¥ ${grandTotal.toLocaleString()}`;
+        document.getElementById('total-trip-twd').textContent = `≈ NT$ ${Math.round(grandTotal * exchangeRate).toLocaleString()}`;
+        document.getElementById('total-bird').textContent = `¥ ${totalBird.toLocaleString()}`;
+        document.getElementById('total-pig').textContent = `¥ ${totalPig.toLocaleString()}`;
+        document.getElementById('total-shared').textContent = `¥ ${totalShared.toLocaleString()}`;
+        container.innerHTML = htmlContent || '<div class="text-center text-gray-400 py-10">目前沒有任何消費記錄</div>';
+    }
+
+    function renderDateSlider() {
+        const slider = document.getElementById('date-slider');
+        slider.innerHTML = '';
+        tripDates.forEach(d => {
+            const active = d.day === currentDay;
+            // 修正：使用 rgba 確保透明度正確
+            const activeClass = active 
+                ? 'bg-[var(--primary-normal)] text-white shadow-lg shadow-purple-500/30 scale-105 border border-transparent' 
+                : 'text-white border border-white/30 hover:bg-white/10';
+            
+            // 加入 inline style 確保玻璃效果
+            const glassStyle = active ? '' : 'background-color: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);';
+
+            slider.insertAdjacentHTML('beforeend', `
+                <div class="flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95 ${activeClass}" style="${glassStyle}" onclick="switchDay(${d.day})">
+                    <div class="text-[10px] font-bold ${active ? 'opacity-90' : 'opacity-90'}">${d.week}</div>
+                    <div class="text-xl font-black leading-none">${d.date}</div>
+                    <div class="text-[8px] font-medium mt-1 truncate max-w-[90%] ${active ? 'text-white/80' : 'text-white/80'}">${d.label}</div>
+                </div>`);
+        });
+    }
+
+    async function initMap() {
+        if (!mapInstance) { 
+            mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
+            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(mapInstance); 
+            
+            const locBtn = L.Control.extend({
+                options: { position: 'bottomright' },
+                onAdd: function(map) {
+                    const btn = L.DomUtil.create('div', 'leaflet-control-custom-btn');
+                    btn.innerHTML = '<i class="fas fa-crosshairs"></i>';
+                    btn.onclick = () => { map.locate({setView: true, maxZoom: 16}); };
+                    return btn;
+                }
+            });
+            mapInstance.addControl(new locBtn());
+            
+            mapInstance.on('locationfound', (e) => {
+                L.circleMarker(e.latlng, { radius: 8, color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.8 }).addTo(mapInstance).bindPopup("目前位置").openPopup();
+            });
+        }
+        
+        markers.forEach(m => mapInstance.removeLayer(m)); markers = [];
+        const locations = currentItems.filter(i => i.location);
+        
+        let bounds = L.latLngBounds();
+        for (let index = 0; index < locations.length; index++) {
+            const item = locations[index];
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.location)}`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    const lat = data[0].lat; const lon = data[0].lon;
+                    const customIcon = L.divIcon({ className: 'map-icon', html: (index + 1).toString(), iconSize: [28, 28], iconAnchor: [14, 14] });
+                    const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance);
+                    
+                    const popupContent = `
+                        <div class="text-center">
+                            <b>${index + 1}. ${item.title}</b><br>${item.location}<br>
+                            <span class="text-gray-500 text-xs">${item.startTime}</span><br>
+                            <div class="mt-2 flex gap-2 justify-center">
+                                <button onclick="setRouteOrigin(${lat}, ${lon}, '${item.title}')" class="bg-blue-500 text-white px-2 py-1 rounded text-xs">🚩 設為起點</button>
+                                <button onclick="navigateHere(${lat}, ${lon})" class="bg-green-500 text-white px-2 py-1 rounded text-xs">🏁 導航至此</button>
+                            </div>
+                        </div>
+                    `;
+                    marker.bindPopup(popupContent);
+                    
+                    markers.push(marker); bounds.extend([lat, lon]);
+                }
+            } catch (e) {} await new Promise(r => setTimeout(r, 800)); 
+        }
+        if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
+    }
+    
+    window.setRouteOrigin = (lat, lon, title) => {
+        routeOrigin = { lat, lon };
+        alert(`已設定「${title}」為起點！請點擊另一個地標選擇「導航至此」。`);
+        mapInstance.closePopup();
+    };
+    
+    window.navigateHere = (lat, lon) => {
+        if (!routeOrigin) {
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
+            window.open(url, '_blank');
+        } else {
+            const url = `https://www.google.com/maps/dir/?api=1&origin=${routeOrigin.lat},${routeOrigin.lon}&destination=${lat},${lon}`;
+            window.open(url, '_blank');
+            routeOrigin = null; 
+        }
+        mapInstance.closePopup();
+    };
+
+    function getCategoryVibe(category) {
+        const map = { 
+            'FOOD': { hex: '#fb923c', color: 'orange', label: '餐飲' }, 
+            'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, 
+            'TRANSPORT': { hex: '#38bdf8', color: 'sky', label: '交通' }, 
+            'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, 
+            'HOTEL': { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'violet', label: '住宿' }, 
+            'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } 
+        };
+        if (category === 'HOTEL') return { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'purple', label: '住宿' };
+        return map[category] || map['OTHER'];
+    }
+
+    function switchDay(day) { if (day === currentDay) return; currentDay = day; document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === day).label; renderDateSlider(); listenForScheduleUpdates(day); }
+    function switchPage(page) {
+        document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden')); document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`).classList.remove('hidden');
+        const primaryColorNormal = getComputedStyle(document.documentElement).getPropertyValue('--primary-normal');
+        document.getElementById('tab-schedule').style.color = page === 'schedule' ? primaryColorNormal : '';
+        document.getElementById('tab-map').style.color = page === 'map' ? primaryColorNormal : '';
+        document.getElementById('tab-expense').style.color = page === 'expense' ? '#f59e0b' : '';
+        document.getElementById('tab-checklist').style.color = page === 'checklist' ? primaryColorNormal : ''; 
+        if(page === 'expense') calculateAllExpenses(); if(page === 'map') setTimeout(initMap, 200); setTimeout(adjustContentPadding, 50);
+    }
+
+    function showModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function openExpenseModal(itemId) { const item = currentItems.find(i => i.id === itemId); if(!item) return; document.getElementById('expense-modal-title').textContent = item.title; document.getElementById('expense-item-id').value = itemId; document.getElementById('expense-desc').value = ''; document.getElementById('expense-amount').value = ''; document.getElementById('expense-currency').value = 'JPY'; renderExpenseList(item.expenses || []); showModal('expense-modal'); }
+    
+    function prepareEdit(id) { 
+        const item = currentItems.find(i => i.id === id); if (!item) return; 
+        document.getElementById('edit-start-time').value = item.startTime; 
+        document.getElementById('edit-end-time').value = item.endTime || ''; 
+        document.getElementById('edit-title').value = item.title; 
+        document.getElementById('edit-location').value = item.location || ''; 
+        document.getElementById('edit-content').value = item.content || ''; 
+        document.getElementById('edit-category').value = item.category;
+        document.getElementById('edit-transport').value = item.transport || ''; 
+        document.getElementById('editing-item-id').value = id; 
+        showModal('edit-modal'); 
+    }
+    
+    function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
+
+    function renderExpenseList(expenses) { const c = document.getElementById('expense-list'); c.innerHTML = ''; expenses.forEach((ex, i) => { const icon = ex.payer==='bird'?'🐦':(ex.payer==='pig'?'🐷':'🐷🐦'); c.insertAdjacentHTML('beforeend', `<div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm"><div class="flex gap-2 items-center overflow-hidden flex-1 min-w-0"><span class="text-lg shrink-0">${icon}</span><span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span></div><div class="flex items-center gap-3 shrink-0 ml-2"><span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span><button onclick="removeExpense(${i})" class="text-red-300 hover:text-red-500 active:scale-95"><i class="fas fa-times"></i></button></div></div>`); }); }
+    async function addExpenseToItem() { const id=document.getElementById('expense-item-id').value, payer=document.getElementById('expense-payer').value, cur=document.getElementById('expense-currency').value; let desc=document.getElementById('expense-desc').value||'未分類', amt=parseInt(document.getElementById('expense-amount').value); if(isNaN(amt)||amt<=0)return; const idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; if(cur==='TWD'){ const old=amt; amt=Math.round(amt/exchangeRate); desc+=` (TWD ${old})`; } if(!currentItems[idx].expenses)currentItems[idx].expenses=[]; currentItems[idx].expenses.push({description:desc,amount:amt,payer:payer}); renderExpenseList(currentItems[idx].expenses); document.getElementById('expense-desc').value=''; document.getElementById('expense-amount').value=''; await saveScheduleToFirestore(currentItems); renderSchedule(); calculateDailyCost(); }
+    async function removeExpense(i) { const id=document.getElementById('expense-item-id').value, idx=currentItems.findIndex(x=>x.id===id); if(idx===-1)return; currentItems[idx].expenses.splice(i,1); renderExpenseList(currentItems[idx].expenses); await saveScheduleToFirestore(currentItems); renderSchedule(); calculateDailyCost(); }
+    
+    async function addScheduleItem() { 
+        const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value, trans=document.getElementById('new-transport').value; 
+        if(!t)return alert("請輸入標題"); 
+        currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,transport:trans,expenses:[]}); 
+        currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); await saveScheduleToFirestore(currentItems); closeModal('add-modal'); document.getElementById('new-title').value=''; 
+    }
+    
+    async function saveEdit() { 
+        const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; 
+        currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value, transport:document.getElementById('edit-transport').value}; 
+        await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); 
+    }
+    
+    async function deleteScheduleItem() { if(!confirm('刪除？'))return; const id=document.getElementById('editing-item-id').value; currentItems=currentItems.filter(i=>i.id!==id); await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
+    function listenForChecklistUpdates() { if(firestoreChecklistListener)firestoreChecklistListener(); firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); const c=document.getElementById('checklist-container'); c.innerHTML=''; checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})">${i.text}</div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); }); }); }
+    async function addChecklistItem() { const v=document.getElementById('checklist-input').value.trim(); if(v){ await db.collection(CHECKLIST_COLLECTION).add({text:v,isCompleted:false,timestamp:firebase.firestore.FieldValue.serverTimestamp()}); document.getElementById('checklist-input').value=''; } }
+    async function toggleChecklist(id,s) { await db.collection(CHECKLIST_COLLECTION).doc(id).update({isCompleted:!s}); }
+    async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
+    async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
+    async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
+
+    // 自動修正標題高度
+    function adjustContentPadding() {
+        const h = document.getElementById('main-header');
+        const p = document.getElementById('schedule-page');
+        if(h && p) {
+            // 偵測高度並自動加上適當間距
+            const headerHeight = h.offsetHeight;
+            p.style.paddingTop = (headerHeight + 5) + 'px';
+        }
+        document.querySelectorAll('.page-content').forEach(page => page.style.paddingBottom = '90px'); 
+    }
+
+    document.addEventListener('click', (e) => {
+        const editBtn = e.target.closest('.edit-btn');
+        const expenseBtn = e.target.closest('.expense-btn');
+        if (editBtn) prepareEdit(editBtn.getAttribute('data-item-id'));
+        if (expenseBtn) openExpenseModal(expenseBtn.getAttribute('data-item-id'));
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
+        setTimeout(adjustContentPadding, 100);
+        window.addEventListener('resize', adjustContentPadding);
+    });
+
+    window.switchDay = switchDay; window.switchPage = switchPage; window.prepareRateModal = prepareRateModal;
+    window.saveExchangeRate = saveExchangeRate; window.addChecklistItem = addChecklistItem;
+    window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
+    window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
+    window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
+    window.editDayTitle = editDayTitle; window.initMap = initMap;
+</script>
+</body>
+</html>
