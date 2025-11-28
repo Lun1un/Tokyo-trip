@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>東京遛豬之旅 2026 (最終修復版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (生動動畫版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -23,8 +23,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
         
         :root {
-            --primary-light: #E0C8FF; 
-            --primary-normal: #C084FC; 
+            --primary-light: #E0C8FF; /* 淡紫邊框 */
+            --primary-normal: #C084FC; /* 標準紫 */
             --primary-dark: #A855F7; 
             --soft-bg-color: #f8fafc; 
         }
@@ -34,28 +34,61 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 簡單的淡入動畫，確保不會隱藏內容 */
-        @keyframes simple-fade-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: simple-fade-in 0.4s ease-out forwards;
-        }
-
         .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 7rem; } 
         .page-content.hidden { opacity: 0; display: none !important; }
 
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* Header 設定 */
+        /* --- 動畫定義區域 --- */
+        
+        /* 1. 彈性進場 (用於行程卡片) */
+        @keyframes elastic-slide-up {
+            0% { opacity: 0; transform: translateY(30px) scale(0.9); }
+            60% { opacity: 1; transform: translateY(-5px) scale(1.02); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        /* 2. 頂部下滑 (用於 Header 內容) */
+        @keyframes fade-slide-down {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 3. 底部上浮 (用於 Footer) */
+        @keyframes fade-slide-up {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* 4. 呼吸效果 (用於按鈕) */
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(192, 132, 252, 0); }
+            50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(192, 132, 252, 0.4); }
+        }
+
+        /* 應用動畫的 Class */
+        .anim-card-entry {
+            animation: elastic-slide-up 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0; /* 初始隱藏，等待動畫執行 */
+        }
+        
+        .anim-header-entry {
+            animation: fade-slide-down 0.8s ease-out forwards;
+        }
+
+        .anim-pulse {
+            animation: breathe 3s infinite ease-in-out;
+        }
+
+        /* ------------------- */
+
         .fixed-header-bg {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
             background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
             background-size: cover;
             background-position: center bottom;
-            padding-top: 16px; padding-bottom: 15px; /* 增加底部間距 */
+            padding-top: 16px; padding-bottom: 15px; 
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             color: white;
             transition: all 0.3s ease;
@@ -67,29 +100,37 @@
             z-index: -1; backdrop-filter: blur(2px);
         }
 
-        /* 底部導覽列 */
         .fixed-footer { 
             position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
             max-width: 90%; margin: 0 auto 15px auto; z-index: 1001; 
             background-color: white; border-radius: 2rem; 
             box-shadow: 0 5px 25px rgba(0,0,0,0.15); height: 68px; 
             display: flex; align-items: center; justify-content: space-around; padding: 0 5px; 
+            animation: fade-slide-up 0.6s ease-out 0.2s forwards; /* Footer 進場動畫 */
+            opacity: 0;
         }
 
-        /* 預設頂部距離，JS 會自動修正 */
         #schedule-page { padding-top: 220px; } 
         #expense-page, #checklist-page { padding-top: 30px; } 
         #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
         
         .soft-card-shadow { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border-radius: 1.5rem; }
 
-        /* 行程卡片：移除所有顏色邊框，改用純白半透明 */
+        /* ★★★ 修正：邊框改回淡紫色，並加入 hover 效果 ★★★ */
         .soft-card-glow {
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.8); /* 純白邊框 */
+            border: 2px solid var(--primary-light); /* 淡紫邊框 */
             background-color: rgba(255, 255, 255, 0.95); 
             border-radius: 1.5rem; 
             position: relative; overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .soft-card-glow:hover {
+            border-color: var(--primary-normal); /* Hover 時變深一點 */
+            box-shadow: 0 8px 20px rgba(192, 132, 252, 0.15);
+        }
+        .soft-card-glow:active {
+            transform: scale(0.98);
         }
         
         .sortable-ghost { opacity: 0.3; background-color: #f3e8ff; border: 2px dashed var(--primary-normal); border-radius: 1.5rem; }
@@ -109,9 +150,8 @@
         
         .map-icon { background-color: var(--primary-normal); color: white; font-weight: bold; text-align: center; line-height: 28px; border-radius: 50%; width: 28px; height: 28px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); border: 3px solid white; }
 
-        /* Header 內的小卡片 (天氣/匯率/花費) - 玻璃效果 */
         .header-glass-card {
-            background-color: rgba(255, 255, 255, 0.2); /* 提高不透明度 */
+            background-color: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
@@ -131,7 +171,7 @@
 
     <div id="schedule-page" class="page-content">
         <div class="fixed-header-bg px-4" id="main-header">
-            <div class="flex justify-between items-start mb-3 relative z-10">
+            <div class="flex justify-between items-start mb-3 relative z-10 anim-header-entry">
                 <div class="flex-1">
                     <h1 class="text-3xl font-black text-white tracking-tight mb-1 drop-shadow-lg">東京遛豬之旅 🐷</h1>
                     <div class="text-xl font-bold text-white/90 cursor-pointer flex items-center gap-2" onclick="editDayTitle()">
@@ -141,7 +181,7 @@
                 </div>
                 
                 <div class="flex flex-col items-end gap-1 mt-1">
-                    <div id="weather-card" class="flex items-center gap-3 px-3 py-2 rounded-xl shadow-lg header-glass-card">
+                    <div id="weather-card" class="flex items-center gap-3 px-3 py-2 rounded-xl shadow-lg header-glass-card hover:bg-white/30 transition">
                         <div id="weather-icon-container" class="text-2xl text-white"><i class="fas fa-sync fa-spin"></i></div>
                         <div class="text-right leading-none">
                             <div id="weather-temp" class="text-xl font-black text-white">--°C</div>
@@ -151,7 +191,7 @@
                 </div>
             </div>
             
-            <div class="flex justify-between items-center mb-4 px-1 relative z-10">
+            <div class="flex justify-between items-center mb-4 px-1 relative z-10 anim-header-entry" style="animation-delay: 0.1s;">
                 <button onclick="prepareRateModal()" class="text-[11px] text-white px-3 py-1.5 rounded-lg font-bold active:scale-95 header-glass-card hover:bg-white/20 transition">
                     匯率: <span id="display-rate">0.22</span>
                 </button>
@@ -161,7 +201,7 @@
                 </div>
             </div>
 
-            <div class="flex overflow-x-auto gap-3 py-1 pb-1 hide-scrollbar z-10 relative" id="date-slider"></div>
+            <div class="flex overflow-x-auto gap-3 py-1 pb-1 hide-scrollbar z-10 relative anim-header-entry" style="animation-delay: 0.2s;" id="date-slider"></div>
         </div>
 
         <div class="px-4 space-y-5"> 
@@ -189,7 +229,8 @@
             <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-wallet"></i></span>
             消費統計
         </h1>
-        <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden">
+        
+        <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden anim-card-entry">
             <div class="absolute top-0 right-0 w-32 h-32" style="background-color: var(--primary-normal); opacity: 0.15; border-radius: 9999px; margin-right: -4rem; margin-top: -4rem; filter: blur(3rem);"></div>
             <div class="flex justify-between items-start relative z-10">
                 <div>
@@ -200,10 +241,23 @@
                 <button onclick="calculateAllExpenses()" class="text-white hover:text-gray-300 transition active:scale-95"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
-        <div class="grid grid-cols-3 gap-3 mb-8">
-            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center"><div class="text-2xl mb-1">🐦</div><div class="text-xs text-gray-400 font-bold">Dove</div><div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-bird">¥0</div></div>
-            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center"><div class="text-2xl mb-1">🐷</div><div class="text-xs text-gray-400 font-bold">Pig</div><div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-pig">¥0</div></div>
-            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center"><div class="text-2xl mb-1">🐷🐦</div><div class="text-xs text-gray-400 font-bold">Shared</div><div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-shared">¥0</div></div>
+
+        <div class="grid grid-cols-3 gap-3 mb-8 anim-card-entry" style="animation-delay: 0.1s;">
+            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-blue-300">
+                <div class="text-2xl mb-1">🐦</div>
+                <div class="text-xs text-gray-400 font-bold">Dove</div>
+                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-bird">¥0</div>
+            </div>
+            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-pink-300">
+                <div class="text-2xl mb-1">🐷</div>
+                <div class="text-xs text-gray-400 font-bold">Pig</div>
+                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-pig">¥0</div>
+            </div>
+            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-yellow-300">
+                <div class="text-2xl mb-1">🐷🐦</div>
+                <div class="text-xs text-gray-400 font-bold">Shared</div>
+                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-shared">¥0</div>
+            </div>
         </div>
         <div id="expense-full-list" class="space-y-3 pb-20"></div>
     </div>
@@ -231,6 +285,7 @@
                         <input type="time" id="new-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
+                
                 <div class="flex gap-2">
                     <select id="new-category" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                         <option value="FOOD">🍴 餐飲</option>
@@ -251,6 +306,7 @@
                         <option value="plane">✈️ 飛機</option>
                     </select>
                 </div>
+
                 <input type="text" id="new-title" placeholder="行程標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
                 <input type="text" id="new-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                 <textarea id="new-content" placeholder="備註..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
@@ -273,6 +329,7 @@
                         <input type="time" id="edit-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
+                
                 <div class="flex gap-2">
                     <select id="edit-category" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                         <option value="FOOD">🍴 餐飲</option>
@@ -293,6 +350,7 @@
                         <option value="plane">✈️ 飛機</option>
                     </select>
                 </div>
+
                 <input type="text" id="edit-title" placeholder="標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
                 <input type="text" id="edit-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                 <textarea id="edit-content" placeholder="詳細內容..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
@@ -308,15 +366,66 @@
         </div>
     </div>
 
-    <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()"><div class="flex justify-between items-start mb-4"><h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2><button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600 active:scale-95"><i class="fas fa-times text-xl"></i></button></div><div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div><div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-inner"><div class="flex gap-2 mb-2"><select id="expense-payer" class="input-focus w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none shrink-0"><option value="bird">🐦</option><option value="pig">🐷</option><option value="shared">🐷🐦</option></select><input type="text" id="expense-desc" placeholder="品項" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm"></div><div class="flex gap-2"><select id="expense-currency" class="input-focus w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0"><option value="JPY">JPY</option><option value="TWD">TWD</option></select><input type="number" id="expense-amount" placeholder="金額" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold"><button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow-md hover:bg-yellow-600 shrink-0 active:scale-95"><i class="fas fa-plus"></i></button></div></div><input type="hidden" id="expense-item-id"></div></div>
-    <div id="rate-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('rate-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()"><h2 class="text-xl font-bold mb-2">匯率設定</h2><div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-inner"><span class="text-lg font-bold text-gray-400">×</span><input type="number" step="0.0001" id="exchange-rate-input" class="input-focus flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none"></div><div class="flex justify-end mt-6"><button onclick="saveExchangeRate()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95">儲存</button></div></div></div>
+    <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-start mb-4">
+                <h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2>
+                <button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600 active:scale-95"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div>
+            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-inner">
+                <div class="flex gap-2 mb-2">
+                    <select id="expense-payer" class="input-focus w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none shrink-0">
+                        <option value="bird">🐦</option>
+                        <option value="pig">🐷</option>
+                        <option value="shared">🐷🐦</option>
+                    </select>
+                    <input type="text" id="expense-desc" placeholder="品項" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm">
+                </div>
+                <div class="flex gap-2">
+                    <select id="expense-currency" class="input-focus w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0">
+                        <option value="JPY">JPY</option>
+                        <option value="TWD">TWD</option>
+                    </select>
+                    <input type="number" id="expense-amount" placeholder="金額" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold">
+                    <button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow-md hover:bg-yellow-600 shrink-0 active:scale-95">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" id="expense-item-id">
+        </div>
+    </div>
+    
+    <div id="rate-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('rate-modal')">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
+            <h2 class="text-xl font-bold mb-2">匯率設定</h2>
+            <div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-inner">
+                <span class="text-lg font-bold text-gray-400">×</span>
+                <input type="number" step="0.0001" id="exchange-rate-input" class="input-focus flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none">
+            </div>
+            <div class="flex justify-end mt-6">
+                <button onclick="saveExchangeRate()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95">儲存</button>
+            </div>
+        </div>
+    </div>
 
     <div class="fixed-footer text-gray-400">
-        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-map-marked-alt text-xl mb-1"></i><span class="text-[9px] font-bold">行程</span></button>
-        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-map text-xl mb-1"></i><span class="text-[9px] font-bold">地圖</span></button>
-        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="glow-btn text-white w-16 h-16 rounded-full flex items-center justify-center -mt-10 cursor-pointer active:scale-90 transition-transform border-4 border-white shadow-xl shadow-[var(--primary-light)]"><i class="fas fa-plus text-xl"></i></div>
-        <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors active:scale-90"><i class="fas fa-wallet text-xl mb-1"></i><span class="text-[9px] font-bold">花費</span></button>
-        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-clipboard-list text-xl mb-1"></i><span class="text-[9px] font-bold">清單</span></button>
+        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[var(--primary-normal)] transition-colors active:scale-90">
+            <i class="fas fa-map-marked-alt text-xl mb-1"></i><span class="text-[9px] font-bold">行程</span>
+        </button>
+        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90">
+            <i class="fas fa-map text-xl mb-1"></i><span class="text-[9px] font-bold">地圖</span>
+        </button>
+        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="glow-btn text-white w-16 h-16 rounded-full flex items-center justify-center -mt-10 cursor-pointer active:scale-90 transition-transform border-4 border-white shadow-xl shadow-[var(--primary-light)] anim-pulse">
+            <i class="fas fa-plus text-xl"></i>
+        </div>
+        <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors active:scale-90">
+            <i class="fas fa-wallet text-xl mb-1"></i><span class="text-[9px] font-bold">花費</span>
+        </button>
+        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90">
+            <i class="fas fa-clipboard-list text-xl mb-1"></i><span class="text-[9px] font-bold">清單</span>
+        </button>
     </div>
 
 <script>
@@ -406,6 +515,7 @@
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
         const loading = document.getElementById('loading-status');
+        loading.style.transition = 'opacity 0.3s ease'; 
         loading.style.opacity = '1';
 
         firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
@@ -413,7 +523,7 @@
             renderSchedule();
             calculateDailyCost();
             if (!document.getElementById('map-page').classList.contains('hidden')) initMap(); 
-            setTimeout(() => { loading.style.opacity = '0'; }, 300); 
+            setTimeout(() => { loading.style.opacity = '0'; }, 500); 
         });
     }
 
@@ -438,15 +548,13 @@
     function renderSchedule() {
         const container = document.getElementById('schedule-container');
         container.innerHTML = ''; 
-        if (currentItems.length === 0) { 
-            container.innerHTML = `<div class="text-center text-gray-400 py-10">點擊下方 + 新增行程</div>`; 
-            return; 
-        }
-        currentItems.forEach(item => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item)));
+        if (currentItems.length === 0) { container.innerHTML = `<div class="text-center text-gray-400 py-10">點擊下方 + 新增行程</div>`; return; }
+        // 傳入 index 以實現交錯動畫
+        currentItems.forEach((item, index) => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item, index)));
         initSortable();
     }
 
-    function createScheduleItemHTML(item) {
+    function createScheduleItemHTML(item, index) {
         const vibe = getCategoryVibe(item.category);
         const expenses = item.expenses || [];
         const totalItemCost = expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0);
@@ -476,14 +584,16 @@
         }
 
         const badgeColor = `background-color: ${vibe.hex}20; color: ${vibe.hex}; border: 1px solid ${vibe.hex}40;`;
+        
+        // 增加延遲動畫樣式
+        const delayStyle = `animation-delay: ${index * 0.1}s`;
 
-        // 關鍵修復：這裡加入了 animate-fade-in 確保動畫執行，且移除了可能導致隱藏的 CSS
         return `
-            <div class="flex gap-3 items-stretch group relative select-none cursor-grab animate-fade-in" data-id="${item.id}">
+            <div class="flex gap-3 items-stretch group relative select-none cursor-grab anim-card-entry" style="${delayStyle}" data-id="${item.id}">
                 <div class="flex flex-col items-center pt-1 min-w-[3.5rem]">
                     ${timeHTML}
                 </div>
-                <div class="flex-1 soft-card-glow transition-all active:scale-[0.98]">
+                <div class="flex-1 soft-card-glow relative overflow-hidden transition-all active:scale-[0.98]">
                     <div class="p-4">
                         <div class="flex justify-between items-start">
                             <div>
@@ -505,9 +615,7 @@
     
     function calculateDailyCost() {
         let total = 0;
-        if(currentItems && currentItems.length > 0) {
-            currentItems.forEach(item => { if(item.expenses) total += item.expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0); });
-        }
+        currentItems.forEach(item => { if(item.expenses) total += item.expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0); });
         const el = document.getElementById('header-daily-cost');
         if(el) el.textContent = `¥ ${total.toLocaleString()}`;
     }
@@ -532,7 +640,7 @@
                         });
                     }
                 });
-                if (dayTotal > 0) htmlContent += `<div class="bg-white rounded-xl p-4 soft-card-shadow border-t-4 border-gray-300 mb-4"><div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-200"><h3 class="font-bold text-lg text-gray-800">Day ${i}</h3><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-lg">Total: ¥${dayTotal.toLocaleString()}</span></div><div>${dayHTML}</div></div>`;
+                if (dayTotal > 0) htmlContent += `<div class="bg-white rounded-xl p-4 soft-card-shadow border-t-4 border-gray-300 mb-4 anim-card-entry"><div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-200"><h3 class="font-bold text-lg text-gray-800">Day ${i}</h3><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-lg">Total: ¥${dayTotal.toLocaleString()}</span></div><div>${dayHTML}</div></div>`;
             }
         }
         document.getElementById('total-trip-jpy').textContent = `¥ ${grandTotal.toLocaleString()}`;
@@ -548,19 +656,15 @@
         slider.innerHTML = '';
         tripDates.forEach(d => {
             const active = d.day === currentDay;
-            // 修正：使用 rgba 確保透明度正確
             const activeClass = active 
-                ? 'bg-[var(--primary-normal)] text-white shadow-lg shadow-purple-500/30 scale-105 border border-transparent' 
-                : 'text-white border border-white/30 hover:bg-white/10';
+                ? 'bg-[var(--primary-normal)] text-white shadow-lg shadow-purple-500/30 scale-105 border border-transparent active' 
+                : 'bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/30';
             
-            // 加入 inline style 確保玻璃效果
-            const glassStyle = active ? '' : 'background-color: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);';
-
             slider.insertAdjacentHTML('beforeend', `
-                <div class="flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95 ${activeClass}" style="${glassStyle}" onclick="switchDay(${d.day})">
-                    <div class="text-[10px] font-bold ${active ? 'opacity-90' : 'opacity-90'}">${d.week}</div>
+                <div class="date-slider-item flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95 ${activeClass}" onclick="switchDay(${d.day})">
+                    <div class="text-[10px] font-bold ${active ? 'opacity-90' : 'opacity-80'}">${d.week}</div>
                     <div class="text-xl font-black leading-none">${d.date}</div>
-                    <div class="text-[8px] font-medium mt-1 truncate max-w-[90%] ${active ? 'text-white/80' : 'text-white/80'}">${d.label}</div>
+                    <div class="text-[8px] font-medium mt-1 truncate max-w-[90%] ${active ? 'text-white/80' : 'text-white/70'}">${d.label}</div>
                 </div>`);
         });
     }
@@ -662,7 +766,7 @@
     }
 
     function showModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); document.getElementById(id).classList.add('closing'); setTimeout(() => { document.getElementById(id).classList.remove('closing'); }, 200); }
     function openExpenseModal(itemId) { const item = currentItems.find(i => i.id === itemId); if(!item) return; document.getElementById('expense-modal-title').textContent = item.title; document.getElementById('expense-item-id').value = itemId; document.getElementById('expense-desc').value = ''; document.getElementById('expense-amount').value = ''; document.getElementById('expense-currency').value = 'JPY'; renderExpenseList(item.expenses || []); showModal('expense-modal'); }
     
     function prepareEdit(id) { 
@@ -705,15 +809,15 @@
     async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
     async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
 
-    // 自動修正標題高度
+    // 自動計算 Header 高度，讓內容剛好接在下面
     function adjustContentPadding() {
         const h = document.getElementById('main-header');
         const p = document.getElementById('schedule-page');
         if(h && p) {
-            // 偵測高度並自動加上適當間距
-            const headerHeight = h.offsetHeight;
-            p.style.paddingTop = (headerHeight + 5) + 'px';
+            // 自動偵測高度，並加上 5px 緩衝
+            p.style.paddingTop = (h.offsetHeight + 5) + 'px';
         }
+        // 確保所有頁面的底部 padding 能容納懸浮 footer
         document.querySelectorAll('.page-content').forEach(page => page.style.paddingBottom = '90px'); 
     }
 
