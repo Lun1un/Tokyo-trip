@@ -121,6 +121,18 @@
             animation: elastic-slide-up 0.5s ease-out forwards;
             opacity: 0; 
         }
+        
+        /* --- ☁️ 漂浮動畫 (新增) --- */
+        @keyframes float-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .empty-anim-icon {
+            font-size: 3.5rem;
+            display: inline-block;
+            animation: float-bounce 3s ease-in-out infinite;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        }
 
         .map-icon {
             background-color: var(--primary-normal) !important; color: white !important; font-weight: 900; text-align: center; line-height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); width: 30px !important; height: 30px !important; box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4); border: 3px solid white; display: flex !important; align-items: center; justify-content: center; opacity: 1 !important;
@@ -559,7 +571,19 @@
     function renderSchedule() {
         const container = document.getElementById('schedule-container');
         container.innerHTML = ''; 
-        if (currentItems.length === 0) { container.innerHTML = `<div class="text-center text-gray-400 py-10">點擊下方 + 新增行程</div>`; return; }
+        if (currentItems.length === 0) { 
+            // ✨ 修改：加入漂浮動畫
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-24 opacity-80 select-none">
+                    <div class="flex gap-6 mb-4">
+                        <span class="empty-anim-icon" style="animation-delay: 0s">🐦</span>
+                        <span class="empty-anim-icon" style="animation-delay: 0.2s">✈️</span>
+                        <span class="empty-anim-icon" style="animation-delay: 0.4s">🐷</span>
+                    </div>
+                    <div class="text-gray-400 font-bold text-sm tracking-widest uppercase">點擊下方 + 開始規劃</div>
+                </div>`;
+            return; 
+        }
         currentItems.forEach((item, index) => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item, index)));
         initSortable();
         
