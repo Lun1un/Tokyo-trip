@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (交通工具版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (功能強化版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -115,6 +115,26 @@
         }
         
         #map-page .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 80px !important; }
+
+        /* 自定義地圖按鈕樣式 */
+        .leaflet-control-custom-btn {
+            background-color: white;
+            width: 34px;
+            height: 34px;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4b5563;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        .leaflet-control-custom-btn:hover {
+            background-color: #f3f4f6;
+            color: var(--primary-normal);
+        }
     </style>
 </head>
 <body class="text-gray-700">
@@ -235,24 +255,28 @@
                         <input type="time" id="new-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
-                <select id="new-transport" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                    <option value="">選擇交通工具 (選填)</option>
-                    <option value="walk">🚶 步行</option>
-                    <option value="car">🚗 開車</option>
-                    <option value="taxi">🚕 計程車</option>
-                    <option value="bus">🚌 公車</option>
-                    <option value="subway">🚇 地鐵</option>
-                    <option value="skyliner">🚅 Skyliner</option>
-                    <option value="plane">✈️ 飛機</option>
-                </select>
-                <select id="new-category" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                    <option value="FOOD">🍴 餐飲</option>
-                    <option value="SHOPPING">🛍 購物</option>
-                    <option value="SIGHTSEEING">⛩ 景點</option>
-                    <option value="TRANSPORT">🚄 交通</option>
-                    <option value="HOTEL">🏨 住宿</option>
-                    <option value="OTHER">💡 其他</option>
-                </select>
+                
+                <div class="flex gap-2">
+                    <select id="new-category" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        <option value="FOOD">🍴 餐飲</option>
+                        <option value="SHOPPING">🛍 購物</option>
+                        <option value="SIGHTSEEING">⛩ 景點</option>
+                        <option value="TRANSPORT">🚄 交通</option>
+                        <option value="HOTEL">🏨 住宿</option>
+                        <option value="OTHER">💡 其他</option>
+                    </select>
+                    <select id="new-transport" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        <option value="">(交通方式)</option>
+                        <option value="walk">🚶 步行</option>
+                        <option value="car">🚗 開車</option>
+                        <option value="taxi">🚕 計程車</option>
+                        <option value="bus">🚌 公車</option>
+                        <option value="subway">🚇 地鐵</option>
+                        <option value="skyliner">🚅 Skyliner</option>
+                        <option value="plane">✈️ 飛機</option>
+                    </select>
+                </div>
+
                 <input type="text" id="new-title" placeholder="行程標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
                 <input type="text" id="new-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                 <textarea id="new-content" placeholder="備註..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
@@ -275,24 +299,28 @@
                         <input type="time" id="edit-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
-                <select id="edit-transport" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                    <option value="">選擇交通工具 (選填)</option>
-                    <option value="walk">🚶 步行</option>
-                    <option value="car">🚗 開車</option>
-                    <option value="taxi">🚕 計程車</option>
-                    <option value="bus">🚌 公車</option>
-                    <option value="subway">🚇 地鐵</option>
-                    <option value="skyliner">🚅 Skyliner</option>
-                    <option value="plane">✈️ 飛機</option>
-                </select>
-                <select id="edit-category" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                    <option value="FOOD">🍴 餐飲</option>
-                    <option value="SHOPPING">🛍 購物</option>
-                    <option value="SIGHTSEEING">⛩ 景點</option>
-                    <option value="TRANSPORT">🚄 交通</option>
-                    <option value="HOTEL">🏨 住宿</option>
-                    <option value="OTHER">💡 其他</option>
-                </select>
+                
+                <div class="flex gap-2">
+                    <select id="edit-category" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        <option value="FOOD">🍴 餐飲</option>
+                        <option value="SHOPPING">🛍 購物</option>
+                        <option value="SIGHTSEEING">⛩ 景點</option>
+                        <option value="TRANSPORT">🚄 交通</option>
+                        <option value="HOTEL">🏨 住宿</option>
+                        <option value="OTHER">💡 其他</option>
+                    </select>
+                    <select id="edit-transport" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                        <option value="">(交通方式)</option>
+                        <option value="walk">🚶 步行</option>
+                        <option value="car">🚗 開車</option>
+                        <option value="taxi">🚕 計程車</option>
+                        <option value="bus">🚌 公車</option>
+                        <option value="subway">🚇 地鐵</option>
+                        <option value="skyliner">🚅 Skyliner</option>
+                        <option value="plane">✈️ 飛機</option>
+                    </select>
+                </div>
+
                 <input type="text" id="edit-title" placeholder="標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
                 <input type="text" id="edit-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                 <textarea id="edit-content" placeholder="詳細內容..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
@@ -381,6 +409,7 @@
     let firestoreTitlesListener = null;
     let mapInstance = null;
     let markers = [];
+    let routeOrigin = null; // 用於儲存點對點導航的起點
     
     let tripDates = [
         { day: 1, label: 'Day 1 出發', week: 'WED', date: '04' },
@@ -613,10 +642,30 @@
     }
 
     async function initMap() {
-        if (!mapInstance) { mapInstance = L.map('map').setView([35.6895, 139.6917], 11); L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(mapInstance); }
+        if (!mapInstance) { 
+            mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
+            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(mapInstance); 
+            
+            // ★★★ 新增：定位按鈕 ★★★
+            const locBtn = L.Control.extend({
+                options: { position: 'bottomright' },
+                onAdd: function(map) {
+                    const btn = L.DomUtil.create('div', 'leaflet-control-custom-btn');
+                    btn.innerHTML = '<i class="fas fa-crosshairs"></i>';
+                    btn.onclick = () => { map.locate({setView: true, maxZoom: 16}); };
+                    return btn;
+                }
+            });
+            mapInstance.addControl(new locBtn());
+            
+            mapInstance.on('locationfound', (e) => {
+                L.circleMarker(e.latlng, { radius: 8, color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.8 }).addTo(mapInstance).bindPopup("目前位置").openPopup();
+            });
+        }
+        
         markers.forEach(m => mapInstance.removeLayer(m)); markers = [];
         const locations = currentItems.filter(i => i.location);
-        if (locations.length === 0) { mapInstance.setView([35.6895, 139.6917], 11); return; }
+        
         let bounds = L.latLngBounds();
         for (let index = 0; index < locations.length; index++) {
             const item = locations[index];
@@ -626,13 +675,49 @@
                 if (data && data.length > 0) {
                     const lat = data[0].lat; const lon = data[0].lon;
                     const customIcon = L.divIcon({ className: 'map-icon', html: (index + 1).toString(), iconSize: [28, 28], iconAnchor: [14, 14] });
-                    const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance).bindPopup(`<b>${index + 1}. ${item.title}</b><br>${item.location}<br><span class="text-gray-500">${item.startTime}</span>`);
+                    const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance);
+                    
+                    // ★★★ 新增：點對點導航邏輯 ★★★
+                    // 在 Popup 中加入按鈕
+                    const popupContent = `
+                        <div class="text-center">
+                            <b>${index + 1}. ${item.title}</b><br>${item.location}<br>
+                            <span class="text-gray-500 text-xs">${item.startTime}</span><br>
+                            <div class="mt-2 flex gap-2 justify-center">
+                                <button onclick="setRouteOrigin(${lat}, ${lon}, '${item.title}')" class="bg-blue-500 text-white px-2 py-1 rounded text-xs">🚩 設為起點</button>
+                                <button onclick="navigateHere(${lat}, ${lon})" class="bg-green-500 text-white px-2 py-1 rounded text-xs">🏁 導航至此</button>
+                            </div>
+                        </div>
+                    `;
+                    marker.bindPopup(popupContent);
+                    
                     markers.push(marker); bounds.extend([lat, lon]);
                 }
             } catch (e) {} await new Promise(r => setTimeout(r, 800)); 
         }
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
     }
+    
+    // ★★★ 導航相關函式 ★★★
+    window.setRouteOrigin = (lat, lon, title) => {
+        routeOrigin = { lat, lon };
+        alert(`已設定「${title}」為起點！請點擊另一個地標選擇「導航至此」。`);
+        mapInstance.closePopup();
+    };
+    
+    window.navigateHere = (lat, lon) => {
+        if (!routeOrigin) {
+            // 如果沒有設定起點，預設從「目前位置」導航 (Google Maps 預設行為)
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
+            window.open(url, '_blank');
+        } else {
+            // 如果有設定起點，進行點對點導航
+            const url = `https://www.google.com/maps/dir/?api=1&origin=${routeOrigin.lat},${routeOrigin.lon}&destination=${lat},${lon}`;
+            window.open(url, '_blank');
+            routeOrigin = null; // 重置起點
+        }
+        mapInstance.closePopup();
+    };
 
     function getCategoryVibe(category) {
         const map = { 
@@ -670,7 +755,6 @@
         document.getElementById('edit-location').value = item.location || ''; 
         document.getElementById('edit-content').value = item.content || ''; 
         document.getElementById('edit-category').value = item.category;
-        // 載入交通工具
         document.getElementById('edit-transport').value = item.transport || ''; 
         document.getElementById('editing-item-id').value = id; 
         showModal('edit-modal'); 
@@ -683,15 +767,15 @@
     async function removeExpense(i) { const id=document.getElementById('expense-item-id').value, idx=currentItems.findIndex(x=>x.id===id); if(idx===-1)return; currentItems[idx].expenses.splice(i,1); renderExpenseList(currentItems[idx].expenses); await saveScheduleToFirestore(currentItems); renderSchedule(); calculateDailyCost(); }
     
     async function addScheduleItem() { 
-        const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value, trans=document.getElementById('new-transport').value; // 取得交通工具
+        const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value, trans=document.getElementById('new-transport').value; 
         if(!t)return alert("請輸入標題"); 
-        currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,transport:trans,expenses:[]}); // 儲存交通工具
+        currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,transport:trans,expenses:[]}); 
         currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); await saveScheduleToFirestore(currentItems); closeModal('add-modal'); document.getElementById('new-title').value=''; 
     }
     
     async function saveEdit() { 
         const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; 
-        currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value, transport:document.getElementById('edit-transport').value}; // 更新交通工具
+        currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value, transport:document.getElementById('edit-transport').value}; 
         await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); 
     }
     
