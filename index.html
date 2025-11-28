@@ -62,7 +62,7 @@
         /* --- ⌨️ 打字機特效 (修正版) --- */
         @keyframes typing {
             from { width: 0; }
-            to { width: 9em; } /* 修正：設定為文字的大約寬度，而不是 100% */
+            to { width: 8em; } /* 修正：設定為 8em */
         }
         @keyframes blink-caret {
             from, to { border-color: transparent; }
@@ -74,7 +74,7 @@
             border-right: 2px solid white;
             width: 0;
             animation: 
-                typing 2s steps(20, end) forwards, /* steps 稍微調低一點讓節奏更對 */
+                typing 2s steps(20, end) forwards,
                 blink-caret 0.75s step-end infinite;
             display: inline-block;
             vertical-align: bottom;
@@ -298,8 +298,8 @@
         </h1>
 
         <div class="bg-gray-100 p-1 rounded-xl flex gap-1 mb-4 shadow-inner">
-            <button id="check-tab-bird" onclick="switchChecklistTab('bird')" class="flex-1 py-2 text-sm font-bold rounded-lg transition-all check-tab-active">🐦 鳥的</button>
-            <button id="check-tab-pig" onclick="switchChecklistTab('pig')" class="flex-1 py-2 text-sm font-bold rounded-lg transition-all check-tab-inactive">🐷 豬的</button>
+            <button id="check-tab-bird" onclick="switchChecklistTab('bird')" class="flex-1 py-2 text-lg font-bold rounded-lg transition-all check-tab-active">🐦</button>
+            <button id="check-tab-pig" onclick="switchChecklistTab('pig')" class="flex-1 py-2 text-lg font-bold rounded-lg transition-all check-tab-inactive">🐷</button>
         </div>
 
         <div class="flex gap-3 mb-6 w-full">
@@ -773,8 +773,8 @@
     // --- Checklist Logic Update with Tabs ---
     function switchChecklistTab(owner) {
         currentChecklistOwner = owner;
-        document.getElementById('check-tab-bird').className = owner === 'bird' ? 'flex-1 py-2 text-sm font-bold rounded-lg transition-all check-tab-active' : 'flex-1 py-2 text-sm font-bold rounded-lg transition-all check-tab-inactive';
-        document.getElementById('check-tab-pig').className = owner === 'pig' ? 'flex-1 py-2 text-sm font-bold rounded-lg transition-all check-tab-active' : 'flex-1 py-2 text-sm font-bold rounded-lg transition-all check-tab-inactive';
+        document.getElementById('check-tab-bird').className = owner === 'bird' ? 'flex-1 py-2 text-lg font-bold rounded-lg transition-all check-tab-active' : 'flex-1 py-2 text-lg font-bold rounded-lg transition-all check-tab-inactive';
+        document.getElementById('check-tab-pig').className = owner === 'pig' ? 'flex-1 py-2 text-lg font-bold rounded-lg transition-all check-tab-active' : 'flex-1 py-2 text-lg font-bold rounded-lg transition-all check-tab-inactive';
         renderChecklist(); 
     }
 
