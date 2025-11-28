@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="app-title">東京遛豬之旅 2026 (完美距離版)</title>
+    <title id="app-title">東京遛豬之旅 2026 (交通工具版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -34,14 +34,12 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* 增加底部 padding 以容納新的懸浮 footer */
         .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 7rem; } 
         .page-content.hidden { opacity: 0; display: none !important; }
 
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* Header 背景圖 */
         .fixed-header-bg {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
             background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
@@ -59,27 +57,24 @@
             z-index: -1; backdrop-filter: blur(2px);
         }
 
-        /* ★★★ 底部導覽列 (Footer) 樣式修改：膠囊狀、懸浮底部 ★★★ */
         .fixed-footer { 
             position: fixed; 
             bottom: 0; 
-            /* 讓它置中並懸浮 */
             left: 50%;
             transform: translateX(-50%);
             max-width: 90%; 
-            margin: 0 auto 15px auto; /* 底部間距 15px */
+            margin: 0 auto 15px auto; 
             z-index: 1001; 
             background-color: white; 
-            border-radius: 2rem; /* 四邊都是圓角 */
-            box-shadow: 0 5px 25px rgba(0,0,0,0.15); /* 增加陰影，更像懸浮 */
-            height: 68px; /* 稍微縮小高度 */
+            border-radius: 2rem; 
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15); 
+            height: 68px; 
             display: flex; 
             align-items: center; 
             justify-content: space-around; 
-            padding: 0 5px; /* 微調內邊距 */
+            padding: 0 5px; 
         }
 
-        /* 內容 padding 調整 */
         #schedule-page { padding-top: 210px; } 
         #expense-page, #checklist-page { padding-top: 30px; } 
         #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
@@ -119,11 +114,7 @@
             color: white;
         }
         
-        /* ★★★ 修正：地圖縮放按鈕被今日路線遮蔽的問題 ★★★ */
-        /* 將 Leaflet 的左上角控制項往下推，確保在固定標頭下方 */
-        #map-page .leaflet-control-container .leaflet-top.leaflet-left {
-            margin-top: 80px !important; 
-        }
+        #map-page .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 80px !important; }
     </style>
 </head>
 <body class="text-gray-700">
@@ -244,6 +235,16 @@
                         <input type="time" id="new-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
+                <select id="new-transport" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                    <option value="">選擇交通工具 (選填)</option>
+                    <option value="walk">🚶 步行</option>
+                    <option value="car">🚗 開車</option>
+                    <option value="taxi">🚕 計程車</option>
+                    <option value="bus">🚌 公車</option>
+                    <option value="subway">🚇 地鐵</option>
+                    <option value="skyliner">🚅 Skyliner</option>
+                    <option value="plane">✈️ 飛機</option>
+                </select>
                 <select id="new-category" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                     <option value="FOOD">🍴 餐飲</option>
                     <option value="SHOPPING">🛍 購物</option>
@@ -274,6 +275,16 @@
                         <input type="time" id="edit-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
                     </div>
                 </div>
+                <select id="edit-transport" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+                    <option value="">選擇交通工具 (選填)</option>
+                    <option value="walk">🚶 步行</option>
+                    <option value="car">🚗 開車</option>
+                    <option value="taxi">🚕 計程車</option>
+                    <option value="bus">🚌 公車</option>
+                    <option value="subway">🚇 地鐵</option>
+                    <option value="skyliner">🚅 Skyliner</option>
+                    <option value="plane">✈️ 飛機</option>
+                </select>
                 <select id="edit-category" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                     <option value="FOOD">🍴 餐飲</option>
                     <option value="SHOPPING">🛍 購物</option>
@@ -445,7 +456,6 @@
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
         const loading = document.getElementById('loading-status');
-        // 確保過渡效果存在並顯示載入狀態
         loading.style.transition = 'opacity 0.3s ease'; 
         loading.style.opacity = '1';
 
@@ -454,11 +464,7 @@
             renderSchedule();
             calculateDailyCost();
             if (!document.getElementById('map-page').classList.contains('hidden')) initMap(); 
-            
-            // ★★★ 解決：資料同步中不會消失的問題，使用 setTimeout 確保平滑淡出 ★★★
-            setTimeout(() => {
-                loading.style.opacity = '0';
-            }, 500); // 延遲 500ms 進行淡出
+            setTimeout(() => { loading.style.opacity = '0'; }, 500); 
         });
     }
 
@@ -504,6 +510,19 @@
         const costBadge = totalItemCost > 0 ? `<div class="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold border border-yellow-100 mt-2 inline-block">¥ ${totalItemCost.toLocaleString()}</div>` : '';
         let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 mt-1 font-bold hover:text-[var(--primary-normal)] hover:underline block" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
+        // 交通工具顯示
+        let transportHTML = '';
+        if (item.transport) {
+            const transportMap = {
+                'walk': '🚶', 'car': '🚗', 'taxi': '🚕', 'bus': '🚌', 
+                'subway': '🚇', 'skyliner': '🚅', 'plane': '✈️'
+            };
+            const icon = transportMap[item.transport] || '';
+            if(icon) {
+                transportHTML = `<span class="inline-block text-sm ml-2 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200 text-gray-600">${icon}</span>`;
+            }
+        }
+
         const glowStyle = `
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             border: 2px solid var(--primary-light);
@@ -522,7 +541,8 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-1" style="${badgeColor}">${vibe.label}</span>
-                                <h3 class="font-extrabold text-gray-800 text-lg leading-tight">${item.title}</h3>
+                                ${transportHTML}
+                                <h3 class="font-extrabold text-gray-800 text-lg leading-tight mt-1">${item.title}</h3>
                             </div>
                             <div class="flex gap-1">
                                 <button class="expense-btn w-8 h-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center hover:bg-yellow-100 transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-wallet"></i></button>
@@ -579,7 +599,6 @@
         slider.innerHTML = '';
         tripDates.forEach(d => {
             const active = d.day === currentDay;
-            // 修正：未選中狀態改為明顯的半透明黑/白，選中時維持紫色
             const activeClass = active 
                 ? 'bg-[var(--primary-normal)] text-white shadow-lg shadow-purple-500/30 scale-105 border border-transparent' 
                 : 'bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/30';
@@ -642,14 +661,40 @@
     function showModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
     function openExpenseModal(itemId) { const item = currentItems.find(i => i.id === itemId); if(!item) return; document.getElementById('expense-modal-title').textContent = item.title; document.getElementById('expense-item-id').value = itemId; document.getElementById('expense-desc').value = ''; document.getElementById('expense-amount').value = ''; document.getElementById('expense-currency').value = 'JPY'; renderExpenseList(item.expenses || []); showModal('expense-modal'); }
-    function prepareEdit(id) { const item = currentItems.find(i => i.id === id); if (!item) return; document.getElementById('edit-start-time').value = item.startTime; document.getElementById('edit-end-time').value = item.endTime || ''; document.getElementById('edit-title').value = item.title; document.getElementById('edit-location').value = item.location || ''; document.getElementById('edit-content').value = item.content || ''; document.getElementById('edit-category').value = item.category; document.getElementById('editing-item-id').value = id; showModal('edit-modal'); }
+    
+    function prepareEdit(id) { 
+        const item = currentItems.find(i => i.id === id); if (!item) return; 
+        document.getElementById('edit-start-time').value = item.startTime; 
+        document.getElementById('edit-end-time').value = item.endTime || ''; 
+        document.getElementById('edit-title').value = item.title; 
+        document.getElementById('edit-location').value = item.location || ''; 
+        document.getElementById('edit-content').value = item.content || ''; 
+        document.getElementById('edit-category').value = item.category;
+        // 載入交通工具
+        document.getElementById('edit-transport').value = item.transport || ''; 
+        document.getElementById('editing-item-id').value = id; 
+        showModal('edit-modal'); 
+    }
+    
     function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
 
     function renderExpenseList(expenses) { const c = document.getElementById('expense-list'); c.innerHTML = ''; expenses.forEach((ex, i) => { const icon = ex.payer==='bird'?'🐦':(ex.payer==='pig'?'🐷':'🐷🐦'); c.insertAdjacentHTML('beforeend', `<div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm"><div class="flex gap-2 items-center overflow-hidden flex-1 min-w-0"><span class="text-lg shrink-0">${icon}</span><span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span></div><div class="flex items-center gap-3 shrink-0 ml-2"><span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span><button onclick="removeExpense(${i})" class="text-red-300 hover:text-red-500 active:scale-95"><i class="fas fa-times"></i></button></div></div>`); }); }
     async function addExpenseToItem() { const id=document.getElementById('expense-item-id').value, payer=document.getElementById('expense-payer').value, cur=document.getElementById('expense-currency').value; let desc=document.getElementById('expense-desc').value||'未分類', amt=parseInt(document.getElementById('expense-amount').value); if(isNaN(amt)||amt<=0)return; const idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; if(cur==='TWD'){ const old=amt; amt=Math.round(amt/exchangeRate); desc+=` (TWD ${old})`; } if(!currentItems[idx].expenses)currentItems[idx].expenses=[]; currentItems[idx].expenses.push({description:desc,amount:amt,payer:payer}); renderExpenseList(currentItems[idx].expenses); document.getElementById('expense-desc').value=''; document.getElementById('expense-amount').value=''; await saveScheduleToFirestore(currentItems); renderSchedule(); calculateDailyCost(); }
     async function removeExpense(i) { const id=document.getElementById('expense-item-id').value, idx=currentItems.findIndex(x=>x.id===id); if(idx===-1)return; currentItems[idx].expenses.splice(i,1); renderExpenseList(currentItems[idx].expenses); await saveScheduleToFirestore(currentItems); renderSchedule(); calculateDailyCost(); }
-    async function addScheduleItem() { const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value; if(!t)return alert("請輸入標題"); currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,expenses:[]}); currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); await saveScheduleToFirestore(currentItems); closeModal('add-modal'); document.getElementById('new-title').value=''; }
-    async function saveEdit() { const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value}; await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
+    
+    async function addScheduleItem() { 
+        const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value, trans=document.getElementById('new-transport').value; // 取得交通工具
+        if(!t)return alert("請輸入標題"); 
+        currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,transport:trans,expenses:[]}); // 儲存交通工具
+        currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); await saveScheduleToFirestore(currentItems); closeModal('add-modal'); document.getElementById('new-title').value=''; 
+    }
+    
+    async function saveEdit() { 
+        const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; 
+        currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value, transport:document.getElementById('edit-transport').value}; // 更新交通工具
+        await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); 
+    }
+    
     async function deleteScheduleItem() { if(!confirm('刪除？'))return; const id=document.getElementById('editing-item-id').value; currentItems=currentItems.filter(i=>i.id!==id); await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
     function listenForChecklistUpdates() { if(firestoreChecklistListener)firestoreChecklistListener(); firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); const c=document.getElementById('checklist-container'); c.innerHTML=''; checklistItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 check-text font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})">${i.text}</div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); }); }); }
     async function addChecklistItem() { const v=document.getElementById('checklist-input').value.trim(); if(v){ await db.collection(CHECKLIST_COLLECTION).add({text:v,isCompleted:false,timestamp:firebase.firestore.FieldValue.serverTimestamp()}); document.getElementById('checklist-input').value=''; } }
