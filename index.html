@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (購物攻略版)</title>
+    <title>東京遛豬之旅 2026 (購物相簿版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -42,22 +42,6 @@
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* 圖片查看器 (Lightbox) */
-        #image-viewer-modal {
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
-        #image-viewer-content {
-            max-width: 95%;
-            max-height: 85%;
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease;
-        }
-
         /* --- 🌸 櫻花特效 --- */
         .sakura {
             position: fixed; top: -10%; background-color: #ffd1dc; border-radius: 100% 0 100% 0;
@@ -68,14 +52,14 @@
             100% { top: 100%; transform: translateX(100px) rotate(360deg); opacity: 0; }
         }
 
-        /* --- 🎥 Ken Burns 背景移動特效 --- */
+        /* --- 🎥 Ken Burns --- */
         @keyframes ken-burns {
             0% { transform: scale(1) translate(0, 0); }
             50% { transform: scale(1.1) translate(-2%, 1%); }
             100% { transform: scale(1) translate(0, 0); }
         }
 
-        /* --- ⌨️ 打字機特效 --- */
+        /* --- ⌨️ 打字機 --- */
         @keyframes typing { from { width: 0; } to { width: 8em; } }
         @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: white; } }
         .typewriter-text {
@@ -181,13 +165,43 @@
         }
         .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
         
-        /* 縮圖樣式 */
         .check-thumb {
-            width: 40px; height: 40px; border-radius: 8px; object-fit: cover;
+            width: 45px; height: 45px; border-radius: 8px; object-fit: cover;
             border: 1px solid #e5e7eb; cursor: zoom-in; flex-shrink: 0;
-            transition: transform 0.2s;
+            transition: transform 0.2s; background-color: #f3f4f6;
         }
         .check-thumb:active { transform: scale(0.95); }
+
+        /* 上傳按鈕樣式 */
+        .file-upload-btn {
+            display: flex; align-items: center; justify-content: center;
+            background-color: #f3f4f6; color: #4b5563;
+            border: 2px dashed #d1d5db; border-radius: 0.75rem;
+            padding: 0.75rem; cursor: pointer; transition: all 0.2s;
+            font-size: 0.875rem; font-weight: 500;
+        }
+        .file-upload-btn:hover {
+            border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f9fafb;
+        }
+        .file-upload-btn.has-file {
+            border-style: solid; border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f3e8ff;
+        }
+        
+        /* 圖片查看器 */
+        #image-viewer-modal {
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        #image-viewer-content {
+            max-width: 95%;
+            max-height: 85%;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
     </style>
 </head>
 <body class="text-gray-700">
@@ -300,7 +314,7 @@
         <div id="expense-full-list" class="space-y-3 pb-20"></div>
     </div>
 
-    <!-- 清單頁面 (購物攻略版) -->
+    <!-- 清單頁面 (雙層過濾) -->
     <div id="checklist-page" class="hidden page-content px-4">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2 text-gray-800">
             <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-clipboard-check"></i></span>
@@ -327,21 +341,30 @@
             </button>
         </div>
 
-        <!-- 新增按鈕 (取代原本的輸入框，改成大按鈕) -->
-        <button onclick="showModal('checklist-add-modal')" class="w-full bg-white border-2 border-dashed border-gray-300 rounded-2xl p-4 text-gray-400 font-bold flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-[var(--primary-normal)] hover:text-[var(--primary-normal)] transition-all mb-6">
-            <i class="fas fa-plus-circle text-xl"></i> 新增清單項目
-        </button>
+        <!-- 輸入區域 (根據類型動態切換) -->
+        <div id="input-area-shopping">
+            <button onclick="showModal('checklist-add-modal')" class="w-full bg-white border-2 border-dashed border-gray-300 rounded-2xl p-4 text-gray-400 font-bold flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-[var(--primary-normal)] hover:text-[var(--primary-normal)] transition-all mb-6 shadow-sm active:scale-98">
+                <i class="fas fa-plus-circle text-xl"></i> 新增詳細購物項目
+            </button>
+        </div>
+
+        <div id="input-area-carry" class="hidden">
+            <div class="flex gap-3 mb-6 w-full">
+                <input type="text" id="checklist-input-carry" placeholder="新增攜帶項目 (直接輸入)" class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-white focus:outline-none">
+                <button onclick="addCarryItem()" class="text-white px-4 rounded-xl font-bold shadow-lg shadow-[var(--primary-light)] active:scale-90 transition shrink-0 glow-btn"><i class="fas fa-plus"></i></button>
+            </div>
+        </div>
 
         <div id="checklist-container" class="space-y-3 pb-20"></div>
     </div>
 
-    <!-- ★★★ 新增清單項目 Modal ★★★ -->
+    <!-- ★★★ 新增清單項目 Modal (購物專用) ★★★ -->
     <div id="checklist-add-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('checklist-add-modal')">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
             <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-                <i class="fas fa-cart-plus text-[var(--primary-normal)]"></i> 新增項目
+                <i class="fas fa-cart-plus text-[var(--primary-normal)]"></i> 新增購物項目
             </h2>
-            <div class="space-y-3">
+            <div class="space-y-4">
                 <input type="text" id="check-add-name" placeholder="✨ 物品名稱 (必填)" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
                 
                 <div class="relative">
@@ -349,10 +372,13 @@
                     <input type="text" id="check-add-shop" placeholder="購買地點 (例如: 唐吉訶德)" class="input-focus w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                 </div>
 
-                <div class="relative">
-                    <i class="fas fa-image absolute left-4 top-3.5 text-gray-400"></i>
-                    <input type="text" id="check-add-img" placeholder="圖片連結 (https://...)" class="input-focus w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-blue-500">
-                </div>
+                <!-- 手機圖片上傳 -->
+                <label class="file-upload-btn" id="file-label">
+                    <input type="file" id="check-add-file" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+                    <i class="fas fa-camera mr-2"></i> <span id="file-label-text">上傳照片 (選填)</span>
+                </label>
+                <!-- 預覽區域 -->
+                <div id="file-preview" class="hidden w-full h-32 bg-gray-100 rounded-xl bg-cover bg-center border border-gray-200"></div>
             </div>
             <div class="flex justify-end space-x-3 mt-6">
                 <button onclick="closeModal('checklist-add-modal')" class="px-5 py-2.5 text-gray-500 font-medium rounded-xl hover:bg-gray-100">取消</button>
@@ -444,8 +470,9 @@
     let currentItems = []; 
     let exchangeRate = 0.22; 
     let checklistItems = [];
-    let currentChecklistOwner = 'bird'; // 'bird' or 'pig'
-    let currentChecklistType = 'shopping'; // 'shopping' or 'carry'
+    let currentChecklistOwner = 'bird'; 
+    let currentChecklistType = 'shopping';
+    let currentBase64Image = ''; // Store uploaded image
     let sortableInstance = null;
     let firestoreScheduleListener = null;
     let firestoreChecklistListener = null;
@@ -794,6 +821,7 @@
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
     }
     
+    // ✨ 修改：設定起點時不再跳 alert，改用 showToast
     window.setRouteOrigin = (lat, lon, title) => { 
         routeOrigin = { lat, lon }; 
         showToast(`🚩 已設定「${title}」為起點`); 
@@ -867,6 +895,15 @@
         currentChecklistType = type;
         document.getElementById('check-type-shopping').className = type === 'shopping' ? 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1' : 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1';
         document.getElementById('check-type-carry').className = type === 'carry' ? 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1' : 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1';
+        
+        // ★★★ 切換顯示的輸入區域 ★★★
+        if(type === 'shopping') {
+            document.getElementById('input-area-shopping').style.display = 'block';
+            document.getElementById('input-area-carry').style.display = 'none';
+        } else {
+            document.getElementById('input-area-shopping').style.display = 'none';
+            document.getElementById('input-area-carry').style.display = 'block';
+        }
         renderChecklist();
     }
 
@@ -887,7 +924,7 @@
         filteredItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ 
             const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; 
             let shopHtml = i.shop ? `<div class="text-xs text-gray-400 mt-1 font-bold"><i class="fas fa-map-marker-alt mr-1 text-[var(--primary-normal)]"></i>${i.shop}</div>` : '';
-            let imgHtml = i.imageUrl ? `<img src="${i.imageUrl}" class="check-thumb ml-3" onclick="viewImage('${i.imageUrl}')">` : '';
+            let imgHtml = i.imageBase64 ? `<img src="${i.imageBase64}" class="check-thumb ml-3" onclick="viewImage('${i.imageBase64}')">` : '';
 
             c.insertAdjacentHTML('beforeend', `
                 <div class="check-item flex items-start bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50 items-center">
@@ -910,29 +947,101 @@
         }); 
     }
 
-    // ★★★ 確認新增功能 ★★★
+    // --- 圖片壓縮與上傳邏輯 ---
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            document.getElementById('file-label-text').textContent = '處理中...';
+            compressImage(file).then(base64 => {
+                currentBase64Image = base64;
+                // 更新預覽
+                const preview = document.getElementById('file-preview');
+                preview.style.backgroundImage = `url('${base64}')`;
+                preview.classList.remove('hidden');
+                
+                // 更新按鈕狀態
+                const label = document.getElementById('file-label');
+                label.classList.add('has-file');
+                document.getElementById('file-label-text').textContent = '照片已選取 (可點擊更換)';
+            });
+        }
+    }
+
+    function compressImage(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // 設定最大寬度，等比縮放
+                    const MAX_WIDTH = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // 輸出為 JPEG，品質 0.7 (兼顧畫質與大小)
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+            };
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    // ★★★ 確認新增功能 (購物清單) ★★★
     async function confirmAddChecklist() {
         const name = document.getElementById('check-add-name').value.trim();
         const shop = document.getElementById('check-add-shop').value.trim();
-        const img = document.getElementById('check-add-img').value.trim();
 
         if(name) {
             await db.collection(CHECKLIST_COLLECTION).add({
                 text: name,
                 shop: shop,
-                imageUrl: img,
+                imageBase64: currentBase64Image, // 存入 Base64
                 isCompleted: false,
                 owner: currentChecklistOwner,
-                type: currentChecklistType,
+                type: 'shopping', // 強制為購物類型
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
-            // 清空並關閉
+            // 重置表單
             document.getElementById('check-add-name').value = '';
             document.getElementById('check-add-shop').value = '';
-            document.getElementById('check-add-img').value = '';
+            document.getElementById('check-add-file').value = '';
+            document.getElementById('file-preview').classList.add('hidden');
+            document.getElementById('file-label').classList.remove('has-file');
+            document.getElementById('file-label-text').textContent = '上傳照片 (選填)';
+            currentBase64Image = '';
+            
             closeModal('checklist-add-modal');
         } else {
-            alert('請輸入物品名稱！');
+            showToast('請輸入物品名稱！');
+        }
+    }
+
+    // ★★★ 快速新增功能 (攜帶清單) ★★★
+    async function addCarryItem() {
+        const val = document.getElementById('checklist-input-carry').value.trim();
+        if(val) {
+            await db.collection(CHECKLIST_COLLECTION).add({
+                text: val,
+                isCompleted: false,
+                owner: currentChecklistOwner,
+                type: 'carry', // 強制為攜帶類型
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            document.getElementById('checklist-input-carry').value = '';
         }
     }
 
@@ -961,7 +1070,7 @@
         await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !currentStatus }); 
     }
 
-    // 刪除舊的 addChecklistItem 函式，因為現在用 Modal
+    // 刪除舊的 addChecklistItem 函式，避免混淆
     async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
     async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
     async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
@@ -995,8 +1104,16 @@
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
     window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
     window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
-    window.editDayTitle = editDayTitle; window.initMap = initMap; window.switchChecklistTab = switchChecklistOwner; window.switchChecklistOwner = switchChecklistOwner; window.switchChecklistType = switchChecklistType;
-    window.confirmAddChecklist = confirmAddChecklist; window.viewImage = viewImage; window.closeImageViewer = closeImageViewer;
+    window.editDayTitle = editDayTitle; window.initMap = initMap; 
+    
+    // 暴露新功能給 HTML
+    window.switchChecklistOwner = switchChecklistOwner; 
+    window.switchChecklistType = switchChecklistType;
+    window.confirmAddChecklist = confirmAddChecklist; 
+    window.addCarryItem = addCarryItem;
+    window.handleFileSelect = handleFileSelect;
+    window.viewImage = viewImage; 
+    window.closeImageViewer = closeImageViewer;
 </script>
 </body>
 </html>
