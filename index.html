@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (每小時天氣版)</title>
+    <title>東京遛豬之旅 2026 (特效修復版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -11,6 +11,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -43,73 +44,182 @@
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* --- 特效區 --- */
-        .sakura { position: fixed; top: -10%; background-color: #ffd1dc; border-radius: 100% 0 100% 0; animation: fall linear infinite; z-index: 9998; pointer-events: none; opacity: 0.8; }
-        @keyframes fall { 0% { top: -10%; transform: translateX(0) rotate(0deg); opacity: 0.8; } 100% { top: 100%; transform: translateX(100px) rotate(360deg); opacity: 0; } }
-        @keyframes ken-burns { 0% { transform: scale(1) translate(0, 0); } 50% { transform: scale(1.1) translate(-2%, 1%); } 100% { transform: scale(1) translate(0, 0); } }
+        /* --- 🌸 櫻花特效 --- */
+        .sakura {
+            position: fixed; top: -10%; background-color: #ffd1dc; border-radius: 100% 0 100% 0;
+            animation: fall linear infinite; z-index: 9998; pointer-events: none; opacity: 0.8;
+        }
+        @keyframes fall {
+            0% { top: -10%; transform: translateX(0) rotate(0deg); opacity: 0.8; }
+            100% { top: 100%; transform: translateX(100px) rotate(360deg); opacity: 0; }
+        }
+
+        /* --- 🎥 Ken Burns --- */
+        @keyframes ken-burns {
+            0% { transform: scale(1) translate(0, 0); }
+            50% { transform: scale(1.1) translate(-2%, 1%); }
+            100% { transform: scale(1) translate(0, 0); }
+        }
+
+        /* --- ⌨️ 打字機 --- */
         @keyframes typing { from { width: 0; } to { width: 8em; } }
         @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: white; } }
-        .typewriter-text { overflow: hidden; white-space: nowrap; border-right: 2px solid white; width: 0; animation: typing 2s steps(20, end) forwards, blink-caret 0.75s step-end infinite; display: inline-block; vertical-align: bottom; max-width: 100%; }
-        @keyframes elastic-slide-up { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
+        .typewriter-text {
+            overflow: hidden; white-space: nowrap; border-right: 2px solid white; width: 0;
+            animation: typing 2s steps(20, end) forwards, blink-caret 0.75s step-end infinite;
+            display: inline-block; vertical-align: bottom; max-width: 100%;
+        }
+
+        .fixed-header-container {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
+            height: auto; overflow: hidden; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-bottom-left-radius: 1.5rem; border-bottom-right-radius: 1.5rem;
+        }
+
+        .fixed-header-bg-image {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
+            background-size: cover; background-position: center bottom; z-index: -2;
+            animation: ken-burns 20s ease-in-out infinite alternate;
+        }
+        
+        .fixed-header-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(20, 10, 40, 0.5), rgba(20, 10, 40, 0.9));
+            z-index: -1; backdrop-filter: blur(1px);
+        }
+
+        .header-content { position: relative; z-index: 1; padding: 16px 16px 10px 16px; color: white; }
+
+        /* --- 其他動畫 --- */
+        @keyframes elastic-slide-up {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
         .anim-card-entry { animation: elastic-slide-up 0.5s ease-out forwards; opacity: 0; }
+        
         @keyframes float-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         .empty-anim-icon { font-size: 3.5rem; display: inline-block; animation: float-bounce 3s ease-in-out infinite; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
-        .map-icon { background-color: var(--primary-normal) !important; color: white !important; font-weight: 900; text-align: center; line-height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); width: 30px !important; height: 30px !important; box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4); border: 3px solid white; display: flex !important; align-items: center; justify-content: center; opacity: 1 !important; }
+
+        .map-icon {
+            background-color: var(--primary-normal) !important; color: white !important; font-weight: 900; text-align: center; line-height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); width: 30px !important; height: 30px !important; box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4); border: 3px solid white; display: flex !important; align-items: center; justify-content: center; opacity: 1 !important;
+        }
         .map-icon span { transform: rotate(45deg); display: block; font-size: 14px; }
-        .check-text { position: relative; display: inline-block; transition: color 0.3s ease; background-image: linear-gradient(transparent 45%, #9ca3af 45%, #9ca3af 55%, transparent 55%); background-repeat: no-repeat; background-size: 0% 100%; background-position: left center; transition: background-size 0.5s ease-out, color 0.3s ease; padding-right: 2px; }
+
+        .check-text {
+            position: relative; display: inline-block; transition: color 0.3s ease;
+            background-image: linear-gradient(transparent 45%, #9ca3af 45%, #9ca3af 55%, transparent 55%);
+            background-repeat: no-repeat; background-size: 0% 100%; background-position: left center;
+            transition: background-size 0.5s ease-out, color 0.3s ease; padding-right: 2px;
+        }
         .check-item.completed .check-text { background-size: 100% 100%; color: #9ca3af; }
         .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: var(--primary-dark); transform: scale(1.1) rotate(360deg); transition: all 0.4s ease; }
+
         @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(192, 132, 252, 0); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(192, 132, 252, 0.4); } }
         .anim-pulse { animation: breathe 3s infinite ease-in-out; }
-        .shimmer-text { background: linear-gradient(to right, #ffffff 20%, #ffd700 40%, #ffd700 60%, #ffffff 80%); background-size: 200% auto; color: #fff; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shine 3s linear infinite; font-weight: 900; }
-        @keyframes shine { to { background-position: 200% center; } }
-        .ripple-btn { position: relative; overflow: hidden; }
-        .ripple-effect { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple 0.6s linear; background-color: rgba(255, 255, 255, 0.4); pointer-events: none; }
-        @keyframes ripple { to { transform: scale(4); opacity: 0; } }
 
-        /* Header & Footer */
-        .fixed-header-container { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: auto; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border-bottom-left-radius: 1.5rem; border-bottom-right-radius: 1.5rem; }
-        .fixed-header-bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop'); background-size: cover; background-position: center bottom; z-index: -2; animation: ken-burns 20s ease-in-out infinite alternate; }
-        .fixed-header-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(20, 10, 40, 0.5), rgba(20, 10, 40, 0.9)); z-index: -1; backdrop-filter: blur(1px); }
-        .header-content { position: relative; z-index: 1; padding: 16px 16px 10px 16px; color: white; }
-        .fixed-footer { position: fixed; bottom: 24px; left: 20px; right: 20px; margin: 0 auto; max-width: 400px; z-index: 1001; background-color: white; border-radius: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.15); height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-sizing: border-box; }
+        .fixed-footer { 
+            position: fixed; bottom: 24px; left: 20px; right: 20px; margin: 0 auto; max-width: 400px; z-index: 1001; 
+            background-color: white; border-radius: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
+            height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-sizing: border-box; 
+        }
 
         #schedule-page { padding-top: 240px; } 
         #expense-page, #checklist-page { padding-top: 30px; } 
         #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
         
         .soft-card-shadow { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border-radius: 1.5rem; }
-        .soft-card-glow { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); border: 2px solid var(--primary-light); background-color: rgba(255, 255, 255, 0.95); border-radius: 1.5rem; position: relative; overflow: hidden; transform-style: preserve-3d; }
+        
+        /* ★★★ 3D 懸浮樣式 (移除 transition 以配合 Vanilla-tilt) ★★★ */
+        .soft-card-glow { 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
+            border: 2px solid var(--primary-light); 
+            background-color: rgba(255, 255, 255, 0.95); 
+            border-radius: 1.5rem; 
+            position: relative; 
+            overflow: hidden; 
+            transform-style: preserve-3d; /* 關鍵：保持3D空間 */
+        }
         
         .sortable-ghost { opacity: 0.4 !important; background-color: #f3e8ff !important; border: 2px dashed var(--primary-normal) !important; border-radius: 1.5rem; animation: none !important; transition: none !important; }
         .sortable-drag { background-color: white !important; transform: scale(1.05) !important; z-index: 9999 !important; border-radius: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important; animation: none !important; transition: none !important; opacity: 1 !important; }
         
         #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
         .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
+
         .input-focus:focus { border-color: var(--primary-normal); box-shadow: 0 0 0 3px var(--primary-light); outline: none; }
         .glow-btn { background-color: var(--primary-normal); box-shadow: 0 0 10px var(--primary-light); transition: all 0.2s; }
         .glow-btn:hover { background-color: var(--primary-dark); }
+
         .timeline-line { background-color: #cbd5e1; width: 2px; border-radius: 9999px; }
         .header-glass-card { background-color: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.3); color: white; }
         
         #map-page .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 80px !important; }
         #map-page .leaflet-control-container .leaflet-bottom { bottom: 110px !important; }
+
         .leaflet-control-custom-btn { background-color: white; width: 34px; height: 34px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.65); cursor: pointer; display: flex; align-items: center; justify-content: center; color: #4b5563; font-size: 16px; transition: all 0.2s; }
         .leaflet-control-custom-btn:hover { background-color: #f3f4f6; color: var(--primary-normal); }
+
         #loading-status { display: none !important; }
+
         .check-tab-active { background-color: white; color: var(--primary-normal); box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 2px solid var(--primary-light); }
         .check-tab-inactive { color: #9ca3af; background-color: transparent; border: 2px solid transparent; }
         .type-tab-active { background-color: var(--primary-normal); color: white; box-shadow: 0 4px 10px rgba(192, 132, 252, 0.4); }
         .type-tab-inactive { background-color: #f3f4f6; color: #6b7280; }
-        .toast { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) scale(0.9); background-color: rgba(0, 0, 0, 0.85); color: white; padding: 10px 20px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 2000; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(4px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); white-space: nowrap; }
+
+        .toast {
+            position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) scale(0.9);
+            background-color: rgba(0, 0, 0, 0.85); color: white; padding: 10px 20px;
+            border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 2000;
+            opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(4px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); white-space: nowrap;
+        }
         .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
-        .check-thumb { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 1px solid #e5e7eb; cursor: zoom-in; flex-shrink: 0; transition: transform 0.2s; background-color: #f3f4f6; }
+        
+        .check-thumb {
+            width: 45px; height: 45px; border-radius: 8px; object-fit: cover;
+            border: 1px solid #e5e7eb; cursor: zoom-in; flex-shrink: 0;
+            transition: transform 0.2s; background-color: #f3f4f6;
+        }
         .check-thumb:active { transform: scale(0.95); }
-        .file-upload-btn { display: flex; align-items: center; justify-content: center; background-color: #f3f4f6; color: #4b5563; border: 2px dashed #d1d5db; border-radius: 0.75rem; padding: 0.75rem; cursor: pointer; transition: all 0.2s; font-size: 0.875rem; font-weight: 500; }
-        .file-upload-btn:hover { border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f9fafb; }
-        .file-upload-btn.has-file { border-style: solid; border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f3e8ff; }
-        #image-viewer-modal { background-color: rgba(0, 0, 0, 0.95); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        #image-viewer-content { max-width: 95%; max-height: 85%; border-radius: 12px; box-shadow: 0 0 30px rgba(0,0,0,0.5); transition: transform 0.3s ease; }
+
+        .file-upload-btn {
+            display: flex; align-items: center; justify-content: center;
+            background-color: #f3f4f6; color: #4b5563;
+            border: 2px dashed #d1d5db; border-radius: 0.75rem;
+            padding: 0.75rem; cursor: pointer; transition: all 0.2s;
+            font-size: 0.875rem; font-weight: 500;
+        }
+        .file-upload-btn:hover {
+            border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f9fafb;
+        }
+        .file-upload-btn.has-file {
+            border-style: solid; border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f3e8ff;
+        }
+        
+        #image-viewer-modal {
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        #image-viewer-content {
+            max-width: 95%;
+            max-height: 85%;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+
+        /* ★★★ 水波紋效果 ★★★ */
+        .ripple-btn { position: relative; overflow: hidden; }
+        .ripple-effect {
+            position: absolute; border-radius: 50%; transform: scale(0);
+            animation: ripple 0.6s linear; background-color: rgba(255, 255, 255, 0.4); pointer-events: none;
+        }
+        @keyframes ripple { to { transform: scale(4); opacity: 0; } }
     </style>
 </head>
 <body class="text-gray-700">
@@ -146,7 +256,7 @@
                     <div class="flex flex-col items-end gap-1 mt-1">
                          <div class="header-glass-card px-3 py-2 rounded-xl shadow-lg flex flex-col items-end">
                             <span class="text-[10px] text-white/80 font-bold uppercase">今日花費</span>
-                            <span class="text-xl font-black text-white leading-none count-up shimmer-text" id="header-daily-cost">¥ 0</span>
+                            <span class="text-xl font-black text-white leading-none count-up" id="header-daily-cost">¥ 0</span>
                         </div>
                     </div>
                 </div>
@@ -194,7 +304,7 @@
             <div class="flex justify-between items-start relative z-10">
                 <div>
                     <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Total Trip Cost</p>
-                    <div class="text-4xl font-extrabold mt-1 count-up-target shimmer-text" id="total-trip-jpy" data-value="0">¥ 0</div>
+                    <div class="text-4xl font-extrabold mt-1 count-up-target" id="total-trip-jpy" data-value="0">¥ 0</div>
                     <div class="text-sm mt-1 text-white/80" id="total-trip-twd">≈ NT$ 0</div>
                 </div>
                 <button onclick="calculateAllExpenses()" class="text-white hover:text-gray-300 transition active:scale-95 ripple-btn"><i class="fas fa-sync-alt"></i></button>
@@ -422,7 +532,6 @@
 
     function getDocumentId(day) { return `tokyo_feb_2026_day_${day}`; }
 
-    // ★★★ 修正：改為 Open-Meteo API 取得真實每小時天氣 ★★★
     async function fetchWeather() {
         try {
             const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=35.6895&longitude=139.6917&hourly=temperature_2m,weathercode&timezone=Asia%2FTokyo`);
@@ -431,12 +540,7 @@
             if (data.hourly) {
                 const now = new Date();
                 const currentHour = now.getHours();
-                
-                // 找到目前時間在 API 資料中的索引
-                // Open-Meteo 回傳的是從今天 00:00 開始的資料
                 const startIndex = currentHour; 
-                
-                // 取出接下來 24 小時的資料
                 const temps = data.hourly.temperature_2m.slice(startIndex, startIndex + 24);
                 const codes = data.hourly.weathercode.slice(startIndex, startIndex + 24);
                 const times = data.hourly.time.slice(startIndex, startIndex + 24);
@@ -453,7 +557,6 @@
                     let iconClass = 'fas fa-sun'; 
                     let iconColor = 'text-yellow-300';
 
-                    // WMO Code Mapping
                     if (code === 0) { iconClass = 'fas fa-sun'; iconColor = 'text-yellow-300'; }
                     else if (code >= 1 && code <= 3) { iconClass = 'fas fa-cloud-sun'; iconColor = 'text-yellow-200'; }
                     else if (code >= 45 && code <= 48) { iconClass = 'fas fa-smog'; iconColor = 'text-gray-400'; }
@@ -461,7 +564,6 @@
                     else if (code >= 71 && code <= 77) { iconClass = 'fas fa-snowflake'; iconColor = 'text-white'; }
                     else if (code >= 95) { iconClass = 'fas fa-bolt'; iconColor = 'text-yellow-400'; }
                     
-                    // 簡單判斷夜晚 (18:00 - 06:00)
                     const h = parseInt(hour);
                     if (h >= 18 || h < 6) {
                         if (code === 0) { iconClass = 'fas fa-moon'; iconColor = 'text-yellow-100'; }
@@ -702,6 +804,7 @@
         });
     }
 
+    // ✨ 顯示氣泡提示
     function showToast(msg) {
         const t = document.getElementById('toast-msg');
         if(t) {
@@ -830,6 +933,7 @@
         document.getElementById('check-type-shopping').className = type === 'shopping' ? 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1 ripple-btn' : 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1 ripple-btn';
         document.getElementById('check-type-carry').className = type === 'carry' ? 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1 ripple-btn' : 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1 ripple-btn';
         
+        // ★★★ 切換顯示的輸入區域 ★★★
         if(type === 'shopping') {
             document.getElementById('input-area-shopping').style.display = 'block';
             document.getElementById('input-area-carry').style.display = 'none';
@@ -887,9 +991,12 @@
             document.getElementById('file-label-text').textContent = '處理中...';
             compressImage(file).then(base64 => {
                 currentBase64Image = base64;
+                // 更新預覽
                 const preview = document.getElementById('file-preview');
                 preview.style.backgroundImage = `url('${base64}')`;
                 preview.classList.remove('hidden');
+                
+                // 更新按鈕狀態
                 const label = document.getElementById('file-label');
                 label.classList.add('has-file');
                 document.getElementById('file-label-text').textContent = '照片已選取 (可點擊更換)';
@@ -907,16 +1014,22 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
+                    
+                    // 設定最大寬度，等比縮放
                     const MAX_WIDTH = 800;
                     let width = img.width;
                     let height = img.height;
+
                     if (width > MAX_WIDTH) {
                         height *= MAX_WIDTH / width;
                         width = MAX_WIDTH;
                     }
+
                     canvas.width = width;
                     canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // 輸出為 JPEG，品質 0.7 (兼顧畫質與大小)
                     resolve(canvas.toDataURL('image/jpeg', 0.7));
                 };
             };
@@ -924,6 +1037,7 @@
         });
     }
 
+    // ★★★ 確認新增功能 (購物清單) ★★★
     async function confirmAddChecklist() {
         const name = document.getElementById('check-add-name').value.trim();
         const shop = document.getElementById('check-add-shop').value.trim();
@@ -932,12 +1046,13 @@
             await db.collection(CHECKLIST_COLLECTION).add({
                 text: name,
                 shop: shop,
-                imageBase64: currentBase64Image, 
+                imageBase64: currentBase64Image, // 存入 Base64
                 isCompleted: false,
                 owner: currentChecklistOwner,
-                type: 'shopping', 
+                type: 'shopping', // 強制為購物類型
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
+            // 重置表單
             document.getElementById('check-add-name').value = '';
             document.getElementById('check-add-shop').value = '';
             document.getElementById('check-add-file').value = '';
@@ -945,12 +1060,14 @@
             document.getElementById('file-label').classList.remove('has-file');
             document.getElementById('file-label-text').textContent = '上傳照片 (選填)';
             currentBase64Image = '';
+            
             closeModal('checklist-add-modal');
         } else {
             showToast('請輸入物品名稱！');
         }
     }
 
+    // ★★★ 快速新增功能 (攜帶清單) ★★★
     async function addCarryItem() {
         const val = document.getElementById('checklist-input-carry').value.trim();
         if(val) {
@@ -958,13 +1075,14 @@
                 text: val,
                 isCompleted: false,
                 owner: currentChecklistOwner,
-                type: 'carry', 
+                type: 'carry', // 強制為攜帶類型
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
             document.getElementById('checklist-input-carry').value = '';
         }
     }
 
+    // 圖片放大查看
     function viewImage(url) {
         const modal = document.getElementById('image-viewer-modal');
         const img = document.getElementById('image-viewer-content');
@@ -989,10 +1107,12 @@
         await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !currentStatus }); 
     }
 
+    // 刪除舊的 addChecklistItem 函式，避免混淆
     async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
     async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
     async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
 
+    // 自動修正標題高度
     function adjustContentPadding() {
         const h = document.getElementById('main-header');
         const p = document.getElementById('schedule-page');
@@ -1021,14 +1141,8 @@
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
     window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
     window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
-    window.editDayTitle = editDayTitle; window.initMap = initMap; 
-    window.switchChecklistOwner = switchChecklistOwner; 
-    window.switchChecklistType = switchChecklistType;
-    window.confirmAddChecklist = confirmAddChecklist; 
-    window.addCarryItem = addCarryItem;
-    window.handleFileSelect = handleFileSelect;
-    window.viewImage = viewImage; 
-    window.closeImageViewer = closeImageViewer;
+    window.editDayTitle = editDayTitle; window.initMap = initMap; window.switchChecklistTab = switchChecklistOwner; window.switchChecklistOwner = switchChecklistOwner; window.switchChecklistType = switchChecklistType;
+    window.confirmAddChecklist = confirmAddChecklist; window.addCarryItem = addCarryItem; window.handleFileSelect = handleFileSelect; window.viewImage = viewImage; window.closeImageViewer = closeImageViewer;
 </script>
 </body>
 </html>
