@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (究極特效版)</title>
+    <title>東京遛豬之旅 2026 (指定特效版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -80,7 +80,7 @@
         }
         .jelly-btn:active { animation: jelly 0.5s; }
 
-        /* --- 🅱️ 特效 B: 點擊噴發小豬 (Piggy Pop) --- */
+        /* --- 🅱️ 特效 B: 點擊噴發 Emoji (自訂版) --- */
         .piggy-particle {
             position: fixed;
             pointer-events: none;
@@ -1132,9 +1132,9 @@
         createPiggyPop(e.clientX, e.clientY);
     });
     
-    // 小豬噴發邏輯
+    // 小豬噴發邏輯 (自訂 Emoji 版)
     function createPiggyPop(x, y) {
-        const emojis = ['🐷', '🐽', '💖', '🌸', '✨'];
+        const emojis = ['🐷', '🐦', '🌸', '🐽', '⛩️', '🗻']; // ✨ 已修改為指定內容
         const particle = document.createElement('div');
         particle.classList.add('piggy-particle');
         particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
