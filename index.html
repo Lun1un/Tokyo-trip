@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (購物相簿版)</title>
+    <title>東京遛豬之旅 2026 (詳細天氣版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="icon" type="image/png" sizes="32x32" href="https://i.meee.com.tw/rpOFJGM.jpg">
     
+    <!-- 引入特效庫 -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -172,7 +173,6 @@
         }
         .check-thumb:active { transform: scale(0.95); }
 
-        /* 上傳按鈕樣式 */
         .file-upload-btn {
             display: flex; align-items: center; justify-content: center;
             background-color: #f3f4f6; color: #4b5563;
@@ -187,7 +187,6 @@
             border-style: solid; border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f3e8ff;
         }
         
-        /* 圖片查看器 */
         #image-viewer-modal {
             background-color: rgba(0, 0, 0, 0.95);
             z-index: 10000;
@@ -208,7 +207,6 @@
 
     <div id="toast-msg" class="toast"></div>
 
-    <!-- 圖片查看 Modal -->
     <div id="image-viewer-modal" class="modal" onclick="closeImageViewer()">
         <img id="image-viewer-content" src="" alt="Enlarged">
         <div class="absolute bottom-10 text-white text-sm bg-black/50 px-3 py-1 rounded-full">點擊任意處關閉</div>
@@ -236,24 +234,23 @@
                         </div>
                     </div>
                     
+                    <!-- 位置交換：今日花費改到右上角 -->
                     <div class="flex flex-col items-end gap-1 mt-1">
-                        <div id="weather-card" class="flex items-center gap-3 px-3 py-2 rounded-xl shadow-lg header-glass-card hover:bg-white/30 transition duration-300">
-                            <div id="weather-icon-container" class="text-xl text-white"><i class="fas fa-sync fa-spin"></i></div>
-                            <div class="text-right leading-none">
-                                <div id="weather-temp" class="text-lg font-black text-white">--°C</div>
-                                <div id="weather-desc" class="text-[9px] text-white/80 font-bold uppercase mt-1">Loading</div>
-                            </div>
+                         <div class="header-glass-card px-3 py-2 rounded-xl shadow-lg flex flex-col items-end">
+                            <span class="text-[10px] text-white/80 font-bold uppercase">今日花費</span>
+                            <span class="text-xl font-black text-white leading-none count-up" id="header-daily-cost">¥ 0</span>
                         </div>
                     </div>
                 </div>
                 
                 <div class="flex justify-between items-center mb-4 px-1 relative z-10">
-                    <button onclick="prepareRateModal()" class="text-[11px] text-white px-3 py-1.5 rounded-lg font-bold active:scale-95 header-glass-card hover:bg-white/20 transition">
+                    <button onclick="prepareRateModal()" class="text-[11px] text-white px-3 py-1.5 rounded-lg font-bold active:scale-95 header-glass-card hover:bg-white/20 transition shrink-0 mr-2">
                         匯率: <span id="display-rate">0.22</span>
                     </button>
-                    <div class="flex items-baseline gap-1 header-glass-card px-3 py-1.5 rounded-lg">
-                        <span class="text-[10px] text-white/80 font-bold uppercase">今日花費</span>
-                        <span class="text-lg font-black text-white leading-none ml-1 count-up" id="header-daily-cost">¥ 0</span>
+                    
+                    <!-- 位置交換：天氣預報改到第二行，並且是橫向捲動條 -->
+                    <div id="hourly-weather-container" class="flex-1 overflow-x-auto hide-scrollbar flex gap-3 items-center">
+                         <div class="text-white/60 text-xs animate-pulse ml-auto">Loading Weather...</div>
                     </div>
                 </div>
 
@@ -314,14 +311,12 @@
         <div id="expense-full-list" class="space-y-3 pb-20"></div>
     </div>
 
-    <!-- 清單頁面 (雙層過濾) -->
     <div id="checklist-page" class="hidden page-content px-4">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2 text-gray-800">
             <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-clipboard-check"></i></span>
             必買 & 準備
         </h1>
 
-        <!-- 第一層：主人切換 -->
         <div class="bg-gray-100 p-1 rounded-2xl flex gap-1 mb-3 shadow-inner">
             <button id="check-owner-bird" onclick="switchChecklistOwner('bird')" class="flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2">
                 <span>🐦</span> Dove
@@ -331,7 +326,6 @@
             </button>
         </div>
 
-        <!-- 第二層：類型切換 -->
         <div class="flex gap-2 mb-5">
             <button id="check-type-shopping" onclick="switchChecklistType('shopping')" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1">
                 <i class="fas fa-shopping-bag"></i> 購物攻略
@@ -341,7 +335,6 @@
             </button>
         </div>
 
-        <!-- 輸入區域 (根據類型動態切換) -->
         <div id="input-area-shopping">
             <button onclick="showModal('checklist-add-modal')" class="w-full bg-white border-2 border-dashed border-gray-300 rounded-2xl p-4 text-gray-400 font-bold flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-[var(--primary-normal)] hover:text-[var(--primary-normal)] transition-all mb-6 shadow-sm active:scale-98">
                 <i class="fas fa-plus-circle text-xl"></i> 新增詳細購物項目
@@ -358,7 +351,6 @@
         <div id="checklist-container" class="space-y-3 pb-20"></div>
     </div>
 
-    <!-- ★★★ 新增清單項目 Modal (購物專用) ★★★ -->
     <div id="checklist-add-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('checklist-add-modal')">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
             <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
@@ -372,12 +364,10 @@
                     <input type="text" id="check-add-shop" placeholder="購買地點 (例如: 唐吉訶德)" class="input-focus w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                 </div>
 
-                <!-- 手機圖片上傳 -->
                 <label class="file-upload-btn" id="file-label">
                     <input type="file" id="check-add-file" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
                     <i class="fas fa-camera mr-2"></i> <span id="file-label-text">上傳照片 (選填)</span>
                 </label>
-                <!-- 預覽區域 -->
                 <div id="file-preview" class="hidden w-full h-32 bg-gray-100 rounded-xl bg-cover bg-center border border-gray-200"></div>
             </div>
             <div class="flex justify-end space-x-3 mt-6">
@@ -387,7 +377,7 @@
         </div>
     </div>
 
-    <!-- Add Schedule Modal -->
+    <!-- Add Modal -->
     <div id="add-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('add-modal')">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
             <h2 class="text-xl font-bold mb-4 text-gray-800">新增行程</h2>
@@ -418,6 +408,7 @@
         </div>
     </div>
     
+    <!-- Edit Modal -->
     <div id="edit-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('edit-modal')">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
             <h2 class="text-xl font-bold mb-4 text-gray-800">編輯行程</h2>
@@ -452,11 +443,10 @@
         </div>
     </div>
 
-    <!-- Other Modals (Expense, Rate) -->
+    <!-- Expense Modal -->
     <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()"><div class="flex justify-between items-start mb-4"><h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2><button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600 active:scale-95"><i class="fas fa-times text-xl"></i></button></div><div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div><div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-inner"><div class="flex gap-2 mb-2"><select id="expense-payer" class="input-focus w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none shrink-0"><option value="bird">🐦</option><option value="pig">🐷</option><option value="shared">🐷🐦</option></select><input type="text" id="expense-desc" placeholder="品項" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm"></div><div class="flex gap-2"><select id="expense-currency" class="input-focus w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0"><option value="JPY">JPY</option><option value="TWD">TWD</option></select><input type="number" id="expense-amount" placeholder="金額" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold"><button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow-md hover:bg-yellow-600 shrink-0 active:scale-95"><i class="fas fa-plus"></i></button></div></div><input type="hidden" id="expense-item-id"></div></div>
     <div id="rate-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('rate-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()"><h2 class="text-xl font-bold mb-2">匯率設定</h2><div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-inner"><span class="text-lg font-bold text-gray-400">×</span><input type="number" step="0.0001" id="exchange-rate-input" class="input-focus flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none"></div><div class="flex justify-end mt-6"><button onclick="saveExchangeRate()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95">儲存</button></div></div></div>
 
-    <!-- Footer -->
     <div class="fixed-footer text-gray-400">
         <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-map-marked-alt text-xl mb-1"></i><span class="text-[9px] font-bold">行程</span></button>
         <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-map text-xl mb-1"></i><span class="text-[9px] font-bold">地圖</span></button>
@@ -472,7 +462,7 @@
     let checklistItems = [];
     let currentChecklistOwner = 'bird'; 
     let currentChecklistType = 'shopping';
-    let currentBase64Image = ''; // Store uploaded image
+    let currentBase64Image = ''; 
     let sortableInstance = null;
     let firestoreScheduleListener = null;
     let firestoreChecklistListener = null;
@@ -532,23 +522,46 @@
 
     async function fetchWeather() {
         try {
-            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?id=1850147&appid=54f22a6f3141e619d73a09a6d4136e88&units=metric&lang=zh_tw`);
+            // Fetch 5 day / 3 hour forecast
+            const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?id=1850147&appid=54f22a6f3141e619d73a09a6d4136e88&units=metric&lang=zh_tw`);
             const data = await res.json();
-            if (data.cod === 200) {
-                const temp = Math.round(data.main.temp);
-                const icon = data.weather[0].icon;
-                const desc = data.weather[0].description;
-                document.getElementById('weather-temp').textContent = `${temp}°C`;
-                document.getElementById('weather-desc').textContent = desc;
-                let iconClass = 'fas fa-sun'; 
-                if (icon.includes('02')) iconClass = 'fas fa-cloud-sun';
-                else if (icon.includes('03') || icon.includes('04')) iconClass = 'fas fa-cloud';
-                else if (icon.includes('09') || icon.includes('10')) iconClass = 'fas fa-cloud-showers-heavy';
-                else if (icon.includes('13')) iconClass = 'fas fa-snowflake';
-                else if (icon.includes('50')) iconClass = 'fas fa-smog';
-                document.getElementById('weather-icon-container').innerHTML = `<i class="${iconClass}"></i>`;
+            
+            if (data.cod === "200") {
+                // We will display the next 8 data points (24 hours approx)
+                const forecastList = data.list.slice(0, 8); 
+                const weatherContainer = document.getElementById('hourly-weather-container');
+                weatherContainer.innerHTML = ''; // Clear previous content
+
+                forecastList.forEach(item => {
+                    const date = new Date(item.dt * 1000);
+                    const hours = date.getHours().toString().padStart(2, '0') + ':00';
+                    const temp = Math.round(item.main.temp);
+                    const iconCode = item.weather[0].icon;
+                    let iconClass = 'fas fa-sun'; 
+                    let iconColor = 'text-yellow-300';
+
+                    // Simple icon mapping
+                    if (iconCode.includes('01')) { iconClass = 'fas fa-sun'; iconColor = 'text-yellow-300'; }
+                    else if (iconCode.includes('02')) { iconClass = 'fas fa-cloud-sun'; iconColor = 'text-yellow-200'; }
+                    else if (iconCode.includes('03') || iconCode.includes('04')) { iconClass = 'fas fa-cloud'; iconColor = 'text-gray-300'; }
+                    else if (iconCode.includes('09') || iconCode.includes('10')) { iconClass = 'fas fa-cloud-showers-heavy'; iconColor = 'text-blue-300'; }
+                    else if (iconCode.includes('13')) { iconClass = 'fas fa-snowflake'; iconColor = 'text-white'; }
+                    else if (iconCode.includes('50')) { iconClass = 'fas fa-smog'; iconColor = 'text-gray-400'; }
+                    else if (iconCode.includes('n')) { iconClass = 'fas fa-moon'; iconColor = 'text-yellow-100'; } // Night
+
+                    const html = `
+                        <div class="flex flex-col items-center justify-center px-2 min-w-[3.5rem] flex-shrink-0">
+                            <span class="text-[10px] opacity-80 text-white font-mono">${hours}</span>
+                            <i class="${iconClass} ${iconColor} text-lg my-1"></i>
+                            <span class="text-xs font-bold text-white">${temp}°</span>
+                        </div>
+                    `;
+                    weatherContainer.insertAdjacentHTML('beforeend', html);
+                });
             }
-        } catch(e) { document.getElementById('weather-desc').textContent = "N/A"; }
+        } catch(e) { 
+             document.getElementById('hourly-weather-container').innerHTML = '<div class="text-white/50 text-xs">Weather Unavailable</div>';
+        }
     }
 
     function listenForDayTitles() {
@@ -766,7 +779,7 @@
         });
     }
 
-    // ✨ 顯示氣泡提示
+    // ✨ 顯示氣泡提示的函式
     function showToast(msg) {
         const t = document.getElementById('toast-msg');
         if(t) {
@@ -1104,16 +1117,8 @@
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
     window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
     window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
-    window.editDayTitle = editDayTitle; window.initMap = initMap; 
-    
-    // 暴露新功能給 HTML
-    window.switchChecklistOwner = switchChecklistOwner; 
-    window.switchChecklistType = switchChecklistType;
-    window.confirmAddChecklist = confirmAddChecklist; 
-    window.addCarryItem = addCarryItem;
-    window.handleFileSelect = handleFileSelect;
-    window.viewImage = viewImage; 
-    window.closeImageViewer = closeImageViewer;
+    window.editDayTitle = editDayTitle; window.initMap = initMap; window.switchChecklistTab = switchChecklistOwner; window.switchChecklistOwner = switchChecklistOwner; window.switchChecklistType = switchChecklistType;
+    window.confirmAddChecklist = confirmAddChecklist; window.addCarryItem = addCarryItem; window.handleFileSelect = handleFileSelect; window.viewImage = viewImage; window.closeImageViewer = closeImageViewer;
 </script>
 </body>
 </html>
