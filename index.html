@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (Map Fixed)</title>
+    <title>東京遛豬之旅 2026 (Final Map Fix)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -822,9 +822,9 @@
     async function initMap() {
         if (!mapInstance) { 
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
-            // 改用 CartoDB Voyager 圖層，更乾淨且支援 HTTPS
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { 
-                attribution: '&copy; OpenStreetMap &copy; CARTO',
+            // 修正：換回原本的 Google Maps 圖層 (使用 HTTPS)
+            L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { 
+                attribution: '© Google Maps',
                 maxZoom: 20 
             }).addTo(mapInstance); 
             
@@ -855,7 +855,7 @@
             const item = locations[index];
             let lat = null, lon = null;
 
-            // 檢查是否直接輸入座標 (例如: 35.123, 139.456)
+            // 1. 優先嘗試座標格式 (例如: 35.123, 139.456)
             const coordRegex = /(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/;
             const coordMatch = item.location.match(coordRegex);
 
@@ -863,10 +863,22 @@
                 lat = parseFloat(coordMatch[1]);
                 lon = parseFloat(coordMatch[2]);
             } else {
+                // 2. 嘗試使用 Nominatim API 搜尋
                 try {
-                    // API 搜尋: 限制日本範圍 (countrycodes=jp)
-                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.location)}&countrycodes=jp&limit=1`);
-                    const data = await res.json();
+                    // 策略A: 直接搜尋完整名稱
+                    let query = item.location;
+                    let res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=jp&limit=1`);
+                    let data = await res.json();
+
+                    // 策略B: 如果失敗，嘗試去除括號內的文字 (例如: "晴空塔 (預計停留2小時)" -> "晴空塔")
+                    if (!data || data.length === 0) {
+                        const cleanQuery = query.replace(/\s*[（\(].*?[）\)]/g, '').trim();
+                        if (cleanQuery && cleanQuery !== query) {
+                            res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(cleanQuery)}&countrycodes=jp&limit=1`);
+                            data = await res.json();
+                        }
+                    }
+
                     if (data && data.length > 0) {
                         lat = data[0].lat; 
                         lon = data[0].lon;
@@ -876,7 +888,7 @@
                 } catch (e) {
                     console.error("Geocoding error:", e);
                 }
-                await new Promise(r => setTimeout(r, 1000)); 
+                await new Promise(r => setTimeout(r, 1200)); // 禮貌性延遲
             }
 
             if (lat && lon) {
@@ -909,7 +921,7 @@
         if (foundCount > 0) {
             mapInstance.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
         } else if (locations.length > 0) {
-            showToast("地圖找不到地點，請嘗試輸入座標");
+            showToast("⚠️ 地圖搜不到地點，請在地點欄位輸入座標 (例如: 35.689, 139.691)");
         }
     }
     
