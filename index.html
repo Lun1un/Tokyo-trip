@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (地圖修復版)</title>
+    <title>東京遛豬之旅 2026 (Map Fixed)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -118,8 +118,8 @@
             display: flex !important; 
             align-items: center; 
             justify-content: center; 
-            opacity: 1 !important; /* 確保不透明 */
-            visibility: visible !important; /* 確保可見 */
+            opacity: 1 !important;
+            visibility: visible !important;
         }
         .map-icon span { transform: rotate(45deg); display: block; font-size: 14px; }
 
@@ -538,7 +538,6 @@
 
     function getDocumentId(day) { return `tokyo_feb_2026_day_${day}`; }
 
-    // ★★★ 修正：改為 Open-Meteo API 取得真實每小時天氣 ★★★
     async function fetchWeather() {
         try {
             const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=35.6895&longitude=139.6917&hourly=temperature_2m,weathercode&timezone=Asia%2FTokyo`);
@@ -564,7 +563,6 @@
                     let iconClass = 'fas fa-sun'; 
                     let iconColor = 'text-yellow-300';
 
-                    // WMO Code Mapping
                     if (code === 0) { iconClass = 'fas fa-sun'; iconColor = 'text-yellow-300'; }
                     else if (code >= 1 && code <= 3) { iconClass = 'fas fa-cloud-sun'; iconColor = 'text-yellow-200'; }
                     else if (code >= 45 && code <= 48) { iconClass = 'fas fa-smog'; iconColor = 'text-gray-400'; }
@@ -812,7 +810,6 @@
         });
     }
 
-    // ✨ 顯示氣泡提示的函式
     function showToast(msg) {
         const t = document.getElementById('toast-msg');
         if(t) {
@@ -825,7 +822,11 @@
     async function initMap() {
         if (!mapInstance) { 
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
-            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(mapInstance); 
+            // 改用 CartoDB Voyager 圖層，更乾淨且支援 HTTPS
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { 
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                maxZoom: 20 
+            }).addTo(mapInstance); 
             
             const locBtn = L.Control.extend({
                 options: { position: 'bottomright' },
@@ -843,31 +844,75 @@
             });
         }
         
-        markers.forEach(m => mapInstance.removeLayer(m)); markers = [];
-        const locations = currentItems.filter(i => i.location);
+        markers.forEach(m => mapInstance.removeLayer(m)); 
+        markers = [];
         
+        const locations = currentItems.filter(i => i.location && i.location.trim() !== '');
         let bounds = L.latLngBounds();
+        let foundCount = 0;
+
         for (let index = 0; index < locations.length; index++) {
             const item = locations[index];
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.location)}`);
-                const data = await res.json();
-                if (data && data.length > 0) {
-                    const lat = data[0].lat; const lon = data[0].lon;
-                    const customIcon = L.divIcon({ className: 'map-icon', html: `<span>${index + 1}</span>`, iconSize: [30, 30], iconAnchor: [15, 30] });
-                    const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance);
-                    
-                    const popupContent = `<div class="text-center"><b>${index + 1}. ${item.title}</b><br>${item.location}<br><span class="text-gray-500 text-xs">${item.startTime}</span><br><div class="mt-2 flex gap-2 justify-center"><button onclick="setRouteOrigin(${lat}, ${lon}, '${item.title}')" class="bg-blue-500 text-white px-2 py-1 rounded text-xs">🚩 設為起點</button><button onclick="navigateHere(${lat}, ${lon})" class="bg-green-500 text-white px-2 py-1 rounded text-xs">🏁 導航至此</button></div></div>`;
-                    marker.bindPopup(popupContent);
-                    
-                    markers.push(marker); bounds.extend([lat, lon]);
+            let lat = null, lon = null;
+
+            // 檢查是否直接輸入座標 (例如: 35.123, 139.456)
+            const coordRegex = /(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/;
+            const coordMatch = item.location.match(coordRegex);
+
+            if (coordMatch) {
+                lat = parseFloat(coordMatch[1]);
+                lon = parseFloat(coordMatch[2]);
+            } else {
+                try {
+                    // API 搜尋: 限制日本範圍 (countrycodes=jp)
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.location)}&countrycodes=jp&limit=1`);
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        lat = data[0].lat; 
+                        lon = data[0].lon;
+                    } else {
+                        console.warn(`找不到地點: ${item.location}`);
+                    }
+                } catch (e) {
+                    console.error("Geocoding error:", e);
                 }
-            } catch (e) {} await new Promise(r => setTimeout(r, 800)); 
+                await new Promise(r => setTimeout(r, 1000)); 
+            }
+
+            if (lat && lon) {
+                const customIcon = L.divIcon({ 
+                    className: 'map-icon', 
+                    html: `<span>${index + 1}</span>`, 
+                    iconSize: [30, 30], 
+                    iconAnchor: [15, 30],
+                    popupAnchor: [0, -30]
+                });
+                
+                const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance);
+                const popupContent = `
+                    <div class="text-center min-w-[150px]">
+                        <b class="text-[var(--primary-normal)] text-sm">${index + 1}. ${item.title}</b><br>
+                        <span class="text-xs text-gray-500">${item.location}</span><br>
+                        <span class="text-xs font-mono bg-gray-100 px-1 rounded">${item.startTime}</span><br>
+                        <div class="mt-2 flex gap-2 justify-center">
+                            <button onclick="setRouteOrigin(${lat}, ${lon}, '${item.title}')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs transition">🚩 起點</button>
+                            <button onclick="navigateHere(${lat}, ${lon})" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs transition">🏁 導航</button>
+                        </div>
+                    </div>`;
+                marker.bindPopup(popupContent);
+                markers.push(marker); 
+                bounds.extend([lat, lon]);
+                foundCount++;
+            }
         }
-        if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
+        
+        if (foundCount > 0) {
+            mapInstance.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+        } else if (locations.length > 0) {
+            showToast("地圖找不到地點，請嘗試輸入座標");
+        }
     }
     
-    // ✨ 修改：設定起點時不再跳 alert，改用 showToast
     window.setRouteOrigin = (lat, lon, title) => { 
         routeOrigin = { lat, lon }; 
         showToast(`🚩 已設定「${title}」為起點`); 
@@ -929,7 +974,7 @@
     }
     createSakura();
 
-    // --- Checklist Logic Update with Tabs ---
+    // --- Checklist Logic ---
     function switchChecklistOwner(owner) {
         currentChecklistOwner = owner;
         document.getElementById('check-owner-bird').className = owner === 'bird' ? 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2 jelly-btn' : 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2 jelly-btn';
@@ -1109,7 +1154,6 @@
     async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
     async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
 
-    // 自動修正標題高度
     function adjustContentPadding() {
         const h = document.getElementById('main-header');
         const p = document.getElementById('schedule-page');
