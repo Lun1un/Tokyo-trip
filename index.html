@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (炫砲終極版)</title>
+    <title>東京遛豬之旅 2026 (清單分類版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="icon" type="image/png" sizes="32x32" href="https://i.meee.com.tw/rpOFJGM.jpg">
     
+    <!-- 引入特效庫 -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -197,8 +198,28 @@
         #loading-status { display: none !important; }
 
         /* Checklist Tab Styles */
-        .check-tab-active { background-color: white; color: var(--primary-normal); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .check-tab-inactive { color: #9ca3af; background-color: transparent; }
+        .check-tab-active { 
+            background-color: white; 
+            color: var(--primary-normal); 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+            border: 2px solid var(--primary-light);
+        }
+        .check-tab-inactive { 
+            color: #9ca3af; 
+            background-color: transparent; 
+            border: 2px solid transparent;
+        }
+        
+        /* Type Tab Styles */
+        .type-tab-active {
+            background-color: var(--primary-normal);
+            color: white;
+            box-shadow: 0 4px 10px rgba(192, 132, 252, 0.4);
+        }
+        .type-tab-inactive {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
 
         /* --- ✨ 新增：黑色氣泡提示 (取代 alert) --- */
         .toast {
@@ -330,24 +351,41 @@
         <div id="expense-full-list" class="space-y-3 pb-20"></div>
     </div>
 
+    <!-- ★★★ 清單頁面 (雙層過濾) ★★★ -->
     <div id="checklist-page" class="hidden page-content px-4">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2 text-gray-800">
             <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-clipboard-check"></i></span>
-            攜帶🎒購物清單🛍️
+            必買 & 準備
         </h1>
 
-        <div class="bg-gray-100 p-1 rounded-xl flex gap-1 mb-4 shadow-inner">
-            <button id="check-tab-bird" onclick="switchChecklistTab('bird')" class="flex-1 py-2 text-lg font-bold rounded-lg transition-all check-tab-active">🐦</button>
-            <button id="check-tab-pig" onclick="switchChecklistTab('pig')" class="flex-1 py-2 text-lg font-bold rounded-lg transition-all check-tab-inactive">🐷</button>
+        <!-- 第一層：主人切換 -->
+        <div class="bg-gray-100 p-1 rounded-2xl flex gap-1 mb-3 shadow-inner">
+            <button id="check-owner-bird" onclick="switchChecklistOwner('bird')" class="flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2">
+                <span>🐦</span> Dove
+            </button>
+            <button id="check-owner-pig" onclick="switchChecklistOwner('pig')" class="flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2">
+                <span>🐷</span> Pig
+            </button>
+        </div>
+
+        <!-- 第二層：類型切換 -->
+        <div class="flex gap-2 mb-5">
+            <button id="check-type-shopping" onclick="switchChecklistType('shopping')" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1">
+                <i class="fas fa-shopping-bag"></i> 購物清單
+            </button>
+            <button id="check-type-carry" onclick="switchChecklistType('carry')" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1">
+                <i class="fas fa-suitcase"></i> 攜帶清單
+            </button>
         </div>
 
         <div class="flex gap-3 mb-6 w-full">
-            <input type="text" id="checklist-input" placeholder="新增清單..." class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-white focus:outline-none">
+            <input type="text" id="checklist-input" placeholder="新增項目..." class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-white focus:outline-none">
             <button onclick="addChecklistItem()" class="text-white px-4 rounded-xl font-bold shadow-lg shadow-[var(--primary-light)] active:scale-90 transition shrink-0 glow-btn"><i class="fas fa-plus"></i></button>
         </div>
         <div id="checklist-container" class="space-y-3 pb-20"></div>
     </div>
 
+    <!-- Add Modal -->
     <div id="add-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('add-modal')">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
             <h2 class="text-xl font-bold mb-4 text-gray-800">新增行程</h2>
@@ -412,9 +450,11 @@
         </div>
     </div>
 
+    <!-- Other Modals (Expense, Rate) -->
     <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()"><div class="flex justify-between items-start mb-4"><h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2><button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600 active:scale-95"><i class="fas fa-times text-xl"></i></button></div><div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div><div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-inner"><div class="flex gap-2 mb-2"><select id="expense-payer" class="input-focus w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none shrink-0"><option value="bird">🐦</option><option value="pig">🐷</option><option value="shared">🐷🐦</option></select><input type="text" id="expense-desc" placeholder="品項" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm"></div><div class="flex gap-2"><select id="expense-currency" class="input-focus w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0"><option value="JPY">JPY</option><option value="TWD">TWD</option></select><input type="number" id="expense-amount" placeholder="金額" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold"><button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow-md hover:bg-yellow-600 shrink-0 active:scale-95"><i class="fas fa-plus"></i></button></div></div><input type="hidden" id="expense-item-id"></div></div>
     <div id="rate-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('rate-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()"><h2 class="text-xl font-bold mb-2">匯率設定</h2><div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-inner"><span class="text-lg font-bold text-gray-400">×</span><input type="number" step="0.0001" id="exchange-rate-input" class="input-focus flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none"></div><div class="flex justify-end mt-6"><button onclick="saveExchangeRate()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95">儲存</button></div></div></div>
 
+    <!-- Footer -->
     <div class="fixed-footer text-gray-400">
         <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-map-marked-alt text-xl mb-1"></i><span class="text-[9px] font-bold">行程</span></button>
         <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-map text-xl mb-1"></i><span class="text-[9px] font-bold">地圖</span></button>
@@ -428,7 +468,8 @@
     let currentItems = []; 
     let exchangeRate = 0.22; 
     let checklistItems = [];
-    let currentChecklistOwner = 'bird'; // 預設為鳥的清單
+    let currentChecklistOwner = 'bird'; // 'bird' or 'pig'
+    let currentChecklistType = 'shopping'; // 'shopping' or 'carry'
     let sortableInstance = null;
     let firestoreScheduleListener = null;
     let firestoreChecklistListener = null;
@@ -572,7 +613,6 @@
         const container = document.getElementById('schedule-container');
         container.innerHTML = ''; 
         if (currentItems.length === 0) { 
-            // ✨ 修改：加入漂浮動畫
             container.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-24 opacity-80 select-none">
                     <div class="flex gap-6 mb-4">
@@ -844,18 +884,31 @@
     createSakura();
 
     // --- Checklist Logic Update with Tabs ---
-    function switchChecklistTab(owner) {
+    function switchChecklistOwner(owner) {
         currentChecklistOwner = owner;
-        document.getElementById('check-tab-bird').className = owner === 'bird' ? 'flex-1 py-2 text-lg font-bold rounded-lg transition-all check-tab-active' : 'flex-1 py-2 text-lg font-bold rounded-lg transition-all check-tab-inactive';
-        document.getElementById('check-tab-pig').className = owner === 'pig' ? 'flex-1 py-2 text-lg font-bold rounded-lg transition-all check-tab-active' : 'flex-1 py-2 text-lg font-bold rounded-lg transition-all check-tab-inactive';
+        document.getElementById('check-owner-bird').className = owner === 'bird' ? 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2' : 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2';
+        document.getElementById('check-owner-pig').className = owner === 'pig' ? 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2' : 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2';
         renderChecklist(); 
+    }
+
+    function switchChecklistType(type) {
+        currentChecklistType = type;
+        document.getElementById('check-type-shopping').className = type === 'shopping' ? 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1' : 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1';
+        document.getElementById('check-type-carry').className = type === 'carry' ? 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1' : 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1';
+        renderChecklist();
     }
 
     function renderChecklist() {
         const c = document.getElementById('checklist-container'); 
         c.innerHTML = ''; 
-        // Filter items: show if owner matches OR if owner is undefined (legacy items show in both)
-        const filteredItems = checklistItems.filter(i => i.owner === currentChecklistOwner || !i.owner);
+        
+        // Filter items based on BOTH owner and type
+        // Legacy items (no type) default to 'shopping'
+        const filteredItems = checklistItems.filter(i => {
+            const itemOwner = i.owner || 'bird'; // Default legacy to bird if no owner (though usually they have one)
+            const itemType = i.type || 'shopping'; // Default legacy to shopping
+            return itemOwner === currentChecklistOwner && itemType === currentChecklistType;
+        });
         
         if (filteredItems.length === 0) {
             c.innerHTML = `<div class="text-center text-gray-400 py-10">這個清單還沒有項目哦</div>`;
@@ -896,7 +949,8 @@
             await db.collection(CHECKLIST_COLLECTION).add({
                 text: v,
                 isCompleted: false,
-                owner: currentChecklistOwner, // Save current tab as owner
+                owner: currentChecklistOwner, 
+                type: currentChecklistType,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }); 
             document.getElementById('checklist-input').value=''; 
@@ -936,7 +990,7 @@
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
     window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
     window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
-    window.editDayTitle = editDayTitle; window.initMap = initMap; window.switchChecklistTab = switchChecklistTab;
+    window.editDayTitle = editDayTitle; window.initMap = initMap; window.switchChecklistTab = switchChecklistOwner; window.switchChecklistOwner = switchChecklistOwner; window.switchChecklistType = switchChecklistType;
 </script>
 </body>
 </html>
