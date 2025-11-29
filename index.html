@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (清單分類版)</title>
+    <title>東京遛豬之旅 2026 (購物攻略版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="icon" type="image/png" sizes="32x32" href="https://i.meee.com.tw/rpOFJGM.jpg">
     
-    <!-- 引入特效庫 -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -43,6 +42,22 @@
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
+        /* 圖片查看器 (Lightbox) */
+        #image-viewer-modal {
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        #image-viewer-content {
+            max-width: 95%;
+            max-height: 85%;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+
         /* --- 🌸 櫻花特效 --- */
         .sakura {
             position: fixed; top: -10%; background-color: #ffd1dc; border-radius: 100% 0 100% 0;
@@ -60,43 +75,26 @@
             100% { transform: scale(1) translate(0, 0); }
         }
 
-        /* --- ⌨️ 打字機特效 (8em) --- */
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 8em; } 
-        }
-        @keyframes blink-caret {
-            from, to { border-color: transparent; }
-            50% { border-color: white; }
-        }
+        /* --- ⌨️ 打字機特效 --- */
+        @keyframes typing { from { width: 0; } to { width: 8em; } }
+        @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: white; } }
         .typewriter-text {
-            overflow: hidden;
-            white-space: nowrap;
-            border-right: 2px solid white;
-            width: 0;
-            animation: 
-                typing 2s steps(20, end) forwards,
-                blink-caret 0.75s step-end infinite;
-            display: inline-block;
-            vertical-align: bottom;
-            max-width: 100%;
+            overflow: hidden; white-space: nowrap; border-right: 2px solid white; width: 0;
+            animation: typing 2s steps(20, end) forwards, blink-caret 0.75s step-end infinite;
+            display: inline-block; vertical-align: bottom; max-width: 100%;
         }
 
         .fixed-header-container {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
-            height: auto;
-            overflow: hidden; 
+            height: auto; overflow: hidden; 
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            border-bottom-left-radius: 1.5rem; 
-            border-bottom-right-radius: 1.5rem;
+            border-bottom-left-radius: 1.5rem; border-bottom-right-radius: 1.5rem;
         }
 
         .fixed-header-bg-image {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center bottom;
-            z-index: -2;
+            background-size: cover; background-position: center bottom; z-index: -2;
             animation: ken-burns 20s ease-in-out infinite alternate;
         }
         
@@ -106,34 +104,17 @@
             z-index: -1; backdrop-filter: blur(1px);
         }
 
-        .header-content {
-            position: relative;
-            z-index: 1;
-            padding: 16px 16px 10px 16px;
-            color: white;
-        }
+        .header-content { position: relative; z-index: 1; padding: 16px 16px 10px 16px; color: white; }
 
         /* --- 其他動畫 --- */
         @keyframes elastic-slide-up {
             0% { opacity: 0; transform: translateY(40px); }
             100% { opacity: 1; transform: translateY(0); }
         }
-        .anim-card-entry {
-            animation: elastic-slide-up 0.5s ease-out forwards;
-            opacity: 0; 
-        }
+        .anim-card-entry { animation: elastic-slide-up 0.5s ease-out forwards; opacity: 0; }
         
-        /* --- ☁️ 漂浮動畫 (新增) --- */
-        @keyframes float-bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-        .empty-anim-icon {
-            font-size: 3.5rem;
-            display: inline-block;
-            animation: float-bounce 3s ease-in-out infinite;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-        }
+        @keyframes float-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .empty-anim-icon { font-size: 3.5rem; display: inline-block; animation: float-bounce 3s ease-in-out infinite; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
 
         .map-icon {
             background-color: var(--primary-normal) !important; color: white !important; font-weight: 900; text-align: center; line-height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); width: 30px !important; height: 30px !important; box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4); border: 3px solid white; display: flex !important; align-items: center; justify-content: center; opacity: 1 !important;
@@ -149,10 +130,7 @@
         .check-item.completed .check-text { background-size: 100% 100%; color: #9ca3af; }
         .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: var(--primary-dark); transform: scale(1.1) rotate(360deg); transition: all 0.4s ease; }
 
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(192, 132, 252, 0); }
-            50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(192, 132, 252, 0.4); }
-        }
+        @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(192, 132, 252, 0); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(192, 132, 252, 0.4); } }
         .anim-pulse { animation: breathe 3s infinite ease-in-out; }
 
         .fixed-footer { 
@@ -166,14 +144,7 @@
         #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
         
         .soft-card-shadow { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border-radius: 1.5rem; }
-
-        .soft-card-glow {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            border: 2px solid var(--primary-light); 
-            background-color: rgba(255, 255, 255, 0.95); 
-            border-radius: 1.5rem; 
-            position: relative; overflow: hidden;
-        }
+        .soft-card-glow { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); border: 2px solid var(--primary-light); background-color: rgba(255, 255, 255, 0.95); border-radius: 1.5rem; position: relative; overflow: hidden; }
         
         .sortable-ghost { opacity: 0.4 !important; background-color: #f3e8ff !important; border: 2px dashed var(--primary-normal) !important; border-radius: 1.5rem; animation: none !important; transition: none !important; }
         .sortable-drag { background-color: white !important; transform: scale(1.05) !important; z-index: 9999 !important; border-radius: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important; animation: none !important; transition: none !important; opacity: 1 !important; }
@@ -186,7 +157,6 @@
         .glow-btn:hover { background-color: var(--primary-dark); }
 
         .timeline-line { background-color: #cbd5e1; width: 2px; border-radius: 9999px; }
-        
         .header-glass-card { background-color: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.3); color: white; }
         
         #map-page .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 80px !important; }
@@ -197,59 +167,38 @@
 
         #loading-status { display: none !important; }
 
-        /* Checklist Tab Styles */
-        .check-tab-active { 
-            background-color: white; 
-            color: var(--primary-normal); 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
-            border: 2px solid var(--primary-light);
-        }
-        .check-tab-inactive { 
-            color: #9ca3af; 
-            background-color: transparent; 
-            border: 2px solid transparent;
-        }
-        
-        /* Type Tab Styles */
-        .type-tab-active {
-            background-color: var(--primary-normal);
-            color: white;
-            box-shadow: 0 4px 10px rgba(192, 132, 252, 0.4);
-        }
-        .type-tab-inactive {
-            background-color: #f3f4f6;
-            color: #6b7280;
-        }
+        .check-tab-active { background-color: white; color: var(--primary-normal); box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 2px solid var(--primary-light); }
+        .check-tab-inactive { color: #9ca3af; background-color: transparent; border: 2px solid transparent; }
+        .type-tab-active { background-color: var(--primary-normal); color: white; box-shadow: 0 4px 10px rgba(192, 132, 252, 0.4); }
+        .type-tab-inactive { background-color: #f3f4f6; color: #6b7280; }
 
-        /* --- ✨ 新增：黑色氣泡提示 (取代 alert) --- */
         .toast {
-            position: fixed;
-            bottom: 110px; /* 在導航列上方 */
-            left: 50%;
-            transform: translateX(-50%) scale(0.9);
-            background-color: rgba(0, 0, 0, 0.85);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 14px;
-            font-weight: bold;
-            z-index: 2000;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(4px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            white-space: nowrap;
+            position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) scale(0.9);
+            background-color: rgba(0, 0, 0, 0.85); color: white; padding: 10px 20px;
+            border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 2000;
+            opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(4px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); white-space: nowrap;
         }
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
+        .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
+        
+        /* 縮圖樣式 */
+        .check-thumb {
+            width: 40px; height: 40px; border-radius: 8px; object-fit: cover;
+            border: 1px solid #e5e7eb; cursor: zoom-in; flex-shrink: 0;
+            transition: transform 0.2s;
         }
+        .check-thumb:active { transform: scale(0.95); }
     </style>
 </head>
 <body class="text-gray-700">
 
     <div id="toast-msg" class="toast"></div>
+
+    <!-- 圖片查看 Modal -->
+    <div id="image-viewer-modal" class="modal" onclick="closeImageViewer()">
+        <img id="image-viewer-content" src="" alt="Enlarged">
+        <div class="absolute bottom-10 text-white text-sm bg-black/50 px-3 py-1 rounded-full">點擊任意處關閉</div>
+    </div>
 
     <div id="schedule-page" class="page-content">
         <div class="fixed-header-container" id="main-header">
@@ -351,11 +300,11 @@
         <div id="expense-full-list" class="space-y-3 pb-20"></div>
     </div>
 
-    <!-- ★★★ 清單頁面 (雙層過濾) ★★★ -->
+    <!-- 清單頁面 (購物攻略版) -->
     <div id="checklist-page" class="hidden page-content px-4">
         <h1 class="text-2xl font-black mb-4 flex items-center gap-2 text-gray-800">
             <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-clipboard-check"></i></span>
-            不要忘記！
+            必買 & 準備
         </h1>
 
         <!-- 第一層：主人切換 -->
@@ -371,21 +320,48 @@
         <!-- 第二層：類型切換 -->
         <div class="flex gap-2 mb-5">
             <button id="check-type-shopping" onclick="switchChecklistType('shopping')" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1">
-                <i class="fas fa-shopping-bag"></i> 購物清單
+                <i class="fas fa-shopping-bag"></i> 購物攻略
             </button>
             <button id="check-type-carry" onclick="switchChecklistType('carry')" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1">
                 <i class="fas fa-suitcase"></i> 攜帶清單
             </button>
         </div>
 
-        <div class="flex gap-3 mb-6 w-full">
-            <input type="text" id="checklist-input" placeholder="新增項目..." class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-white focus:outline-none">
-            <button onclick="addChecklistItem()" class="text-white px-4 rounded-xl font-bold shadow-lg shadow-[var(--primary-light)] active:scale-90 transition shrink-0 glow-btn"><i class="fas fa-plus"></i></button>
-        </div>
+        <!-- 新增按鈕 (取代原本的輸入框，改成大按鈕) -->
+        <button onclick="showModal('checklist-add-modal')" class="w-full bg-white border-2 border-dashed border-gray-300 rounded-2xl p-4 text-gray-400 font-bold flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-[var(--primary-normal)] hover:text-[var(--primary-normal)] transition-all mb-6">
+            <i class="fas fa-plus-circle text-xl"></i> 新增清單項目
+        </button>
+
         <div id="checklist-container" class="space-y-3 pb-20"></div>
     </div>
 
-    <!-- Add Modal -->
+    <!-- ★★★ 新增清單項目 Modal ★★★ -->
+    <div id="checklist-add-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('checklist-add-modal')">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+                <i class="fas fa-cart-plus text-[var(--primary-normal)]"></i> 新增項目
+            </h2>
+            <div class="space-y-3">
+                <input type="text" id="check-add-name" placeholder="✨ 物品名稱 (必填)" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
+                
+                <div class="relative">
+                    <i class="fas fa-map-marker-alt absolute left-4 top-3.5 text-gray-400"></i>
+                    <input type="text" id="check-add-shop" placeholder="購買地點 (例如: 唐吉訶德)" class="input-focus w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+                </div>
+
+                <div class="relative">
+                    <i class="fas fa-image absolute left-4 top-3.5 text-gray-400"></i>
+                    <input type="text" id="check-add-img" placeholder="圖片連結 (https://...)" class="input-focus w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-blue-500">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-6">
+                <button onclick="closeModal('checklist-add-modal')" class="px-5 py-2.5 text-gray-500 font-medium rounded-xl hover:bg-gray-100">取消</button>
+                <button onclick="confirmAddChecklist()" class="px-5 py-2.5 glow-btn text-white rounded-xl font-bold active:scale-95">新增</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Schedule Modal -->
     <div id="add-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('add-modal')">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
             <h2 class="text-xl font-bold mb-4 text-gray-800">新增行程</h2>
@@ -490,12 +466,11 @@
 
     function updateCountdown() {
         const tripStartDate = new Date("2026-02-04T00:00:00").getTime();
-        const tripEndDate = new Date("2026-02-11T00:00:00").getTime(); // Day 7 is Feb 10, so trip ends Feb 11 00:00
+        const tripEndDate = new Date("2026-02-11T00:00:00").getTime(); 
         const now = new Date().getTime();
         const timerElement = document.getElementById("countdown-timer");
 
         if (now < tripStartDate) {
-            // Before Trip
             const distance = tripStartDate - now;
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -503,12 +478,10 @@
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
             timerElement.innerHTML = `<i class="fas fa-hourglass-half text-yellow-300 mr-1"></i> 還有 ${days}天 ${hours}時 ${minutes}分 ${seconds}秒`;
         } else if (now < tripEndDate) {
-            // During Trip
             const distanceToEnd = tripEndDate - now;
             const daysLeft = Math.ceil(distanceToEnd / (1000 * 60 * 60 * 24));
             timerElement.innerHTML = `<i class="fas fa-plane-departure text-green-300 mr-1"></i> 旅程進行中 (剩餘 ${daysLeft} 天)`;
         } else {
-            // After Trip
             timerElement.innerHTML = `<i class="fas fa-home text-white mr-1"></i> 旅程已圓滿結束`;
         }
     }
@@ -766,7 +739,7 @@
         });
     }
 
-    // ✨ 顯示氣泡提示的函式
+    // ✨ 顯示氣泡提示
     function showToast(msg) {
         const t = document.getElementById('toast-msg');
         if(t) {
@@ -821,7 +794,6 @@
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
     }
     
-    // ✨ 修改：設定起點時不再跳 alert，改用 showToast
     window.setRouteOrigin = (lat, lon, title) => { 
         routeOrigin = { lat, lon }; 
         showToast(`🚩 已設定「${title}」為起點`); 
@@ -901,12 +873,9 @@
     function renderChecklist() {
         const c = document.getElementById('checklist-container'); 
         c.innerHTML = ''; 
-        
-        // Filter items based on BOTH owner and type
-        // Legacy items (no type) default to 'shopping'
         const filteredItems = checklistItems.filter(i => {
-            const itemOwner = i.owner || 'bird'; // Default legacy to bird if no owner (though usually they have one)
-            const itemType = i.type || 'shopping'; // Default legacy to shopping
+            const itemOwner = i.owner || 'bird';
+            const itemType = i.type || 'shopping';
             return itemOwner === currentChecklistOwner && itemType === currentChecklistType;
         });
         
@@ -917,7 +886,19 @@
 
         filteredItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ 
             const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; 
-            c.insertAdjacentHTML('beforeend', `<div class="check-item flex items-center bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50"><div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-4 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div><div class="flex-1 font-medium text-gray-700 select-none cursor-pointer" onclick="toggleChecklist('${i.id}',${i.isCompleted})"><span class="check-text">${i.text}</span></div><button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 px-2 active:scale-95"><i class="fas fa-times"></i></button></div>`); 
+            let shopHtml = i.shop ? `<div class="text-xs text-gray-400 mt-1 font-bold"><i class="fas fa-map-marker-alt mr-1 text-[var(--primary-normal)]"></i>${i.shop}</div>` : '';
+            let imgHtml = i.imageUrl ? `<img src="${i.imageUrl}" class="check-thumb ml-3" onclick="viewImage('${i.imageUrl}')">` : '';
+
+            c.insertAdjacentHTML('beforeend', `
+                <div class="check-item flex items-start bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50 items-center">
+                    <div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-3 flex-shrink-0 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div>
+                    <div class="flex-1 min-w-0" onclick="toggleChecklist('${i.id}',${i.isCompleted})">
+                        <div class="font-bold text-gray-700 select-none text-base"><span class="check-text">${i.text}</span></div>
+                        ${shopHtml}
+                    </div>
+                    ${imgHtml}
+                    <button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 ml-3 px-2 py-2 active:scale-95"><i class="fas fa-trash-alt"></i></button>
+                </div>`); 
         }); 
     }
 
@@ -927,6 +908,43 @@
             checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); 
             renderChecklist();
         }); 
+    }
+
+    // ★★★ 確認新增功能 ★★★
+    async function confirmAddChecklist() {
+        const name = document.getElementById('check-add-name').value.trim();
+        const shop = document.getElementById('check-add-shop').value.trim();
+        const img = document.getElementById('check-add-img').value.trim();
+
+        if(name) {
+            await db.collection(CHECKLIST_COLLECTION).add({
+                text: name,
+                shop: shop,
+                imageUrl: img,
+                isCompleted: false,
+                owner: currentChecklistOwner,
+                type: currentChecklistType,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            // 清空並關閉
+            document.getElementById('check-add-name').value = '';
+            document.getElementById('check-add-shop').value = '';
+            document.getElementById('check-add-img').value = '';
+            closeModal('checklist-add-modal');
+        } else {
+            alert('請輸入物品名稱！');
+        }
+    }
+
+    // 圖片放大查看
+    function viewImage(url) {
+        const modal = document.getElementById('image-viewer-modal');
+        const img = document.getElementById('image-viewer-content');
+        img.src = url;
+        modal.classList.add('active');
+    }
+    function closeImageViewer() {
+        document.getElementById('image-viewer-modal').classList.remove('active');
     }
 
     async function toggleChecklist(id, currentStatus) { 
@@ -943,20 +961,7 @@
         await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !currentStatus }); 
     }
 
-    async function addChecklistItem() { 
-        const v=document.getElementById('checklist-input').value.trim(); 
-        if(v){ 
-            await db.collection(CHECKLIST_COLLECTION).add({
-                text: v,
-                isCompleted: false,
-                owner: currentChecklistOwner, 
-                type: currentChecklistType,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }); 
-            document.getElementById('checklist-input').value=''; 
-        } 
-    }
-    
+    // 刪除舊的 addChecklistItem 函式，因為現在用 Modal
     async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
     async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
     async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
@@ -986,11 +991,12 @@
     });
 
     window.switchDay = switchDay; window.switchPage = switchPage; window.prepareRateModal = prepareRateModal;
-    window.saveExchangeRate = saveExchangeRate; window.addChecklistItem = addChecklistItem;
+    window.saveExchangeRate = saveExchangeRate; 
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
     window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
     window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
     window.editDayTitle = editDayTitle; window.initMap = initMap; window.switchChecklistTab = switchChecklistOwner; window.switchChecklistOwner = switchChecklistOwner; window.switchChecklistType = switchChecklistType;
+    window.confirmAddChecklist = confirmAddChecklist; window.viewImage = viewImage; window.closeImageViewer = closeImageViewer;
 </script>
 </body>
 </html>
