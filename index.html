@@ -553,7 +553,12 @@
 
     function getDocumentId(day) { return `tokyo_feb_2026_day_${day}`; }
 
+    // --- 修正過後的 fetchWeather 函數 ---
     async function fetchWeather() {
+        const weatherContainer = document.getElementById('hourly-weather-container');
+        // 確保載入動畫在發送請求前顯示
+        weatherContainer.innerHTML = '<div class="text-white/60 text-xs animate-pulse ml-auto">讀取天氣中...</div>';
+
         try {
             const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=35.6895&longitude=139.6917&hourly=temperature_2m,weathercode&timezone=Asia%2FTokyo`);
             const data = await res.json();
@@ -566,7 +571,7 @@
                 const codes = data.hourly.weathercode.slice(startIndex, startIndex + 24);
                 const times = data.hourly.time.slice(startIndex, startIndex + 24);
 
-                const weatherContainer = document.getElementById('hourly-weather-container');
+                // 成功獲取資料，清空初始載入提示
                 weatherContainer.innerHTML = ''; 
 
                 for (let i = 0; i < temps.length; i++) {
@@ -578,6 +583,7 @@
                     let iconClass = 'fas fa-sun'; 
                     let iconColor = 'text-yellow-300';
 
+                    // Open-Meteo Weather Codes
                     if (code === 0) { iconClass = 'fas fa-sun'; iconColor = 'text-yellow-300'; }
                     else if (code >= 1 && code <= 3) { iconClass = 'fas fa-cloud-sun'; iconColor = 'text-yellow-200'; }
                     else if (code >= 45 && code <= 48) { iconClass = 'fas fa-smog'; iconColor = 'text-gray-400'; }
@@ -585,8 +591,9 @@
                     else if (code >= 71 && code <= 77) { iconClass = 'fas fa-snowflake'; iconColor = 'text-white'; }
                     else if (code >= 95) { iconClass = 'fas fa-bolt'; iconColor = 'text-yellow-400'; }
                     
-                    const h = parseInt(hour);
+                    const h = parseInt(new Date(timeStr).getHours());
                     if (h >= 18 || h < 6) {
+                        // 夜間替換太陽為月亮
                         if (code === 0) { iconClass = 'fas fa-moon'; iconColor = 'text-yellow-100'; }
                     }
 
@@ -599,11 +606,15 @@
                     `;
                     weatherContainer.insertAdjacentHTML('beforeend', html);
                 }
+            } else {
+                 weatherContainer.innerHTML = '<div class="text-white/50 text-xs ml-auto">無法取得天氣資料 (無資料)</div>';
             }
         } catch(e) { 
-             document.getElementById('hourly-weather-container').innerHTML = '<div class="text-white/50 text-xs">Weather Unavailable</div>';
+             // 連線或 API 失敗時顯示錯誤
+             weatherContainer.innerHTML = '<div class="text-white/50 text-xs ml-auto">無法取得天氣資料 (連線失敗)</div>';
         }
     }
+    // --- 修正過後的 fetchWeather 函數結束 ---
 
     function listenForDayTitles() {
         if (firestoreTitlesListener) firestoreTitlesListener();
@@ -1110,6 +1121,45 @@
         }
         await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !currentStatus }); 
     }
+    
+    // Function to delete a checklist item
+    async function deleteChecklist(id) {
+        if (!confirm('確認刪除此清單項目？')) return;
+        await db.collection(CHECKLIST_COLLECTION).doc(id).delete();
+        showToast('項目已刪除');
+    }
+
+    // Function to load exchange rate from Firestore
+    async function loadExchangeRate() {
+        try {
+            const doc = await db.collection(CONFIG_DOCUMENT_ID).doc('exchange_rate').get();
+            if (doc.exists) {
+                exchangeRate = doc.data().rate || 0.22;
+            }
+            document.getElementById('display-rate').textContent = exchangeRate.toFixed(4);
+        } catch (e) {
+            // Use default rate on error
+        }
+    }
+
+    // Function to save exchange rate to Firestore
+    async function saveExchangeRate() {
+        const rateInput = parseFloat(document.getElementById('exchange-rate-input').value);
+        if (isNaN(rateInput) || rateInput <= 0) {
+            showToast('匯率必須是有效的正數');
+            return;
+        }
+        exchangeRate = rateInput;
+        document.getElementById('display-rate').textContent = exchangeRate.toFixed(4);
+        try {
+            await db.collection(CONFIG_DOCUMENT_ID).doc('exchange_rate').set({ rate: exchangeRate });
+            showToast('匯率已儲存');
+        } catch (e) {
+            showToast('儲存失敗');
+        }
+        closeModal('rate-modal');
+    }
+
 
     // 自動修正標題高度
     function adjustContentPadding() {
