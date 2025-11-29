@@ -538,7 +538,6 @@
 
     function getDocumentId(day) { return `tokyo_feb_2026_day_${day}`; }
 
-    // ★★★ 修正：改為 Open-Meteo API 取得真實每小時天氣 ★★★
     async function fetchWeather() {
         try {
             const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=35.6895&longitude=139.6917&hourly=temperature_2m,weathercode&timezone=Asia%2FTokyo`);
@@ -564,7 +563,6 @@
                     let iconClass = 'fas fa-sun'; 
                     let iconColor = 'text-yellow-300';
 
-                    // WMO Code Mapping
                     if (code === 0) { iconClass = 'fas fa-sun'; iconColor = 'text-yellow-300'; }
                     else if (code >= 1 && code <= 3) { iconClass = 'fas fa-cloud-sun'; iconColor = 'text-yellow-200'; }
                     else if (code >= 45 && code <= 48) { iconClass = 'fas fa-smog'; iconColor = 'text-gray-400'; }
@@ -822,10 +820,16 @@
         }
     }
 
+    // ★★★ 地圖核心邏輯 (修復版) ★★★
     async function initMap() {
         if (!mapInstance) { 
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
-            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(mapInstance); 
+            
+            // 使用原版 Google 圖層
+            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { 
+                maxZoom: 20, 
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] 
+            }).addTo(mapInstance); 
             
             const locBtn = L.Control.extend({
                 options: { position: 'bottomright' },
@@ -843,26 +847,47 @@
             });
         }
         
-        markers.forEach(m => mapInstance.removeLayer(m)); markers = [];
+        // 清除舊標記
+        markers.forEach(m => mapInstance.removeLayer(m)); 
+        markers = [];
         const locations = currentItems.filter(i => i.location);
         
         let bounds = L.latLngBounds();
         for (let index = 0; index < locations.length; index++) {
             const item = locations[index];
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.location)}`);
-                const data = await res.json();
-                if (data && data.length > 0) {
-                    const lat = data[0].lat; const lon = data[0].lon;
-                    const customIcon = L.divIcon({ className: 'map-icon', html: `<span>${index + 1}</span>`, iconSize: [30, 30], iconAnchor: [15, 30] });
-                    const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance);
-                    
-                    const popupContent = `<div class="text-center"><b>${index + 1}. ${item.title}</b><br>${item.location}<br><span class="text-gray-500 text-xs">${item.startTime}</span><br><div class="mt-2 flex gap-2 justify-center"><button onclick="setRouteOrigin(${lat}, ${lon}, '${item.title}')" class="bg-blue-500 text-white px-2 py-1 rounded text-xs">🚩 設為起點</button><button onclick="navigateHere(${lat}, ${lon})" class="bg-green-500 text-white px-2 py-1 rounded text-xs">🏁 導航至此</button></div></div>`;
-                    marker.bindPopup(popupContent);
-                    
-                    markers.push(marker); bounds.extend([lat, lon]);
-                }
-            } catch (e) {} await new Promise(r => setTimeout(r, 800)); 
+            let lat = null, lon = null;
+            let isCoordinate = false;
+
+            // 1. 偵測是否為座標 (允許 "35.123, 139.123" 格式)
+            const coordPattern = /([0-9]+\.[0-9]+)[,\s]+([0-9]+\.[0-9]+)/;
+            const match = item.location.match(coordPattern);
+
+            if (match) {
+                lat = parseFloat(match[1]);
+                lon = parseFloat(match[2]);
+                isCoordinate = true;
+            } else {
+                // 2. 不是座標才去搜尋
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.location)}&limit=1`);
+                    const data = await res.json();
+                    if (data && data.length > 0) {
+                        lat = data[0].lat;
+                        lon = data[0].lon;
+                    }
+                } catch (e) {} 
+                await new Promise(r => setTimeout(r, 600)); // 避免請求太快
+            }
+
+            if (lat && lon) {
+                const customIcon = L.divIcon({ className: 'map-icon', html: `<span>${index + 1}</span>`, iconSize: [30, 30], iconAnchor: [15, 30] });
+                const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance);
+                
+                const popupContent = `<div class="text-center"><b>${index + 1}. ${item.title}</b><br><span class="text-xs text-gray-500">${isCoordinate ? '📍 使用精確座標' : item.location}</span><br><span class="text-gray-500 text-xs">${item.startTime}</span><br><div class="mt-2 flex gap-2 justify-center"><button onclick="setRouteOrigin(${lat}, ${lon}, '${item.title}')" class="bg-blue-500 text-white px-2 py-1 rounded text-xs">🚩 設為起點</button><button onclick="navigateHere(${lat}, ${lon})" class="bg-green-500 text-white px-2 py-1 rounded text-xs">🏁 導航至此</button></div></div>`;
+                marker.bindPopup(popupContent);
+                
+                markers.push(marker); bounds.extend([lat, lon]);
+            }
         }
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
     }
