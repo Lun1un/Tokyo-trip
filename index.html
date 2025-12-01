@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (紅色地標版)</title>
+    <title>東京遛豬之旅 2026 (軌跡路線版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -45,101 +45,40 @@
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
         /* --- 🌸 櫻花特效 --- */
-        .sakura {
-            position: fixed; top: -10%; background-color: #ffd1dc; border-radius: 100% 0 100% 0;
-            animation: fall linear infinite; z-index: 9998; pointer-events: none; opacity: 0.8;
-        }
-        @keyframes fall {
-            0% { top: -10%; transform: translateX(0) rotate(0deg); opacity: 0.8; }
-            100% { top: 100%; transform: translateX(100px) rotate(360deg); opacity: 0; }
-        }
+        .sakura { position: fixed; top: -10%; background-color: #ffd1dc; border-radius: 100% 0 100% 0; animation: fall linear infinite; z-index: 9998; pointer-events: none; opacity: 0.8; }
+        @keyframes fall { 0% { top: -10%; transform: translateX(0) rotate(0deg); opacity: 0.8; } 100% { top: 100%; transform: translateX(100px) rotate(360deg); opacity: 0; } }
 
         /* --- 🎥 Ken Burns --- */
-        @keyframes ken-burns {
-            0% { transform: scale(1) translate(0, 0); }
-            50% { transform: scale(1.1) translate(-2%, 1%); }
-            100% { transform: scale(1) translate(0, 0); }
-        }
+        @keyframes ken-burns { 0% { transform: scale(1) translate(0, 0); } 50% { transform: scale(1.1) translate(-2%, 1%); } 100% { transform: scale(1) translate(0, 0); } }
 
         /* --- ⌨️ 打字機 --- */
         @keyframes typing { from { width: 0; } to { width: 8em; } }
         @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: white; } }
-        .typewriter-text {
-            overflow: hidden; white-space: nowrap; border-right: 2px solid white; width: 0;
-            animation: typing 2s steps(20, end) forwards, blink-caret 0.75s step-end infinite;
-            display: inline-block; vertical-align: bottom; max-width: 100%;
-        }
+        .typewriter-text { overflow: hidden; white-space: nowrap; border-right: 2px solid white; width: 0; animation: typing 2s steps(20, end) forwards, blink-caret 0.75s step-end infinite; display: inline-block; vertical-align: bottom; max-width: 100%; }
 
-        .fixed-header-container {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
-            height: auto; overflow: hidden; 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            border-bottom-left-radius: 1.5rem; border-bottom-right-radius: 1.5rem;
-        }
-
-        .fixed-header-bg-image {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
-            background-size: cover; background-position: center bottom; z-index: -2;
-            animation: ken-burns 20s ease-in-out infinite alternate;
-        }
-        
-        .fixed-header-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(20, 10, 40, 0.5), rgba(20, 10, 40, 0.9));
-            z-index: -1; backdrop-filter: blur(1px);
-        }
-
+        .fixed-header-container { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: auto; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border-bottom-left-radius: 1.5rem; border-bottom-right-radius: 1.5rem; }
+        .fixed-header-bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop'); background-size: cover; background-position: center bottom; z-index: -2; animation: ken-burns 20s ease-in-out infinite alternate; }
+        .fixed-header-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(20, 10, 40, 0.5), rgba(20, 10, 40, 0.9)); z-index: -1; backdrop-filter: blur(1px); }
         .header-content { position: relative; z-index: 1; padding: 16px 16px 10px 16px; color: white; }
 
         /* --- 其他動畫 --- */
-        @keyframes elastic-slide-up {
-            0% { opacity: 0; transform: translateY(40px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes elastic-slide-up { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
         .anim-card-entry { animation: elastic-slide-up 0.5s ease-out forwards; opacity: 0; }
-        
         @keyframes float-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         .empty-anim-icon { font-size: 3.5rem; display: inline-block; animation: float-bounce 3s ease-in-out infinite; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
 
-        /* ★★★ 強制地圖大頭針樣式 ★★★ */
-        .map-icon {
-            background-color: #ef4444 !important; /* ★★★ 已修改：紅色 ★★★ */
-            color: white !important; 
-            font-weight: 900; 
-            text-align: center; 
-            line-height: 30px; 
-            border-radius: 50% 50% 50% 0; 
-            transform: rotate(-45deg); 
-            width: 30px !important; 
-            height: 30px !important; 
-            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4); 
-            border: 3px solid white; 
-            display: flex !important; 
-            align-items: center; 
-            justify-content: center; 
-            opacity: 1 !important; /* 確保不透明 */
-            visibility: visible !important; /* 確保可見 */
-        }
+        /* ★★★ 地圖大頭針 ★★★ */
+        .map-icon { background-color: var(--primary-normal) !important; color: white !important; font-weight: 900; text-align: center; line-height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); width: 30px !important; height: 30px !important; box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4); border: 3px solid white; display: flex !important; align-items: center; justify-content: center; opacity: 1 !important; }
         .map-icon span { transform: rotate(45deg); display: block; font-size: 14px; }
 
-        .check-text {
-            position: relative; display: inline-block; transition: color 0.3s ease;
-            background-image: linear-gradient(transparent 45%, #9ca3af 45%, #9ca3af 55%, transparent 55%);
-            background-repeat: no-repeat; background-size: 0% 100%; background-position: left center;
-            transition: background-size 0.5s ease-out, color 0.3s ease; padding-right: 2px;
-        }
+        .check-text { position: relative; display: inline-block; transition: color 0.3s ease; background-image: linear-gradient(transparent 45%, #9ca3af 45%, #9ca3af 55%, transparent 55%); background-repeat: no-repeat; background-size: 0% 100%; background-position: left center; transition: background-size 0.5s ease-out, color 0.3s ease; padding-right: 2px; }
         .check-item.completed .check-text { background-size: 100% 100%; color: #9ca3af; }
         .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: var(--primary-dark); transform: scale(1.1) rotate(360deg); transition: all 0.4s ease; }
 
         @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(192, 132, 252, 0); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(192, 132, 252, 0.4); } }
         .anim-pulse { animation: breathe 3s infinite ease-in-out; }
 
-        .fixed-footer { 
-            position: fixed; bottom: 24px; left: 20px; right: 20px; margin: 0 auto; max-width: 400px; z-index: 1001; 
-            background-color: white; border-radius: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
-            height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-sizing: border-box; 
-        }
+        .fixed-footer { position: fixed; bottom: 24px; left: 20px; right: 20px; margin: 0 auto; max-width: 400px; z-index: 1001; background-color: white; border-radius: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.15); height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-sizing: border-box; }
 
         #schedule-page { padding-top: 240px; } 
         #expense-page, #checklist-page { padding-top: 30px; } 
@@ -174,57 +113,17 @@
         .type-tab-active { background-color: var(--primary-normal); color: white; box-shadow: 0 4px 10px rgba(192, 132, 252, 0.4); }
         .type-tab-inactive { background-color: #f3f4f6; color: #6b7280; }
 
-        .toast {
-            position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) scale(0.9);
-            background-color: rgba(0, 0, 0, 0.85); color: white; padding: 10px 20px;
-            border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 2000;
-            opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(4px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); white-space: nowrap;
-        }
+        .toast { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) scale(0.9); background-color: rgba(0, 0, 0, 0.85); color: white; padding: 10px 20px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 2000; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(4px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); white-space: nowrap; }
         .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
-        
-        .check-thumb {
-            width: 45px; height: 45px; border-radius: 8px; object-fit: cover;
-            border: 1px solid #e5e7eb; cursor: zoom-in; flex-shrink: 0;
-            transition: transform 0.2s; background-color: #f3f4f6;
-        }
+        .check-thumb { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 1px solid #e5e7eb; cursor: zoom-in; flex-shrink: 0; transition: transform 0.2s; background-color: #f3f4f6; }
         .check-thumb:active { transform: scale(0.95); }
-
-        .file-upload-btn {
-            display: flex; align-items: center; justify-content: center;
-            background-color: #f3f4f6; color: #4b5563;
-            border: 2px dashed #d1d5db; border-radius: 0.75rem;
-            padding: 0.75rem; cursor: pointer; transition: all 0.2s;
-            font-size: 0.875rem; font-weight: 500;
-        }
-        .file-upload-btn:hover {
-            border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f9fafb;
-        }
-        .file-upload-btn.has-file {
-            border-style: solid; border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f3e8ff;
-        }
-        
-        #image-viewer-modal {
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
-        #image-viewer-content {
-            max-width: 95%;
-            max-height: 85%;
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease;
-        }
-
-        /* ★★★ 水波紋效果 ★★★ */
+        .file-upload-btn { display: flex; align-items: center; justify-content: center; background-color: #f3f4f6; color: #4b5563; border: 2px dashed #d1d5db; border-radius: 0.75rem; padding: 0.75rem; cursor: pointer; transition: all 0.2s; font-size: 0.875rem; font-weight: 500; }
+        .file-upload-btn:hover { border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f9fafb; }
+        .file-upload-btn.has-file { border-style: solid; border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f3e8ff; }
+        #image-viewer-modal { background-color: rgba(0, 0, 0, 0.95); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        #image-viewer-content { max-width: 95%; max-height: 85%; border-radius: 12px; box-shadow: 0 0 30px rgba(0,0,0,0.5); transition: transform 0.3s ease; }
         .ripple-btn { position: relative; overflow: hidden; }
-        .ripple-effect {
-            position: absolute; border-radius: 50%; transform: scale(0);
-            animation: ripple 0.6s linear; background-color: rgba(255, 255, 255, 0.4); pointer-events: none;
-        }
+        .ripple-effect { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple 0.6s linear; background-color: rgba(255, 255, 255, 0.4); pointer-events: none; }
         @keyframes ripple { to { transform: scale(4); opacity: 0; } }
     </style>
 </head>
@@ -488,6 +387,8 @@
     let mapInstance = null;
     let markers = [];
     let routeOrigin = null; 
+    let polyline = null; // 儲存軌跡線
+
     
     let tripDates = [
         { day: 1, label: 'Day 1 出發', week: 'WED', date: '04' },
@@ -820,16 +721,11 @@
         }
     }
 
-    // ★★★ 地圖核心邏輯 (修復版) ★★★
+    // ★★★ 地圖核心邏輯 (軌跡線修復版) ★★★
     async function initMap() {
         if (!mapInstance) { 
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
-            
-            // 使用原版 Google 圖層
-            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { 
-                maxZoom: 20, 
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] 
-            }).addTo(mapInstance); 
+            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(mapInstance); 
             
             const locBtn = L.Control.extend({
                 options: { position: 'bottomright' },
@@ -847,18 +743,22 @@
             });
         }
         
-        // 清除舊標記
+        // 清除舊標記和軌跡線
         markers.forEach(m => mapInstance.removeLayer(m)); 
         markers = [];
+        if (polyline) {
+            mapInstance.removeLayer(polyline);
+        }
+
         const locations = currentItems.filter(i => i.location);
-        
         let bounds = L.latLngBounds();
+        let pathCoords = []; // 用來儲存所有點的座標
+
         for (let index = 0; index < locations.length; index++) {
             const item = locations[index];
             let lat = null, lon = null;
             let isCoordinate = false;
 
-            // 1. 偵測是否為座標 (允許 "35.123, 139.123" 格式)
             const coordPattern = /([0-9]+\.[0-9]+)[,\s]+([0-9]+\.[0-9]+)/;
             const match = item.location.match(coordPattern);
 
@@ -867,7 +767,6 @@
                 lon = parseFloat(match[2]);
                 isCoordinate = true;
             } else {
-                // 2. 不是座標才去搜尋
                 try {
                     const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.location)}&limit=1`);
                     const data = await res.json();
@@ -876,7 +775,7 @@
                         lon = data[0].lon;
                     }
                 } catch (e) {} 
-                await new Promise(r => setTimeout(r, 600)); // 避免請求太快
+                await new Promise(r => setTimeout(r, 600)); 
             }
 
             if (lat && lon) {
@@ -886,13 +785,26 @@
                 const popupContent = `<div class="text-center"><b>${index + 1}. ${item.title}</b><br><span class="text-xs text-gray-500">${isCoordinate ? '📍 使用精確座標' : item.location}</span><br><span class="text-gray-500 text-xs">${item.startTime}</span><br><div class="mt-2 flex gap-2 justify-center"><button onclick="setRouteOrigin(${lat}, ${lon}, '${item.title}')" class="bg-blue-500 text-white px-2 py-1 rounded text-xs">🚩 設為起點</button><button onclick="navigateHere(${lat}, ${lon})" class="bg-green-500 text-white px-2 py-1 rounded text-xs">🏁 導航至此</button></div></div>`;
                 marker.bindPopup(popupContent);
                 
-                markers.push(marker); bounds.extend([lat, lon]);
+                markers.push(marker); 
+                bounds.extend([lat, lon]);
+                pathCoords.push([lat, lon]); // 加入軌跡點
             }
         }
+
+        // ★★★ 繪製虛線軌跡 ★★★
+        if (pathCoords.length > 1) {
+            polyline = L.polyline(pathCoords, {
+                color: '#6b7280', // 深灰色
+                weight: 3,
+                opacity: 0.7,
+                dashArray: '5, 10', // 虛線樣式
+                lineCap: 'round'
+            }).addTo(mapInstance);
+        }
+
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
     }
     
-    // ✨ 修改：設定起點時不再跳 alert，改用 showToast
     window.setRouteOrigin = (lat, lon, title) => { 
         routeOrigin = { lat, lon }; 
         showToast(`🚩 已設定「${title}」為起點`); 
@@ -1026,7 +938,6 @@
                 const preview = document.getElementById('file-preview');
                 preview.style.backgroundImage = `url('${base64}')`;
                 preview.classList.remove('hidden');
-                
                 const label = document.getElementById('file-label');
                 label.classList.add('has-file');
                 document.getElementById('file-label-text').textContent = '照片已選取 (可點擊更換)';
@@ -1044,16 +955,10 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    
                     const MAX_WIDTH = 800;
                     let width = img.width;
                     let height = img.height;
-
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                     canvas.width = width;
                     canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
@@ -1085,7 +990,6 @@
             document.getElementById('file-label').classList.remove('has-file');
             document.getElementById('file-label-text').textContent = '上傳照片 (選填)';
             currentBase64Image = '';
-            
             closeModal('checklist-add-modal');
         } else {
             showToast('請輸入物品名稱！');
