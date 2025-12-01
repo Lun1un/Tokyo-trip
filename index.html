@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (紅標黃線修復版)</title>
+    <title>東京遛豬之旅 2026 (完美修復版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -33,7 +33,7 @@
         }
 
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--soft-bg-color); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; cursor: pointer; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--soft-bg-color); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -59,33 +59,28 @@
         @keyframes elastic-slide-up { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
         .anim-card-entry { animation: elastic-slide-up 0.5s ease-out forwards; opacity: 0; }
         
-        @keyframes float-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-        .empty-anim-icon { font-size: 3.5rem; display: inline-block; animation: float-bounce 3s ease-in-out infinite; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
-
-        /* ★★★ 紅色大頭針 ★★★ */
+        /* ★★★ 地圖大頭針 (修正為圓形，避免渲染問題) ★★★ */
         .map-icon { 
             background-color: #ef4444 !important; /* 紅色 */
             color: white !important; 
             font-weight: 900; 
             text-align: center; 
-            line-height: 30px; 
-            border-radius: 50% 50% 50% 0; 
-            transform: rotate(-45deg); 
-            width: 30px !important; 
-            height: 30px !important; 
-            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4); 
-            border: 3px solid white; 
+            line-height: 32px; 
+            border-radius: 50%; /* 圓形 */
+            width: 32px !important; 
+            height: 32px !important; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
+            border: 2px solid white; 
             display: flex !important; 
             align-items: center; 
             justify-content: center; 
             opacity: 1 !important; 
+            z-index: 1000 !important;
         }
-        .map-icon span { transform: rotate(45deg); display: block; font-size: 14px; }
 
         .check-text { position: relative; display: inline-block; transition: color 0.3s ease; background-image: linear-gradient(transparent 45%, #9ca3af 45%, #9ca3af 55%, transparent 55%); background-repeat: no-repeat; background-size: 0% 100%; background-position: left center; transition: background-size 0.5s ease-out, color 0.3s ease; padding-right: 2px; }
         .check-item.completed .check-text { background-size: 100% 100%; color: #9ca3af; }
         .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: var(--primary-dark); transform: scale(1.1) rotate(360deg); transition: all 0.4s ease; }
-
         @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(192, 132, 252, 0); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(192, 132, 252, 0.4); } }
         .anim-pulse { animation: breathe 3s infinite ease-in-out; }
 
@@ -269,7 +264,7 @@
         <div id="input-area-carry" class="hidden">
             <div class="flex gap-3 mb-6 w-full">
                 <input type="text" id="checklist-input-carry" placeholder="新增攜帶項目 (直接輸入)" class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-white focus:outline-none">
-                <button onclick="addCarryItem()" class="text-white px-4 rounded-xl font-bold shadow-lg shadow-[var(--primary-light)] transition shrink-0 glow-btn ripple-btn"><i class="fas fa-plus"></i></button>
+                <button onclick="addCarryItem()" class="text-white px-4 rounded-xl font-bold shadow-lg shadow-[var(--primary-light)] active:scale-90 transition shrink-0 glow-btn ripple-btn"><i class="fas fa-plus"></i></button>
             </div>
         </div>
 
@@ -596,6 +591,7 @@
             : `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
                <div class="timeline-line bg-gray-200 h-full mt-1 min-h-[2rem]"></div>`;
 
+        // ★★★ 修正：花費金額強制換行 ★★★
         const costBadge = totalItemCost > 0 ? 
             `<div class="mt-3 block">
                 <span class="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-lg text-xs font-bold border border-yellow-200 shadow-sm">
@@ -810,7 +806,7 @@
 
             polyline = L.polyline(curvedPath, {
                 color: '#facc15', // 淡黃色
-                weight: 5, // 加粗線條
+                weight: 5,
                 opacity: 0.9,
                 dashArray: '10, 10', // 虛線樣式
                 lineCap: 'round'
