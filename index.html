@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (軌跡路線版)</title>
+    <title>東京遛豬之旅 2026 (完整特效版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -125,6 +125,23 @@
         .ripple-btn { position: relative; overflow: hidden; }
         .ripple-effect { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple 0.6s linear; background-color: rgba(255, 255, 255, 0.4); pointer-events: none; }
         @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+        /* --- 🖱️ 點擊 Emoji 特效 --- */
+        .click-emoji-effect {
+            position: fixed;
+            pointer-events: none;
+            z-index: 99999;
+            font-size: 24px;
+            animation: float-emoji 1s ease-out forwards;
+            user-select: none;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes float-emoji {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5) rotate(0deg); }
+            50% { transform: translate(-50%, -150%) scale(1.2) rotate(10deg); }
+            100% { opacity: 0; transform: translate(-50%, -250%) scale(1) rotate(-10deg); }
+        }
     </style>
 </head>
 <body class="text-gray-700">
@@ -1054,6 +1071,23 @@
         const expenseBtn = e.target.closest('.expense-btn');
         if (editBtn) prepareEdit(editBtn.getAttribute('data-item-id'));
         if (expenseBtn) openExpenseModal(expenseBtn.getAttribute('data-item-id'));
+    });
+
+    // --- 🖱️ 點擊特效邏輯 ---
+    document.addEventListener('click', function(e) {
+        const emojis = ['🐽', '🐷', '🐦', '🌸', '✈️'];
+        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+        const el = document.createElement('div');
+        el.textContent = randomEmoji;
+        el.className = 'click-emoji-effect';
+        el.style.left = e.clientX + 'px';
+        el.style.top = e.clientY + 'px';
+        const randomRotation = (Math.random() * 40) - 20;
+        el.style.transform = `translate(-50%, -50%) rotate(${randomRotation}deg)`;
+        document.body.appendChild(el);
+        setTimeout(() => {
+            el.remove();
+        }, 1000);
     });
 
     document.addEventListener('DOMContentLoaded', () => {
