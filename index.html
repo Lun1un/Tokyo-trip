@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (完整特效版)</title>
+    <title>東京遛豬之旅 2026 (特效完全體)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -11,7 +11,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -38,37 +37,63 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 8rem; } 
-        .page-content.hidden { opacity: 0; display: none !important; }
+        .page-content { 
+            opacity: 1; 
+            min-height: 100vh; 
+            padding-bottom: 8rem; 
+            /* 確保轉場動畫順暢 */
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        } 
+        .page-content.hidden { 
+            opacity: 0; 
+            display: none !important; 
+            /* 隱藏時稍微往下位移，製造下次顯示時的上浮感 */
+            transform: translateY(10px);
+        }
+
+        /* ★★★ 3. 轉場過渡動畫 class ★★★ */
+        .page-enter-active {
+            animation: page-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes page-slide-up {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
 
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* --- 🌸 櫻花特效 --- */
+        /* --- 特效區 --- */
         .sakura { position: fixed; top: -10%; background-color: #ffd1dc; border-radius: 100% 0 100% 0; animation: fall linear infinite; z-index: 9998; pointer-events: none; opacity: 0.8; }
         @keyframes fall { 0% { top: -10%; transform: translateX(0) rotate(0deg); opacity: 0.8; } 100% { top: 100%; transform: translateX(100px) rotate(360deg); opacity: 0; } }
-
-        /* --- 🎥 Ken Burns --- */
         @keyframes ken-burns { 0% { transform: scale(1) translate(0, 0); } 50% { transform: scale(1.1) translate(-2%, 1%); } 100% { transform: scale(1) translate(0, 0); } }
-
-        /* --- ⌨️ 打字機 --- */
         @keyframes typing { from { width: 0; } to { width: 8em; } }
         @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: white; } }
         .typewriter-text { overflow: hidden; white-space: nowrap; border-right: 2px solid white; width: 0; animation: typing 2s steps(20, end) forwards, blink-caret 0.75s step-end infinite; display: inline-block; vertical-align: bottom; max-width: 100%; }
-
+        
         .fixed-header-container { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: auto; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border-bottom-left-radius: 1.5rem; border-bottom-right-radius: 1.5rem; }
-        .fixed-header-bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop'); background-size: cover; background-position: center bottom; z-index: -2; animation: ken-burns 20s ease-in-out infinite alternate; }
+        
+        /* ★★★ 1. 視差捲動目標：背景圖片 ★★★ */
+        .fixed-header-bg-image { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 120%; /* 高度加大以容納視差移動 */
+            background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop'); 
+            background-size: cover; 
+            background-position: center bottom; 
+            z-index: -2; 
+            /* 移除原本的 Ken Burns 動畫，避免與視差衝突，或可保留微幅縮放 */
+            transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 平滑視差 */
+        }
+        
         .fixed-header-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(20, 10, 40, 0.5), rgba(20, 10, 40, 0.9)); z-index: -1; backdrop-filter: blur(1px); }
         .header-content { position: relative; z-index: 1; padding: 16px 16px 10px 16px; color: white; }
 
-        /* --- 其他動畫 --- */
         @keyframes elastic-slide-up { 0% { opacity: 0; transform: translateY(40px); } 100% { opacity: 1; transform: translateY(0); } }
         .anim-card-entry { animation: elastic-slide-up 0.5s ease-out forwards; opacity: 0; }
+        
         @keyframes float-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         .empty-anim-icon { font-size: 3.5rem; display: inline-block; animation: float-bounce 3s ease-in-out infinite; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
 
-        /* ★★★ 地圖大頭針 ★★★ */
-        .map-icon { background-color: var(--primary-normal) !important; color: white !important; font-weight: 900; text-align: center; line-height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); width: 30px !important; height: 30px !important; box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4); border: 3px solid white; display: flex !important; align-items: center; justify-content: center; opacity: 1 !important; }
+        .map-icon { background-color: #ef4444 !important; color: white !important; font-weight: 900; text-align: center; line-height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); width: 30px !important; height: 30px !important; box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4); border: 3px solid white; display: flex !important; align-items: center; justify-content: center; opacity: 1 !important; }
         .map-icon span { transform: rotate(45deg); display: block; font-size: 14px; }
 
         .check-text { position: relative; display: inline-block; transition: color 0.3s ease; background-image: linear-gradient(transparent 45%, #9ca3af 45%, #9ca3af 55%, transparent 55%); background-repeat: no-repeat; background-size: 0% 100%; background-position: left center; transition: background-size 0.5s ease-out, color 0.3s ease; padding-right: 2px; }
@@ -86,33 +111,25 @@
         
         .soft-card-shadow { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border-radius: 1.5rem; }
         .soft-card-glow { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); border: 2px solid var(--primary-light); background-color: rgba(255, 255, 255, 0.95); border-radius: 1.5rem; position: relative; overflow: hidden; }
-        
         .sortable-ghost { opacity: 0.4 !important; background-color: #f3e8ff !important; border: 2px dashed var(--primary-normal) !important; border-radius: 1.5rem; animation: none !important; transition: none !important; }
         .sortable-drag { background-color: white !important; transform: scale(1.05) !important; z-index: 9999 !important; border-radius: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important; animation: none !important; transition: none !important; opacity: 1 !important; }
-        
         #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
         .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
-
         .input-focus:focus { border-color: var(--primary-normal); box-shadow: 0 0 0 3px var(--primary-light); outline: none; }
         .glow-btn { background-color: var(--primary-normal); box-shadow: 0 0 10px var(--primary-light); transition: all 0.2s; }
         .glow-btn:hover { background-color: var(--primary-dark); }
-
         .timeline-line { background-color: #cbd5e1; width: 2px; border-radius: 9999px; }
         .header-glass-card { background-color: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.3); color: white; }
         
         #map-page .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 80px !important; }
         #map-page .leaflet-control-container .leaflet-bottom { bottom: 110px !important; }
-
         .leaflet-control-custom-btn { background-color: white; width: 34px; height: 34px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.65); cursor: pointer; display: flex; align-items: center; justify-content: center; color: #4b5563; font-size: 16px; transition: all 0.2s; }
         .leaflet-control-custom-btn:hover { background-color: #f3f4f6; color: var(--primary-normal); }
-
         #loading-status { display: none !important; }
-
         .check-tab-active { background-color: white; color: var(--primary-normal); box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 2px solid var(--primary-light); }
         .check-tab-inactive { color: #9ca3af; background-color: transparent; border: 2px solid transparent; }
         .type-tab-active { background-color: var(--primary-normal); color: white; box-shadow: 0 4px 10px rgba(192, 132, 252, 0.4); }
         .type-tab-inactive { background-color: #f3f4f6; color: #6b7280; }
-
         .toast { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) scale(0.9); background-color: rgba(0, 0, 0, 0.85); color: white; padding: 10px 20px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 2000; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(4px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); white-space: nowrap; }
         .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
         .check-thumb { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 1px solid #e5e7eb; cursor: zoom-in; flex-shrink: 0; transition: transform 0.2s; background-color: #f3f4f6; }
@@ -125,23 +142,6 @@
         .ripple-btn { position: relative; overflow: hidden; }
         .ripple-effect { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple 0.6s linear; background-color: rgba(255, 255, 255, 0.4); pointer-events: none; }
         @keyframes ripple { to { transform: scale(4); opacity: 0; } }
-
-        /* --- 🖱️ 點擊 Emoji 特效 --- */
-        .click-emoji-effect {
-            position: fixed;
-            pointer-events: none;
-            z-index: 99999;
-            font-size: 24px;
-            animation: float-emoji 1s ease-out forwards;
-            user-select: none;
-            transform: translate(-50%, -50%);
-        }
-
-        @keyframes float-emoji {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5) rotate(0deg); }
-            50% { transform: translate(-50%, -150%) scale(1.2) rotate(10deg); }
-            100% { opacity: 0; transform: translate(-50%, -250%) scale(1) rotate(-10deg); }
-        }
     </style>
 </head>
 <body class="text-gray-700">
@@ -283,7 +283,7 @@
         <div id="input-area-carry" class="hidden">
             <div class="flex gap-3 mb-6 w-full">
                 <input type="text" id="checklist-input-carry" placeholder="新增攜帶項目 (直接輸入)" class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-white focus:outline-none">
-                <button onclick="addCarryItem()" class="text-white px-4 rounded-xl font-bold shadow-lg shadow-[var(--primary-light)] active:scale-90 transition shrink-0 glow-btn ripple-btn"><i class="fas fa-plus"></i></button>
+                <button onclick="addCarryItem()" class="text-white px-4 rounded-xl font-bold shadow-lg shadow-[var(--primary-light)] transition shrink-0 glow-btn ripple-btn"><i class="fas fa-plus"></i></button>
             </div>
         </div>
 
@@ -404,7 +404,7 @@
     let mapInstance = null;
     let markers = [];
     let routeOrigin = null; 
-    let polyline = null; // 儲存軌跡線
+    let polyline = null; 
 
     
     let tripDates = [
@@ -643,8 +643,8 @@
                                 <h3 class="font-extrabold text-gray-800 text-lg leading-tight mt-1">${item.title}</h3>
                             </div>
                             <div class="flex gap-1">
-                                <button class="expense-btn w-8 h-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center hover:bg-yellow-100 transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-wallet"></i></button>
-                                <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-[var(--primary-normal)]/10 hover:text-[var(--primary-normal)] transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
+                                <button class="expense-btn w-8 h-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center hover:bg-yellow-100 transition active:scale-95 jelly-btn" data-item-id="${item.id}"><i class="fas fa-wallet"></i></button>
+                                <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-[var(--primary-normal)]/10 hover:text-[var(--primary-normal)] transition active:scale-95 jelly-btn" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
                             </div>
                         </div>
                         <p class="text-sm text-gray-500 mt-2 leading-relaxed">${item.content || ''}</p>
@@ -742,7 +742,10 @@
     async function initMap() {
         if (!mapInstance) { 
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
-            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { maxZoom: 20, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(mapInstance); 
+            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { 
+                maxZoom: 20, 
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] 
+            }).addTo(mapInstance); 
             
             const locBtn = L.Control.extend({
                 options: { position: 'bottomright' },
@@ -808,13 +811,22 @@
             }
         }
 
-        // ★★★ 繪製虛線軌跡 ★★★
+        // ★★★ 繪製虛線軌跡 (使用 helper function 產生弧線) ★★★
         if (pathCoords.length > 1) {
-            polyline = L.polyline(pathCoords, {
-                color: '#6b7280', // 深灰色
-                weight: 3,
-                opacity: 0.7,
-                dashArray: '5, 10', // 虛線樣式
+            let curvedPath = [];
+            for (let i = 0; i < pathCoords.length - 1; i++) {
+                let start = pathCoords[i];
+                let end = pathCoords[i + 1];
+                // 產生每兩點之間的弧線點 (50個點)
+                let curvePoints = getCurvePoints(start, end);
+                curvedPath = curvedPath.concat(curvePoints);
+            }
+
+            polyline = L.polyline(curvedPath, {
+                color: '#facc15', // 淡黃色
+                weight: 5, // 加粗線條
+                opacity: 0.9,
+                dashArray: '10, 10', // 虛線樣式
                 lineCap: 'round'
             }).addTo(mapInstance);
         }
@@ -822,6 +834,36 @@
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
     }
     
+    // ★★★ 計算弧線點的函式 (二次貝茲曲線) ★★★
+    function getCurvePoints(start, end) {
+        const lat1 = start[0];
+        const lng1 = start[1];
+        const lat2 = end[0];
+        const lng2 = end[1];
+        
+        // 計算中點
+        const midLat = (lat1 + lat2) / 2;
+        const midLng = (lng1 + lng2) / 2;
+
+        // 計算偏移量 (固定向右彎曲，避免重疊)
+        // 向量 (dx, dy) 的垂直向量是 (-dy, dx)
+        const dx = lng2 - lng1;
+        const dy = lat2 - lat1;
+        const offsetFactor = 0.15; // 彎曲程度
+        
+        const controlLat = midLat - dx * offsetFactor;
+        const controlLng = midLng + dy * offsetFactor;
+
+        // 產生 50 個點
+        let points = [];
+        for (let t = 0; t <= 1; t += 0.02) {
+            const lat = (1 - t) * (1 - t) * lat1 + 2 * (1 - t) * t * controlLat + t * t * lat2;
+            const lng = (1 - t) * (1 - t) * lng1 + 2 * (1 - t) * t * controlLng + t * t * lng2;
+            points.push([lat, lng]);
+        }
+        return points;
+    }
+
     window.setRouteOrigin = (lat, lon, title) => { 
         routeOrigin = { lat, lon }; 
         showToast(`🚩 已設定「${title}」為起點`); 
@@ -955,6 +997,7 @@
                 const preview = document.getElementById('file-preview');
                 preview.style.backgroundImage = `url('${base64}')`;
                 preview.classList.remove('hidden');
+                
                 const label = document.getElementById('file-label');
                 label.classList.add('has-file');
                 document.getElementById('file-label-text').textContent = '照片已選取 (可點擊更換)';
@@ -972,10 +1015,16 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
+                    
                     const MAX_WIDTH = 800;
                     let width = img.width;
                     let height = img.height;
-                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+
                     canvas.width = width;
                     canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
@@ -1007,6 +1056,7 @@
             document.getElementById('file-label').classList.remove('has-file');
             document.getElementById('file-label-text').textContent = '上傳照片 (選填)';
             currentBase64Image = '';
+            
             closeModal('checklist-add-modal');
         } else {
             showToast('請輸入物品名稱！');
@@ -1071,24 +1121,22 @@
         const expenseBtn = e.target.closest('.expense-btn');
         if (editBtn) prepareEdit(editBtn.getAttribute('data-item-id'));
         if (expenseBtn) openExpenseModal(expenseBtn.getAttribute('data-item-id'));
+        
+        // 觸發小豬噴發特效
+        createPiggyPop(e.clientX, e.clientY);
     });
-
-    // --- 🖱️ 點擊特效邏輯 ---
-    document.addEventListener('click', function(e) {
-        const emojis = ['🐽', '🐷', '🐦', '🌸', '✈️'];
-        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-        const el = document.createElement('div');
-        el.textContent = randomEmoji;
-        el.className = 'click-emoji-effect';
-        el.style.left = e.clientX + 'px';
-        el.style.top = e.clientY + 'px';
-        const randomRotation = (Math.random() * 40) - 20;
-        el.style.transform = `translate(-50%, -50%) rotate(${randomRotation}deg)`;
-        document.body.appendChild(el);
-        setTimeout(() => {
-            el.remove();
-        }, 1000);
-    });
+    
+    // 小豬噴發邏輯 (自訂 Emoji 版)
+    function createPiggyPop(x, y) {
+        const emojis = ['🐷', '🐦', '🌸', '🐽', '⛩️', '🗻']; // ✨ 已修改為指定內容
+        const particle = document.createElement('div');
+        particle.classList.add('piggy-particle');
+        particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1000);
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
