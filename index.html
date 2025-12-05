@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (特效完全體)</title>
+    <title>東京遛豬之旅 2026 (轉場修復版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -37,27 +37,27 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
+        /* 頁面基礎設定 */
         .page-content { 
-            opacity: 1; 
             min-height: 100vh; 
             padding-bottom: 8rem; 
-            /* 確保轉場動畫順暢 */
-            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        } 
-        .page-content.hidden { 
-            opacity: 0; 
-            display: none !important; 
-            /* 隱藏時稍微往下位移，製造下次顯示時的上浮感 */
-            transform: translateY(10px);
+            /* 隱藏時不佔空間 */
+            display: none; 
+        }
+        
+        /* 顯示時的 class */
+        .page-content.active-page {
+            display: block;
         }
 
-        /* ★★★ 3. 轉場過渡動畫 class ★★★ */
-        .page-enter-active {
-            animation: page-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        /* ★★★ 頁面轉場動畫 (Page Transition) ★★★ */
+        @keyframes page-enter-slide {
+            0% { opacity: 0; transform: translateY(30px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes page-slide-up {
-            from { opacity: 0; transform: translateY(20px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+
+        .page-animate {
+            animation: page-enter-slide 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
@@ -72,18 +72,7 @@
         .typewriter-text { overflow: hidden; white-space: nowrap; border-right: 2px solid white; width: 0; animation: typing 2s steps(20, end) forwards, blink-caret 0.75s step-end infinite; display: inline-block; vertical-align: bottom; max-width: 100%; }
         
         .fixed-header-container { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: auto; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border-bottom-left-radius: 1.5rem; border-bottom-right-radius: 1.5rem; }
-        
-        /* ★★★ 1. 視差捲動目標：背景圖片 ★★★ */
-        .fixed-header-bg-image { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 120%; /* 高度加大以容納視差移動 */
-            background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop'); 
-            background-size: cover; 
-            background-position: center bottom; 
-            z-index: -2; 
-            /* 移除原本的 Ken Burns 動畫，避免與視差衝突，或可保留微幅縮放 */
-            transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 平滑視差 */
-        }
-        
+        .fixed-header-bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop'); background-size: cover; background-position: center bottom; z-index: -2; animation: ken-burns 20s ease-in-out infinite alternate; }
         .fixed-header-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(20, 10, 40, 0.5), rgba(20, 10, 40, 0.9)); z-index: -1; backdrop-filter: blur(1px); }
         .header-content { position: relative; z-index: 1; padding: 16px 16px 10px 16px; color: white; }
 
@@ -153,7 +142,7 @@
         <div class="absolute bottom-10 text-white text-sm bg-black/50 px-3 py-1 rounded-full">點擊任意處關閉</div>
     </div>
 
-    <div id="schedule-page" class="page-content">
+    <div id="schedule-page" class="page-content active-page">
         <div class="fixed-header-container" id="main-header">
             <div class="fixed-header-bg-image"></div>
             <div class="fixed-header-overlay"></div>
