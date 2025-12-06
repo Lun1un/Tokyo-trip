@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (絕對穩定版)</title>
+    <title>東京遛豬之旅 2026 (絕對修復版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="icon" type="image/png" sizes="32x32" href="https://i.meee.com.tw/rpOFJGM.jpg">
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -32,37 +33,112 @@
         }
 
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--soft-bg-color); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--soft-bg-color); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; cursor: pointer; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        .page-content { 
-            min-height: 100vh; 
-            padding-bottom: 8rem; 
-            display: none; 
-        }
-        .page-content.active-page { display: block; }
+        .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 8rem; } 
+        .page-content.hidden { opacity: 0; display: none !important; }
 
-        .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
+        .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* Header */
-        .fixed-header-bg {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
-            background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center bottom;
-            padding-top: 16px; padding-bottom: 15px; 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            color: white;
+        /* --- 🌸 櫻花特效 (層級調低) --- */
+        .sakura {
+            position: fixed; top: -10%; background-color: #ffd1dc; border-radius: 100% 0 100% 0;
+            animation: fall linear infinite; 
+            z-index: 50; /* 調低層級，確保不擋住 Footer */
+            pointer-events: none; opacity: 0.8;
         }
-        .fixed-header-bg::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom, rgba(20, 10, 40, 0.6), rgba(20, 10, 40, 0.85));
-            z-index: -1;
+        @keyframes fall {
+            0% { top: -10%; transform: translateX(0) rotate(0deg); opacity: 0.8; }
+            100% { top: 100%; transform: translateX(100px) rotate(360deg); opacity: 0; }
         }
 
-        /* Footer */
+        /* --- 🎥 Ken Burns --- */
+        @keyframes ken-burns {
+            0% { transform: scale(1) translate(0, 0); }
+            50% { transform: scale(1.1) translate(-2%, 1%); }
+            100% { transform: scale(1) translate(0, 0); }
+        }
+
+        /* --- ⌨️ 打字機 --- */
+        @keyframes typing { from { width: 0; } to { width: 8em; } }
+        @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: white; } }
+        .typewriter-text {
+            overflow: hidden; white-space: nowrap; border-right: 2px solid white; width: 0;
+            animation: typing 2s steps(20, end) forwards, blink-caret 0.75s step-end infinite;
+            display: inline-block; vertical-align: bottom; max-width: 100%;
+        }
+
+        .fixed-header-container {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
+            height: auto; overflow: hidden; 
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-bottom-left-radius: 1.5rem; border-bottom-right-radius: 1.5rem;
+        }
+
+        .fixed-header-bg-image {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
+            background-size: cover; background-position: center bottom; z-index: -2;
+            animation: ken-burns 20s ease-in-out infinite alternate;
+        }
+        
+        .fixed-header-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(20, 10, 40, 0.5), rgba(20, 10, 40, 0.9));
+            z-index: -1; backdrop-filter: blur(1px);
+        }
+
+        .header-content { position: relative; z-index: 1; padding: 16px 16px 10px 16px; color: white; }
+
+        /* --- 其他動畫 --- */
+        @keyframes elastic-slide-up {
+            0% { opacity: 0; transform: translateY(40px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .anim-card-entry { animation: elastic-slide-up 0.5s ease-out forwards; opacity: 0; }
+        
+        @keyframes float-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .empty-anim-icon { font-size: 3.5rem; display: inline-block; animation: float-bounce 3s ease-in-out infinite; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+
+        /* ★★★ 地圖大頭針 (強制顯示修正) ★★★ */
+        .map-icon {
+            background-color: #ef4444 !important; /* 紅色 */
+            color: white !important; 
+            font-weight: 900; 
+            text-align: center; 
+            line-height: 30px; 
+            border-radius: 50%; 
+            width: 30px !important; 
+            height: 30px !important; 
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4); 
+            border: 3px solid white; 
+            display: flex !important; 
+            align-items: center; 
+            justify-content: center; 
+            opacity: 1 !important; /* 強制不透明 */
+            z-index: 500 !important;
+            /* 移除 transform 和 animation 以避免渲染問題 */
+            transform: none !important; 
+            animation: none !important;
+        }
+        .map-icon span { display: block; font-size: 14px; }
+
+        .check-text {
+            position: relative; display: inline-block; transition: color 0.3s ease;
+            background-image: linear-gradient(transparent 45%, #9ca3af 45%, #9ca3af 55%, transparent 55%);
+            background-repeat: no-repeat; background-size: 0% 100%; background-position: left center;
+            transition: background-size 0.5s ease-out, color 0.3s ease; padding-right: 2px;
+        }
+        .check-item.completed .check-text { background-size: 100% 100%; color: #9ca3af; }
+        .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: var(--primary-dark); transform: scale(1.1) rotate(360deg); transition: all 0.4s ease; }
+
+        @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(192, 132, 252, 0); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(192, 132, 252, 0.4); } }
+        .anim-pulse { animation: breathe 3s infinite ease-in-out; }
+
+        /* ★★★ Footer 修復：層級置頂，確保可點擊 ★★★ */
         .fixed-footer { 
             position: fixed; 
             bottom: 24px; 
@@ -70,7 +146,7 @@
             right: 20px; 
             margin: 0 auto; 
             max-width: 400px; 
-            z-index: 1001; 
+            z-index: 99999; /* 最高層級，確保在櫻花之上 */
             background-color: white; 
             border-radius: 2rem; 
             box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
@@ -80,62 +156,34 @@
             justify-content: space-between; 
             padding: 0 15px; 
             box-sizing: border-box; 
+            pointer-events: auto; /* 強制開啟點擊 */
         }
 
-        #schedule-page { padding-top: 220px; } 
+        #schedule-page { padding-top: 240px; } 
         #expense-page, #checklist-page { padding-top: 30px; } 
         #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
         
         .soft-card-shadow { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border-radius: 1.5rem; }
-
-        /* 行程卡片 */
-        .soft-card-glow {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            border: 2px solid var(--primary-light); 
-            background-color: rgba(255, 255, 255, 0.95); 
-            border-radius: 1.5rem; 
-            position: relative; overflow: hidden;
-        }
+        .soft-card-glow { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); border: 2px solid var(--primary-light); background-color: rgba(255, 255, 255, 0.95); border-radius: 1.5rem; position: relative; overflow: hidden; }
         
-        .sortable-ghost { opacity: 0.4 !important; background-color: #f3e8ff !important; border: 2px dashed var(--primary-normal) !important; border-radius: 1.5rem; }
-        .sortable-drag { background-color: white !important; transform: scale(1.05) !important; z-index: 9999 !important; border-radius: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important; }
+        .sortable-ghost { opacity: 0.4 !important; background-color: #f3e8ff !important; border: 2px dashed var(--primary-normal) !important; border-radius: 1.5rem; animation: none !important; transition: none !important; }
+        .sortable-drag { background-color: white !important; transform: scale(1.05) !important; z-index: 9999 !important; border-radius: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important; animation: none !important; transition: none !important; opacity: 1 !important; }
         
         #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
         .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
 
         .input-focus:focus { border-color: var(--primary-normal); box-shadow: 0 0 0 3px var(--primary-light); outline: none; }
-        
-        .timeline-line { background-color: #cbd5e1; width: 2px; border-radius: 9999px; }
-        
-        /* ★★★ 修正：地圖大頭針 (最穩定的寫法) ★★★ */
-        .map-icon { 
-            background-color: #ef4444 !important;
-            color: white !important; 
-            font-weight: 900; 
-            text-align: center; 
-            line-height: 32px; 
-            border-radius: 50%; 
-            width: 32px !important; 
-            height: 32px !important; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            border: 2px solid white; 
-            display: flex !important; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 14px;
-        }
+        .glow-btn { background-color: var(--primary-normal); box-shadow: 0 0 10px var(--primary-light); transition: all 0.2s; }
+        .glow-btn:hover { background-color: var(--primary-dark); }
 
-        .header-glass-card {
-            background-color: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: white;
-        }
+        .timeline-line { background-color: #cbd5e1; width: 2px; border-radius: 9999px; }
+        .header-glass-card { background-color: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.3); color: white; }
         
         #map-page .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 80px !important; }
         #map-page .leaflet-control-container .leaflet-bottom { bottom: 110px !important; }
 
-        .leaflet-control-custom-btn { background-color: white; width: 34px; height: 34px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.65); cursor: pointer; display: flex; align-items: center; justify-content: center; color: #4b5563; font-size: 16px; }
+        .leaflet-control-custom-btn { background-color: white; width: 34px; height: 34px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.65); cursor: pointer; display: flex; align-items: center; justify-content: center; color: #4b5563; font-size: 16px; transition: all 0.2s; }
+        .leaflet-control-custom-btn:hover { background-color: #f3f4f6; color: var(--primary-normal); }
 
         #loading-status { display: none !important; }
 
@@ -148,45 +196,53 @@
             position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) scale(0.9);
             background-color: rgba(0, 0, 0, 0.85); color: white; padding: 10px 20px;
             border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 2000;
-            opacity: 0; pointer-events: none; transition: all 0.3s;
+            opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(4px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); white-space: nowrap;
         }
         .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
         
         .check-thumb {
             width: 45px; height: 45px; border-radius: 8px; object-fit: cover;
-            border: 1px solid #e5e7eb; cursor: zoom-in; flex-shrink: 0; background-color: #f3f4f6;
+            border: 1px solid #e5e7eb; cursor: zoom-in; flex-shrink: 0;
+            transition: transform 0.2s; background-color: #f3f4f6;
         }
+        .check-thumb:active { transform: scale(0.95); }
 
         .file-upload-btn {
             display: flex; align-items: center; justify-content: center;
             background-color: #f3f4f6; color: #4b5563;
             border: 2px dashed #d1d5db; border-radius: 0.75rem;
-            padding: 0.75rem; cursor: pointer; font-size: 0.875rem; font-weight: 500;
+            padding: 0.75rem; cursor: pointer; transition: all 0.2s;
+            font-size: 0.875rem; font-weight: 500;
+        }
+        .file-upload-btn:hover {
+            border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f9fafb;
         }
         .file-upload-btn.has-file {
             border-style: solid; border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f3e8ff;
         }
         
         #image-viewer-modal {
-            background-color: rgba(0, 0, 0, 0.95); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(10px);
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
         }
         #image-viewer-content {
-            max-width: 95%; max-height: 85%; border-radius: 12px; box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            max-width: 95%;
+            max-height: 85%;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
         }
 
-        /* --- 🐷 點擊噴發特效 (保留這個最穩的) --- */
-        .piggy-particle {
-            position: fixed; pointer-events: none; z-index: 99999; font-size: 24px;
-            animation: float-emoji 1s ease-out forwards; user-select: none;
+        .ripple-btn { position: relative; overflow: hidden; }
+        .ripple-effect {
+            position: absolute; border-radius: 50%; transform: scale(0);
+            animation: ripple 0.6s linear; background-color: rgba(255, 255, 255, 0.4); pointer-events: none;
         }
-        @keyframes float-emoji {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
-            100% { opacity: 0; transform: translate(-50%, -200%) scale(1.2); }
-        }
-        
-        /* 劃線效果 */
-        .check-item.completed .check-text { text-decoration: line-through; color: #9ca3af; }
+        @keyframes ripple { to { transform: scale(4); opacity: 0; } }
     </style>
 </head>
 <body class="text-gray-700">
@@ -198,41 +254,48 @@
         <div class="absolute bottom-10 text-white text-sm bg-black/50 px-3 py-1 rounded-full">點擊任意處關閉</div>
     </div>
 
-    <div id="schedule-page" class="page-content active-page">
-        <div class="fixed-header-bg px-4" id="main-header">
-            <div class="flex justify-between items-start mb-2 relative z-10">
-                <div class="flex-1">
-                    <h1 class="text-2xl font-black text-white tracking-tight mb-1 drop-shadow-lg">東京遛豬之旅 🐷</h1>
-                    
-                    <div id="countdown-timer" class="text-[10px] font-mono text-yellow-300 font-bold tracking-wide mb-2 flex items-center gap-1">
-                        <i class="fas fa-hourglass-half"></i> 載入倒數中...
-                    </div>
-
-                    <div class="text-lg font-bold text-white/90 cursor-pointer flex items-center gap-2" onclick="editDayTitle()">
-                        <span id="current-day-title" class="border-b border-transparent hover:border-white/50 transition">Day 1</span>
-                        <i class="fas fa-pen text-xs text-white/60"></i>
-                    </div>
-                </div>
-                
-                <div class="flex flex-col items-end gap-1 mt-1">
-                     <div class="header-glass-card px-3 py-2 rounded-xl shadow-lg flex flex-col items-end">
-                        <span class="text-[10px] text-white/80 font-bold uppercase">今日花費</span>
-                        <span class="text-xl font-black text-white leading-none count-up" id="header-daily-cost">¥ 0</span>
-                    </div>
-                </div>
-            </div>
+    <div id="schedule-page" class="page-content">
+        <div class="fixed-header-container" id="main-header">
+            <div class="fixed-header-bg-image"></div>
+            <div class="fixed-header-overlay"></div>
             
-            <div class="flex justify-between items-center mb-4 px-1 relative z-10">
-                <button onclick="prepareRateModal()" class="text-[11px] text-white px-3 py-1.5 rounded-lg font-bold header-glass-card hover:bg-white/20 transition shrink-0 mr-2">
-                    匯率: <span id="display-rate">0.22</span>
-                </button>
-                
-                <div id="hourly-weather-container" class="flex-1 overflow-x-auto hide-scrollbar flex gap-3 items-center">
-                     <div class="text-white/60 text-xs animate-pulse ml-auto">讀取天氣中...</div>
-                </div>
-            </div>
+            <div class="header-content">
+                <div class="flex justify-between items-start mb-2 relative z-10">
+                    <div class="flex-1">
+                        <h1 class="text-2xl font-black text-white tracking-tight mb-1 drop-shadow-lg w-fit">
+                            <span class="typewriter-text">東京遛豬之旅 🐷</span>
+                        </h1>
+                        
+                        <div id="countdown-timer" class="text-[10px] font-mono text-yellow-300 font-bold tracking-wide mb-2 flex items-center gap-1">
+                            <i class="fas fa-hourglass-half"></i> 載入倒數中...
+                        </div>
 
-            <div class="flex overflow-x-auto gap-3 py-1 pb-1 hide-scrollbar z-10 relative" id="date-slider"></div>
+                        <div class="text-lg font-bold text-white/90 cursor-pointer flex items-center gap-2" onclick="editDayTitle()">
+                            <span id="current-day-title" class="border-b border-transparent hover:border-white/50 transition">Day 1</span>
+                            <i class="fas fa-pen text-xs text-white/60"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col items-end gap-1 mt-1">
+                         <div class="header-glass-card px-3 py-2 rounded-xl shadow-lg flex flex-col items-end">
+                            <span class="text-[10px] text-white/80 font-bold uppercase">今日花費</span>
+                            <span class="text-xl font-black text-white leading-none count-up" id="header-daily-cost">¥ 0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center mb-4 px-1 relative z-10">
+                    <button onclick="prepareRateModal()" class="text-[11px] text-white px-3 py-1.5 rounded-lg font-bold active:scale-95 header-glass-card hover:bg-white/20 transition shrink-0 mr-2 ripple-btn">
+                        匯率: <span id="display-rate">0.22</span>
+                    </button>
+                    
+                    <div id="hourly-weather-container" class="flex-1 overflow-x-auto hide-scrollbar flex gap-3 items-center">
+                         <div class="text-white/60 text-xs animate-pulse ml-auto">讀取天氣中...</div>
+                    </div>
+                </div>
+
+                <div class="flex overflow-x-auto gap-3 py-1 pb-1 hide-scrollbar z-10 relative" id="date-slider"></div>
+            </div>
         </div>
 
         <div class="px-4 space-y-5"> 
@@ -259,30 +322,30 @@
             消費統計
         </h1>
         
-        <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden">
+        <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden anim-card-entry">
             <div class="absolute top-0 right-0 w-32 h-32" style="background-color: var(--primary-normal); opacity: 0.15; border-radius: 9999px; margin-right: -4rem; margin-top: -4rem; filter: blur(3rem);"></div>
             <div class="flex justify-between items-start relative z-10">
                 <div>
                     <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Total Trip Cost</p>
-                    <div class="text-4xl font-extrabold mt-1" id="total-trip-jpy">¥ 0</div>
+                    <div class="text-4xl font-extrabold mt-1 count-up-target" id="total-trip-jpy" data-value="0">¥ 0</div>
                     <div class="text-sm mt-1 text-white/80" id="total-trip-twd">≈ NT$ 0</div>
                 </div>
-                <button onclick="calculateAllExpenses()" class="text-white hover:text-gray-300 transition active:scale-95"><i class="fas fa-sync-alt"></i></button>
+                <button onclick="calculateAllExpenses()" class="text-white hover:text-gray-300 transition active:scale-95 ripple-btn"><i class="fas fa-sync-alt"></i></button>
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-8">
+        <div class="grid grid-cols-3 gap-3 mb-8 anim-card-entry" style="animation-delay: 0.1s;">
             <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-blue-300">
                 <div class="text-2xl mb-1">🐦</div><div class="text-xs text-gray-400 font-bold">Dove</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-bird">¥0</div>
+                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate count-up-target" id="total-bird" data-value="0">¥0</div>
             </div>
             <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-pink-300">
                 <div class="text-2xl mb-1">🐷</div><div class="text-xs text-gray-400 font-bold">Pig</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-pig">¥0</div>
+                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate count-up-target" id="total-pig" data-value="0">¥0</div>
             </div>
             <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-yellow-300">
                 <div class="text-2xl mb-1">🐷🐦</div><div class="text-xs text-gray-400 font-bold">Shared</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate" id="total-shared">¥0</div>
+                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate count-up-target" id="total-shared" data-value="0">¥0</div>
             </div>
         </div>
         <div id="expense-full-list" class="space-y-3 pb-20"></div>
@@ -295,25 +358,25 @@
         </h1>
 
         <div class="bg-gray-100 p-1 rounded-2xl flex gap-1 mb-3 shadow-inner">
-            <button id="check-owner-bird" onclick="switchChecklistOwner('bird')" class="flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2">
+            <button id="check-owner-bird" onclick="switchChecklistOwner('bird')" class="flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2 ripple-btn">
                 <span>🐦</span> Dove
             </button>
-            <button id="check-owner-pig" onclick="switchChecklistOwner('pig')" class="flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2">
+            <button id="check-owner-pig" onclick="switchChecklistOwner('pig')" class="flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2 ripple-btn">
                 <span>🐷</span> Pig
             </button>
         </div>
 
         <div class="flex gap-2 mb-5">
-            <button id="check-type-shopping" onclick="switchChecklistType('shopping')" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1">
+            <button id="check-type-shopping" onclick="switchChecklistType('shopping')" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1 ripple-btn">
                 <i class="fas fa-shopping-bag"></i> 購物攻略
             </button>
-            <button id="check-type-carry" onclick="switchChecklistType('carry')" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1">
+            <button id="check-type-carry" onclick="switchChecklistType('carry')" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1 ripple-btn">
                 <i class="fas fa-suitcase"></i> 攜帶清單
             </button>
         </div>
 
         <div id="input-area-shopping">
-            <button onclick="showModal('checklist-add-modal')" class="w-full bg-white border-2 border-dashed border-gray-300 rounded-2xl p-4 text-gray-400 font-bold flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-[var(--primary-normal)] hover:text-[var(--primary-normal)] transition-all mb-6 shadow-sm active:scale-98">
+            <button onclick="showModal('checklist-add-modal')" class="w-full bg-white border-2 border-dashed border-gray-300 rounded-2xl p-4 text-gray-400 font-bold flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-[var(--primary-normal)] hover:text-[var(--primary-normal)] transition-all mb-6 shadow-sm active:scale-98 ripple-btn">
                 <i class="fas fa-plus-circle text-xl"></i> 新增詳細購物項目
             </button>
         </div>
@@ -321,7 +384,7 @@
         <div id="input-area-carry" class="hidden">
             <div class="flex gap-3 mb-6 w-full">
                 <input type="text" id="checklist-input-carry" placeholder="新增攜帶項目 (直接輸入)" class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-white focus:outline-none">
-                <button onclick="addCarryItem()" class="text-white px-4 rounded-xl font-bold shadow-lg shadow-[var(--primary-light)] active:scale-90 transition shrink-0 glow-btn"><i class="fas fa-plus"></i></button>
+                <button onclick="addCarryItem()" class="text-white px-4 rounded-xl font-bold shadow-lg shadow-[var(--primary-light)] active:scale-90 transition shrink-0 glow-btn ripple-btn"><i class="fas fa-plus"></i></button>
             </div>
         </div>
 
@@ -339,15 +402,15 @@
                     <i class="fas fa-map-marker-alt absolute left-4 top-3.5 text-gray-400"></i>
                     <input type="text" id="check-add-shop" placeholder="購買地點 (例如: 唐吉訶德)" class="input-focus w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
                 </div>
-                <label class="file-upload-btn" id="file-label">
+                <label class="file-upload-btn ripple-btn" id="file-label">
                     <input type="file" id="check-add-file" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
                     <i class="fas fa-camera mr-2"></i> <span id="file-label-text">上傳照片 (選填)</span>
                 </label>
                 <div id="file-preview" class="hidden w-full h-32 bg-gray-100 rounded-xl bg-cover bg-center border border-gray-200"></div>
             </div>
             <div class="flex justify-end space-x-3 mt-6">
-                <button onclick="closeModal('checklist-add-modal')" class="px-5 py-2.5 text-gray-500 font-medium rounded-xl hover:bg-gray-100">取消</button>
-                <button onclick="confirmAddChecklist()" class="px-5 py-2.5 glow-btn text-white rounded-xl font-bold active:scale-95">新增</button>
+                <button onclick="closeModal('checklist-add-modal')" class="px-5 py-2.5 text-gray-500 font-medium rounded-xl hover:bg-gray-100 ripple-btn">取消</button>
+                <button onclick="confirmAddChecklist()" class="px-5 py-2.5 glow-btn text-white rounded-xl font-bold active:scale-95 ripple-btn">新增</button>
             </div>
         </div>
     </div>
@@ -376,8 +439,8 @@
                 <textarea id="new-content" placeholder="備註..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
             </div>
             <div class="flex justify-end space-x-3 mt-6">
-                <button onclick="closeModal('add-modal')" class="px-5 py-2.5 text-gray-500 font-medium rounded-xl hover:bg-gray-100">取消</button>
-                <button onclick="addScheduleItem()" class="px-5 py-2.5 glow-btn text-white rounded-xl font-bold active:scale-95">新增</button>
+                <button onclick="closeModal('add-modal')" class="px-5 py-2.5 text-gray-500 font-medium rounded-xl hover:bg-gray-100 ripple-btn">取消</button>
+                <button onclick="addScheduleItem()" class="px-5 py-2.5 glow-btn text-white rounded-xl font-bold active:scale-95 ripple-btn">新增</button>
             </div>
         </div>
     </div>
@@ -406,25 +469,25 @@
                 <textarea id="edit-content" placeholder="詳細內容..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
             </div>
             <div class="flex justify-between items-center mt-6">
-                 <button onclick="deleteScheduleItem()" class="px-4 py-2 text-red-500 rounded-xl hover:bg-red-50 text-sm font-medium active:scale-95"><i class="fas fa-trash-alt mr-1"></i> 刪除</button>
+                 <button onclick="deleteScheduleItem()" class="px-4 py-2 text-red-500 rounded-xl hover:bg-red-50 text-sm font-medium active:scale-95 ripple-btn"><i class="fas fa-trash-alt mr-1"></i> 刪除</button>
                 <div class="space-x-2">
-                    <button onclick="closeModal('edit-modal')" class="px-4 py-2 text-gray-500 font-medium rounded-xl hover:bg-gray-100">取消</button>
-                    <button onclick="saveEdit()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95">儲存</button>
+                    <button onclick="closeModal('edit-modal')" class="px-4 py-2 text-gray-500 font-medium rounded-xl hover:bg-gray-100 ripple-btn">取消</button>
+                    <button onclick="saveEdit()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95 ripple-btn">儲存</button>
                 </div>
             </div>
              <input type="hidden" id="editing-item-id">
         </div>
     </div>
 
-    <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()"><div class="flex justify-between items-start mb-4"><h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2><button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600 active:scale-95"><i class="fas fa-times text-xl"></i></button></div><div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div><div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-inner"><div class="flex gap-2 mb-2"><select id="expense-payer" class="input-focus w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none shrink-0"><option value="bird">🐦</option><option value="pig">🐷</option><option value="shared">🐷🐦</option></select><input type="text" id="expense-desc" placeholder="品項" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm"></div><div class="flex gap-2"><select id="expense-currency" class="input-focus w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0"><option value="JPY">JPY</option><option value="TWD">TWD</option></select><input type="number" id="expense-amount" placeholder="金額" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold"><button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow-md hover:bg-yellow-600 shrink-0 active:scale-95"><i class="fas fa-plus"></i></button></div></div><input type="hidden" id="expense-item-id"></div></div>
-    <div id="rate-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('rate-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()"><h2 class="text-xl font-bold mb-2">匯率設定</h2><div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-inner"><span class="text-lg font-bold text-gray-400">×</span><input type="number" step="0.0001" id="exchange-rate-input" class="input-focus flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none"></div><div class="flex justify-end mt-6"><button onclick="saveExchangeRate()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95">儲存</button></div></div></div>
+    <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()"><div class="flex justify-between items-start mb-4"><h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2><button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600 active:scale-95 ripple-btn"><i class="fas fa-times text-xl"></i></button></div><div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div><div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-inner"><div class="flex gap-2 mb-2"><select id="expense-payer" class="input-focus w-[80px] p-2 border border-gray-300 rounded-lg text-xl text-center bg-white focus:outline-none shrink-0"><option value="bird">🐦</option><option value="pig">🐷</option><option value="shared">🐷🐦</option></select><input type="text" id="expense-desc" placeholder="品項" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm"></div><div class="flex gap-2"><select id="expense-currency" class="input-focus w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0"><option value="JPY">JPY</option><option value="TWD">TWD</option></select><input type="number" id="expense-amount" placeholder="金額" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold"><button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow-md hover:bg-yellow-600 shrink-0 active:scale-95 ripple-btn"><i class="fas fa-plus"></i></button></div></div><input type="hidden" id="expense-item-id"></div></div>
+    <div id="rate-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('rate-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()"><h2 class="text-xl font-bold mb-2">匯率設定</h2><div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-inner"><span class="text-lg font-bold text-gray-400">×</span><input type="number" step="0.0001" id="exchange-rate-input" class="input-focus flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none"></div><div class="flex justify-end mt-6"><button onclick="saveExchangeRate()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95 ripple-btn">儲存</button></div></div></div>
 
     <div class="fixed-footer text-gray-400">
-        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-map-marked-alt text-xl mb-1"></i><span class="text-[9px] font-bold">行程</span></button>
-        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-map text-xl mb-1"></i><span class="text-[9px] font-bold">地圖</span></button>
-        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="glow-btn text-white w-16 h-16 rounded-full flex items-center justify-center -mt-10 cursor-pointer active:scale-90 transition-transform border-4 border-white shadow-xl shadow-[var(--primary-light)]"><i class="fas fa-plus text-xl"></i></div>
-        <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors active:scale-90"><i class="fas fa-wallet text-xl mb-1"></i><span class="text-[9px] font-bold">花費</span></button>
-        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90"><i class="fas fa-clipboard-list text-xl mb-1"></i><span class="text-[9px] font-bold">清單</span></button>
+        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[var(--primary-normal)] transition-colors active:scale-90 ripple-btn"><i class="fas fa-map-marked-alt text-xl mb-1"></i><span class="text-[9px] font-bold">行程</span></button>
+        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90 ripple-btn"><i class="fas fa-map text-xl mb-1"></i><span class="text-[9px] font-bold">地圖</span></button>
+        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="glow-btn text-white w-16 h-16 rounded-full flex items-center justify-center -mt-10 cursor-pointer active:scale-90 transition-transform border-4 border-white shadow-xl shadow-[var(--primary-light)] anim-pulse ripple-btn"><i class="fas fa-plus text-xl"></i></div>
+        <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors active:scale-90 ripple-btn"><i class="fas fa-wallet text-xl mb-1"></i><span class="text-[9px] font-bold">花費</span></button>
+        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90 ripple-btn"><i class="fas fa-clipboard-list text-xl mb-1"></i><span class="text-[9px] font-bold">清單</span></button>
     </div>
 
 <script>
@@ -443,7 +506,7 @@
     let markers = [];
     let routeOrigin = null; 
     let polyline = null; 
-
+    
     let tripDates = [
         { day: 1, label: 'Day 1 出發', week: 'WED', date: '04' },
         { day: 2, label: 'Day 2 探索', week: 'THU', date: '05' },
@@ -571,6 +634,7 @@
 
     function listenForScheduleUpdates(day) {
         if (firestoreScheduleListener) firestoreScheduleListener();
+        const loading = document.getElementById('loading-status');
         
         firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
             currentItems = doc.exists ? (doc.data().schedule || []) : [];
@@ -606,11 +670,31 @@
         const container = document.getElementById('schedule-container');
         container.innerHTML = ''; 
         if (currentItems.length === 0) { 
-            container.innerHTML = `<div class="text-center text-gray-400 py-10">點擊下方 + 新增行程</div>`; 
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-24 opacity-80 select-none">
+                    <div class="flex gap-6 mb-4">
+                        <span class="empty-anim-icon" style="animation-delay: 0s">🐦</span>
+                        <span class="empty-anim-icon" style="animation-delay: 0.2s">✈️</span>
+                        <span class="empty-anim-icon" style="animation-delay: 0.4s">🐷</span>
+                    </div>
+                    <div class="text-gray-400 font-bold text-sm tracking-widest uppercase">點擊下方 + 開始規劃</div>
+                </div>`;
             return; 
         }
         currentItems.forEach((item, index) => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item, index)));
+        
+        VanillaTilt.init(document.querySelectorAll(".soft-card-glow"), {
+            max: 10, speed: 400, glare: true, "max-glare": 0.3, scale: 1.02
+        });
+
         initSortable();
+        
+        setTimeout(() => {
+            document.querySelectorAll('.anim-card-entry').forEach(el => {
+                el.classList.remove('anim-card-entry');
+                el.style.opacity = '1';
+            });
+        }, 600);
     }
 
     function createScheduleItemHTML(item, index) {
@@ -626,6 +710,7 @@
             : `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
                <div class="timeline-line bg-gray-200 h-full mt-1 min-h-[2rem]"></div>`;
 
+        // ★★★ 修正：花費金額強制換行 ★★★
         const costBadge = totalItemCost > 0 ? 
             `<div class="mt-3 block">
                 <span class="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-lg text-xs font-bold border border-yellow-200 shadow-sm">
@@ -643,9 +728,10 @@
         }
 
         const badgeColor = `background-color: ${vibe.hex}20; color: ${vibe.hex}; border: 1px solid ${vibe.hex}40;`;
+        const delayStyle = `animation-delay: ${index * 0.08}s`;
 
         return `
-            <div class="flex gap-3 items-stretch group relative select-none cursor-grab" data-id="${item.id}">
+            <div class="flex gap-3 items-stretch group relative select-none cursor-grab anim-card-entry" style="${delayStyle}" data-id="${item.id}">
                 <div class="flex flex-col items-center pt-1 min-w-[3.5rem]">
                     ${timeHTML}
                 </div>
@@ -674,7 +760,22 @@
         let total = 0;
         currentItems.forEach(item => { if(item.expenses) total += item.expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0); });
         const el = document.getElementById('header-daily-cost');
-        if(el) el.textContent = `¥ ${total.toLocaleString()}`;
+        if(el) {
+            animateValue(el, parseInt(el.textContent.replace(/\D/g,'')) || 0, total, 1000);
+        }
+    }
+
+    function animateValue(obj, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            obj.innerHTML = '¥ ' + Math.floor(progress * (end - start) + start).toLocaleString();
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
     }
 
     async function calculateAllExpenses() {
@@ -697,14 +798,16 @@
                         });
                     }
                 });
-                if (dayTotal > 0) htmlContent += `<div class="bg-white rounded-xl p-4 soft-card-shadow border-t-4 border-gray-300 mb-4"><div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-200"><h3 class="font-bold text-lg text-gray-800">Day ${i}</h3><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-lg">Total: ¥${dayTotal.toLocaleString()}</span></div><div>${dayHTML}</div></div>`;
+                if (dayTotal > 0) htmlContent += `<div class="bg-white rounded-xl p-4 soft-card-shadow border-t-4 border-gray-300 mb-4 anim-card-entry" style="animation-delay: ${i*0.1}s"><div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-200"><h3 class="font-bold text-lg text-gray-800">Day ${i}</h3><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-lg">Total: ¥${dayTotal.toLocaleString()}</span></div><div>${dayHTML}</div></div>`;
             }
         }
-        document.getElementById('total-trip-jpy').textContent = `¥ ${grandTotal.toLocaleString()}`;
+        
+        animateValue(document.getElementById('total-trip-jpy'), 0, grandTotal, 1000);
         document.getElementById('total-trip-twd').textContent = `≈ NT$ ${Math.round(grandTotal * exchangeRate).toLocaleString()}`;
-        document.getElementById('total-bird').textContent = `¥ ${totalBird.toLocaleString()}`;
-        document.getElementById('total-pig').textContent = `¥ ${totalPig.toLocaleString()}`;
-        document.getElementById('total-shared').textContent = `¥ ${totalShared.toLocaleString()}`;
+        animateValue(document.getElementById('total-bird'), 0, totalBird, 1000);
+        animateValue(document.getElementById('total-pig'), 0, totalPig, 1000);
+        animateValue(document.getElementById('total-shared'), 0, totalShared, 1000);
+
         container.innerHTML = htmlContent || '<div class="text-center text-gray-400 py-10">目前沒有任何消費記錄</div>';
     }
 
@@ -726,7 +829,17 @@
         });
     }
 
-    // ★★★ 地圖核心邏輯 (強制穩定版) ★★★
+    // ✨ 顯示氣泡提示的函式
+    function showToast(msg) {
+        const t = document.getElementById('toast-msg');
+        if(t) {
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+    }
+
+    // ★★★ 地圖核心邏輯 (軌跡線修復版) ★★★
     async function initMap() {
         if (!mapInstance) { 
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
@@ -734,18 +847,33 @@
                 maxZoom: 20, 
                 subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] 
             }).addTo(mapInstance); 
+            
+            const locBtn = L.Control.extend({
+                options: { position: 'bottomright' },
+                onAdd: function(map) {
+                    const btn = L.DomUtil.create('div', 'leaflet-control-custom-btn');
+                    btn.innerHTML = '<i class="fas fa-crosshairs"></i>';
+                    btn.onclick = () => { map.locate({setView: true, maxZoom: 16}); };
+                    return btn;
+                }
+            });
+            mapInstance.addControl(new locBtn());
+            
+            mapInstance.on('locationfound', (e) => {
+                L.circleMarker(e.latlng, { radius: 8, color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.8 }).addTo(mapInstance).bindPopup("目前位置").openPopup();
+            });
         }
         
         // 清除舊標記和軌跡線
         markers.forEach(m => mapInstance.removeLayer(m)); 
         markers = [];
-        if (window.polyline) {
-            mapInstance.removeLayer(window.polyline);
+        if (polyline) {
+            mapInstance.removeLayer(polyline);
         }
 
         const locations = currentItems.filter(i => i.location);
         let bounds = L.latLngBounds();
-        let pathCoords = []; 
+        let pathCoords = []; // 用來儲存所有點的座標
 
         for (let index = 0; index < locations.length; index++) {
             const item = locations[index];
@@ -768,66 +896,148 @@
                         lon = data[0].lon;
                     }
                 } catch (e) {} 
-                // 增加延遲避免被擋
-                await new Promise(r => setTimeout(r, 1200)); 
+                await new Promise(r => setTimeout(r, 600)); 
             }
 
             if (lat && lon) {
-                const customIcon = L.divIcon({ 
-                    className: 'map-icon', 
-                    html: `<span>${index + 1}</span>`, 
-                    iconSize: [30, 30], 
-                    iconAnchor: [15, 15]  // 修正錨點為中心
-                });
+                const customIcon = L.divIcon({ className: 'map-icon', html: `<span>${index + 1}</span>`, iconSize: [30, 30], iconAnchor: [15, 30] });
                 const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance);
                 
-                const popupContent = `<div class="text-center"><b>${index + 1}. ${item.title}</b><br><span class="text-xs text-gray-500">${isCoordinate ? '📍 使用精確座標' : item.location}</span></div>`;
+                const popupContent = `<div class="text-center"><b>${index + 1}. ${item.title}</b><br><span class="text-xs text-gray-500">${isCoordinate ? '📍 使用精確座標' : item.location}</span><br><span class="text-gray-500 text-xs">${item.startTime}</span><br><div class="mt-2 flex gap-2 justify-center"><button onclick="setRouteOrigin(${lat}, ${lon}, '${item.title}')" class="bg-blue-500 text-white px-2 py-1 rounded text-xs">🚩 設為起點</button><button onclick="navigateHere(${lat}, ${lon})" class="bg-green-500 text-white px-2 py-1 rounded text-xs">🏁 導航至此</button></div></div>`;
                 marker.bindPopup(popupContent);
                 
                 markers.push(marker); 
                 bounds.extend([lat, lon]);
-                pathCoords.push([lat, lon]); 
+                pathCoords.push([lat, lon]); // 加入軌跡點
             }
         }
 
-        // 繪製黃色虛線
+        // ★★★ 繪製虛線軌跡 (使用 helper function 產生弧線) ★★★
         if (pathCoords.length > 1) {
-            window.polyline = L.polyline(pathCoords, {
-                color: '#facc15', 
-                weight: 5, 
+            let curvedPath = [];
+            for (let i = 0; i < pathCoords.length - 1; i++) {
+                let start = pathCoords[i];
+                let end = pathCoords[i + 1];
+                // 產生每兩點之間的弧線點 (50個點)
+                let curvePoints = getCurvePoints(start, end);
+                curvedPath = curvedPath.concat(curvePoints);
+            }
+
+            polyline = L.polyline(curvedPath, {
+                color: '#facc15', // 淡黃色
+                weight: 5, // 加粗線條
                 opacity: 0.9,
-                dashArray: '10, 10', 
+                dashArray: '10, 10', // 虛線樣式
                 lineCap: 'round'
             }).addTo(mapInstance);
         }
 
         if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
     }
+    
+    // ★★★ 計算弧線點的函式 (二次貝茲曲線) ★★★
+    function getCurvePoints(start, end) {
+        const lat1 = start[0];
+        const lng1 = start[1];
+        const lat2 = end[0];
+        const lng2 = end[1];
+        
+        // 計算中點
+        const midLat = (lat1 + lat2) / 2;
+        const midLng = (lng1 + lng2) / 2;
 
-    // 點擊特效邏輯 (保留這個最穩定的)
-    document.addEventListener('click', function(e) {
-        const emojis = ['🐽', '🐷', '🐦', '🌸', '✈️'];
-        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-        const el = document.createElement('div');
-        el.textContent = randomEmoji;
-        el.className = 'piggy-particle';
-        el.style.left = e.clientX + 'px';
-        el.style.top = e.clientY + 'px';
-        document.body.appendChild(el);
-        setTimeout(() => { el.remove(); }, 1000);
-    });
+        // 計算偏移量 (固定向右彎曲，避免重疊)
+        // 向量 (dx, dy) 的垂直向量是 (-dy, dx)
+        const dx = lng2 - lng1;
+        const dy = lat2 - lat1;
+        const offsetFactor = 0.15; // 彎曲程度
+        
+        const controlLat = midLat - dx * offsetFactor;
+        const controlLng = midLng + dy * offsetFactor;
 
+        // 產生 50 個點
+        let points = [];
+        for (let t = 0; t <= 1; t += 0.02) {
+            const lat = (1 - t) * (1 - t) * lat1 + 2 * (1 - t) * t * controlLat + t * t * lat2;
+            const lng = (1 - t) * (1 - t) * lng1 + 2 * (1 - t) * t * controlLng + t * t * lng2;
+            points.push([lat, lng]);
+        }
+        return points;
+    }
+
+    window.setRouteOrigin = (lat, lon, title) => { 
+        routeOrigin = { lat, lon }; 
+        showToast(`🚩 已設定「${title}」為起點`); 
+        mapInstance.closePopup(); 
+    };
+
+    window.navigateHere = (lat, lon) => { if (!routeOrigin) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`, '_blank'); } else { window.open(`https://www.google.com/maps/dir/?api=1&origin=${routeOrigin.lat},${routeOrigin.lon}&destination=${lat},${lon}`, '_blank'); routeOrigin = null; } mapInstance.closePopup(); };
+
+    function getCategoryVibe(category) {
+        const map = { 'FOOD': { hex: '#fb923c', color: 'orange', label: '餐飲' }, 'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, 'TRANSPORT': { hex: '#38bdf8', color: 'sky', label: '交通' }, 'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, 'HOTEL': { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'violet', label: '住宿' }, 'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } };
+        if (category === 'HOTEL') return { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'purple', label: '住宿' };
+        return map[category] || map['OTHER'];
+    }
+
+    function switchDay(day) { if (day === currentDay) return; currentDay = day; document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === day).label; renderDateSlider(); listenForScheduleUpdates(day); }
+    function switchPage(page) {
+        document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden')); document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`).classList.remove('hidden');
+        const primaryColorNormal = getComputedStyle(document.documentElement).getPropertyValue('--primary-normal');
+        document.getElementById('tab-schedule').style.color = page === 'schedule' ? primaryColorNormal : '';
+        document.getElementById('tab-map').style.color = page === 'map' ? primaryColorNormal : '';
+        document.getElementById('tab-expense').style.color = page === 'expense' ? '#f59e0b' : '';
+        document.getElementById('tab-checklist').style.color = page === 'checklist' ? primaryColorNormal : ''; 
+        if(page === 'expense') calculateAllExpenses(); if(page === 'map') setTimeout(initMap, 200); setTimeout(adjustContentPadding, 50);
+    }
+
+    function showModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function openExpenseModal(itemId) { const item = currentItems.find(i => i.id === itemId); if(!item) return; document.getElementById('expense-modal-title').textContent = item.title; document.getElementById('expense-item-id').value = itemId; document.getElementById('expense-desc').value = ''; document.getElementById('expense-amount').value = ''; document.getElementById('expense-currency').value = 'JPY'; renderExpenseList(item.expenses || []); showModal('expense-modal'); }
+    
+    function prepareEdit(id) { const item = currentItems.find(i => i.id === id); if (!item) return; document.getElementById('edit-start-time').value = item.startTime; document.getElementById('edit-end-time').value = item.endTime || ''; document.getElementById('edit-title').value = item.title; document.getElementById('edit-location').value = item.location || ''; document.getElementById('edit-content').value = item.content || ''; document.getElementById('edit-category').value = item.category; document.getElementById('edit-transport').value = item.transport || ''; document.getElementById('editing-item-id').value = id; showModal('edit-modal'); }
+    function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
+
+    function renderExpenseList(expenses) { const c = document.getElementById('expense-list'); c.innerHTML = ''; expenses.forEach((ex, i) => { const icon = ex.payer==='bird'?'🐦':(ex.payer==='pig'?'🐷':'🐷🐦'); c.insertAdjacentHTML('beforeend', `<div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm"><div class="flex gap-2 items-center overflow-hidden flex-1 min-w-0"><span class="text-lg shrink-0">${icon}</span><span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span></div><div class="flex items-center gap-3 shrink-0 ml-2"><span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span><button onclick="removeExpense(${i})" class="text-red-300 hover:text-red-500 active:scale-95 jelly-btn"><i class="fas fa-times"></i></button></div></div>`); }); }
+    async function addExpenseToItem() { const id=document.getElementById('expense-item-id').value, payer=document.getElementById('expense-payer').value, cur=document.getElementById('expense-currency').value; let desc=document.getElementById('expense-desc').value||'未分類', amt=parseInt(document.getElementById('expense-amount').value); if(isNaN(amt)||amt<=0)return; const idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; if(cur==='TWD'){ const old=amt; amt=Math.round(amt/exchangeRate); desc+=` (TWD ${old})`; } if(!currentItems[idx].expenses)currentItems[idx].expenses=[]; currentItems[idx].expenses.push({description:desc,amount:amt,payer:payer}); renderExpenseList(currentItems[idx].expenses); document.getElementById('expense-desc').value=''; document.getElementById('expense-amount').value=''; await saveScheduleToFirestore(currentItems); renderSchedule(); calculateDailyCost(); }
+    async function removeExpense(i) { const id=document.getElementById('expense-item-id').value, idx=currentItems.findIndex(x=>x.id===id); if(idx===-1)return; currentItems[idx].expenses.splice(i,1); renderExpenseList(currentItems[idx].expenses); await saveScheduleToFirestore(currentItems); renderSchedule(); calculateDailyCost(); }
+    async function addScheduleItem() { const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value, trans=document.getElementById('new-transport').value; if(!t)return alert("請輸入標題"); currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,transport:trans,expenses:[]}); currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); await saveScheduleToFirestore(currentItems); closeModal('add-modal'); document.getElementById('new-title').value=''; }
+    async function saveEdit() { const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value, transport:document.getElementById('edit-transport').value}; await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
+    async function deleteScheduleItem() { if(!confirm('刪除？'))return; const id=document.getElementById('editing-item-id').value; currentItems=currentItems.filter(i=>i.id!==id); await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
+    
+    // --- 🌸 櫻花產生器 ---
+    function createSakura() {
+        const sakuraContainer = document.createElement('div');
+        document.body.appendChild(sakuraContainer);
+        const petalCount = 15; 
+        for (let i = 0; i < petalCount; i++) {
+            const petal = document.createElement('div');
+            petal.classList.add('sakura');
+            const size = Math.random() * 10 + 5 + 'px';
+            const left = Math.random() * 100 + 'vw';
+            const duration = Math.random() * 5 + 5 + 's'; 
+            const delay = Math.random() * 5 + 's';
+            petal.style.width = size;
+            petal.style.height = size;
+            petal.style.left = left;
+            petal.style.animationDuration = duration;
+            petal.style.animationDelay = delay;
+            sakuraContainer.appendChild(petal);
+        }
+    }
+    createSakura();
+
+    // --- Checklist Logic Update with Tabs ---
     function switchChecklistOwner(owner) {
         currentChecklistOwner = owner;
-        document.getElementById('check-owner-bird').className = owner === 'bird' ? 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2' : 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2';
-        document.getElementById('check-owner-pig').className = owner === 'pig' ? 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2' : 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2';
+        document.getElementById('check-owner-bird').className = owner === 'bird' ? 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2 jelly-btn' : 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2 jelly-btn';
+        document.getElementById('check-owner-pig').className = owner === 'pig' ? 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2 jelly-btn' : 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2 jelly-btn';
         renderChecklist(); 
     }
 
     function switchChecklistType(type) {
         currentChecklistType = type;
-        document.getElementById('check-type-shopping').className = type === 'shopping' ? 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1' : 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1';
-        document.getElementById('check-type-carry').className = type === 'carry' ? 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1' : 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1';
+        document.getElementById('check-type-shopping').className = type === 'shopping' ? 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1 jelly-btn' : 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1 jelly-btn';
+        document.getElementById('check-type-carry').className = type === 'carry' ? 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1 jelly-btn' : 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1 jelly-btn';
         
         if(type === 'shopping') {
             document.getElementById('input-area-shopping').style.display = 'block';
@@ -866,7 +1076,7 @@
                         ${shopHtml}
                     </div>
                     ${imgHtml}
-                    <button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 ml-3 px-2 py-2 active:scale-95"><i class="fas fa-trash-alt"></i></button>
+                    <button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 ml-3 px-2 py-2 active:scale-95 jelly-btn"><i class="fas fa-trash-alt"></i></button>
                 </div>`); 
         }); 
     }
@@ -906,10 +1116,16 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
+                    
                     const MAX_WIDTH = 800;
                     let width = img.width;
                     let height = img.height;
-                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+
                     canvas.width = width;
                     canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
@@ -941,7 +1157,10 @@
             document.getElementById('file-label').classList.remove('has-file');
             document.getElementById('file-label-text').textContent = '上傳照片 (選填)';
             currentBase64Image = '';
+            
             closeModal('checklist-add-modal');
+        } else {
+            showToast('請輸入物品名稱！');
         }
     }
 
@@ -983,40 +1202,12 @@
         await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !currentStatus }); 
     }
 
+    // 刪除舊的 addChecklistItem 函式，避免混淆
     async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
     async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
     async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
 
-    function switchPage(page) {
-        document.querySelectorAll('.page-content').forEach(el => {
-            el.classList.add('hidden');
-            el.classList.remove('active-page');
-        });
-        
-        const targetId = `${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`;
-        const targetEl = document.getElementById(targetId);
-        targetEl.classList.remove('hidden');
-        targetEl.classList.add('active-page');
-        
-        const primaryColorNormal = getComputedStyle(document.documentElement).getPropertyValue('--primary-normal');
-        document.getElementById('tab-schedule').style.color = page === 'schedule' ? primaryColorNormal : '';
-        document.getElementById('tab-map').style.color = page === 'map' ? primaryColorNormal : '';
-        document.getElementById('tab-expense').style.color = page === 'expense' ? '#f59e0b' : '';
-        document.getElementById('tab-checklist').style.color = page === 'checklist' ? primaryColorNormal : ''; 
-        
-        if(page === 'expense') calculateAllExpenses(); 
-        if(page === 'map') setTimeout(initMap, 200); 
-        
-        setTimeout(adjustContentPadding, 50);
-    }
-
-    function showModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    function openExpenseModal(itemId) { const item = currentItems.find(i => i.id === itemId); if(!item) return; document.getElementById('expense-modal-title').textContent = item.title; document.getElementById('expense-item-id').value = itemId; document.getElementById('expense-desc').value = ''; document.getElementById('expense-amount').value = ''; document.getElementById('expense-currency').value = 'JPY'; renderExpenseList(item.expenses || []); showModal('expense-modal'); }
-    
-    function prepareEdit(id) { const item = currentItems.find(i => i.id === id); if (!item) return; document.getElementById('edit-start-time').value = item.startTime; document.getElementById('edit-end-time').value = item.endTime || ''; document.getElementById('edit-title').value = item.title; document.getElementById('edit-location').value = item.location || ''; document.getElementById('edit-content').value = item.content || ''; document.getElementById('edit-category').value = item.category; document.getElementById('edit-transport').value = item.transport || ''; document.getElementById('editing-item-id').value = id; showModal('edit-modal'); }
-    function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
-
+    // 自動修正標題高度
     function adjustContentPadding() {
         const h = document.getElementById('main-header');
         const p = document.getElementById('schedule-page');
@@ -1045,8 +1236,16 @@
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
     window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
     window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
-    window.editDayTitle = editDayTitle; window.initMap = initMap; window.switchChecklistTab = switchChecklistOwner; window.switchChecklistOwner = switchChecklistOwner; window.switchChecklistType = switchChecklistType;
-    window.confirmAddChecklist = confirmAddChecklist; window.addCarryItem = addCarryItem; window.handleFileSelect = handleFileSelect; window.viewImage = viewImage; window.closeImageViewer = closeImageViewer;
+    window.editDayTitle = editDayTitle; window.initMap = initMap; 
+    
+    // 暴露新功能給 HTML
+    window.switchChecklistOwner = switchChecklistOwner; 
+    window.switchChecklistType = switchChecklistType;
+    window.confirmAddChecklist = confirmAddChecklist; 
+    window.addCarryItem = addCarryItem;
+    window.handleFileSelect = handleFileSelect;
+    window.viewImage = viewImage; 
+    window.closeImageViewer = closeImageViewer;
 </script>
 </body>
 </html>
