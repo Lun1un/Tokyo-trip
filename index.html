@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (絕對修復版)</title>
+    <title>東京遛豬之旅 2026 (紅色地標+點擊特效)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -11,6 +11,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -33,22 +34,20 @@
         }
 
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--soft-bg-color); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; cursor: pointer; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--soft-bg-color); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; cursor: pointer; /* 讓游標變成手指，提示可點擊 */ }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 8rem; } 
         .page-content.hidden { opacity: 0; display: none !important; }
 
-        .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000; transition: opacity 0.2s ease, visibility 0.2s ease; }
+        .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
         .modal.active { opacity: 1; visibility: visible; display: flex; }
 
-        /* --- 🌸 櫻花特效 (層級調低) --- */
+        /* --- 🌸 櫻花特效 --- */
         .sakura {
             position: fixed; top: -10%; background-color: #ffd1dc; border-radius: 100% 0 100% 0;
-            animation: fall linear infinite; 
-            z-index: 50; /* 調低層級，確保不擋住 Footer */
-            pointer-events: none; opacity: 0.8;
+            animation: fall linear infinite; z-index: 9998; pointer-events: none; opacity: 0.8;
         }
         @keyframes fall {
             0% { top: -10%; transform: translateX(0) rotate(0deg); opacity: 0.8; }
@@ -69,6 +68,21 @@
             overflow: hidden; white-space: nowrap; border-right: 2px solid white; width: 0;
             animation: typing 2s steps(20, end) forwards, blink-caret 0.75s step-end infinite;
             display: inline-block; vertical-align: bottom; max-width: 100%;
+        }
+
+        /* --- 🐷 點擊噴發特效 (Piggy Pop) --- */
+        .piggy-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 99999;
+            font-size: 24px;
+            animation: float-emoji 1s ease-out forwards;
+            user-select: none;
+        }
+        @keyframes float-emoji {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5) rotate(0deg); }
+            50% { transform: translate(-50%, -150%) scale(1.2) rotate(10deg); }
+            100% { opacity: 0; transform: translate(-50%, -250%) scale(1) rotate(-10deg); }
         }
 
         .fixed-header-container {
@@ -103,14 +117,14 @@
         @keyframes float-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         .empty-anim-icon { font-size: 3.5rem; display: inline-block; animation: float-bounce 3s ease-in-out infinite; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
 
-        /* ★★★ 地圖大頭針 (強制顯示修正) ★★★ */
+        /* ★★★ 地圖大頭針 (改為紅色) ★★★ */
         .map-icon {
             background-color: #ef4444 !important; /* 紅色 */
             color: white !important; 
             font-weight: 900; 
             text-align: center; 
             line-height: 30px; 
-            border-radius: 50%; 
+            border-radius: 50%; /* 圓形 */
             width: 30px !important; 
             height: 30px !important; 
             box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4); 
@@ -118,13 +132,9 @@
             display: flex !important; 
             align-items: center; 
             justify-content: center; 
-            opacity: 1 !important; /* 強制不透明 */
-            z-index: 500 !important;
-            /* 移除 transform 和 animation 以避免渲染問題 */
-            transform: none !important; 
-            animation: none !important;
+            opacity: 1 !important;
         }
-        .map-icon span { display: block; font-size: 14px; }
+        .map-icon span { font-size: 14px; }
 
         .check-text {
             position: relative; display: inline-block; transition: color 0.3s ease;
@@ -138,25 +148,10 @@
         @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(192, 132, 252, 0); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(192, 132, 252, 0.4); } }
         .anim-pulse { animation: breathe 3s infinite ease-in-out; }
 
-        /* ★★★ Footer 修復：層級置頂，確保可點擊 ★★★ */
         .fixed-footer { 
-            position: fixed; 
-            bottom: 24px; 
-            left: 20px; 
-            right: 20px; 
-            margin: 0 auto; 
-            max-width: 400px; 
-            z-index: 99999; /* 最高層級，確保在櫻花之上 */
-            background-color: white; 
-            border-radius: 2rem; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
-            height: 70px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 0 15px; 
-            box-sizing: border-box; 
-            pointer-events: auto; /* 強制開啟點擊 */
+            position: fixed; bottom: 24px; left: 20px; right: 20px; margin: 0 auto; max-width: 400px; z-index: 1001; 
+            background-color: white; border-radius: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
+            height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-sizing: border-box; 
         }
 
         #schedule-page { padding-top: 240px; } 
@@ -192,56 +187,17 @@
         .type-tab-active { background-color: var(--primary-normal); color: white; box-shadow: 0 4px 10px rgba(192, 132, 252, 0.4); }
         .type-tab-inactive { background-color: #f3f4f6; color: #6b7280; }
 
-        .toast {
-            position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) scale(0.9);
-            background-color: rgba(0, 0, 0, 0.85); color: white; padding: 10px 20px;
-            border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 2000;
-            opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            backdrop-filter: blur(4px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); white-space: nowrap;
-        }
+        .toast { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) scale(0.9); background-color: rgba(0, 0, 0, 0.85); color: white; padding: 10px 20px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 2000; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(4px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); white-space: nowrap; }
         .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
-        
-        .check-thumb {
-            width: 45px; height: 45px; border-radius: 8px; object-fit: cover;
-            border: 1px solid #e5e7eb; cursor: zoom-in; flex-shrink: 0;
-            transition: transform 0.2s; background-color: #f3f4f6;
-        }
+        .check-thumb { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 1px solid #e5e7eb; cursor: zoom-in; flex-shrink: 0; transition: transform 0.2s; background-color: #f3f4f6; }
         .check-thumb:active { transform: scale(0.95); }
-
-        .file-upload-btn {
-            display: flex; align-items: center; justify-content: center;
-            background-color: #f3f4f6; color: #4b5563;
-            border: 2px dashed #d1d5db; border-radius: 0.75rem;
-            padding: 0.75rem; cursor: pointer; transition: all 0.2s;
-            font-size: 0.875rem; font-weight: 500;
-        }
-        .file-upload-btn:hover {
-            border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f9fafb;
-        }
-        .file-upload-btn.has-file {
-            border-style: solid; border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f3e8ff;
-        }
-        
-        #image-viewer-modal {
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
-        #image-viewer-content {
-            max-width: 95%;
-            max-height: 85%;
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            transition: transform 0.3s ease;
-        }
-
+        .file-upload-btn { display: flex; align-items: center; justify-content: center; background-color: #f3f4f6; color: #4b5563; border: 2px dashed #d1d5db; border-radius: 0.75rem; padding: 0.75rem; cursor: pointer; transition: all 0.2s; font-size: 0.875rem; font-weight: 500; }
+        .file-upload-btn:hover { border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f9fafb; }
+        .file-upload-btn.has-file { border-style: solid; border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f3e8ff; }
+        #image-viewer-modal { background-color: rgba(0, 0, 0, 0.95); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        #image-viewer-content { max-width: 95%; max-height: 85%; border-radius: 12px; box-shadow: 0 0 30px rgba(0,0,0,0.5); transition: transform 0.3s ease; }
         .ripple-btn { position: relative; overflow: hidden; }
-        .ripple-effect {
-            position: absolute; border-radius: 50%; transform: scale(0);
-            animation: ripple 0.6s linear; background-color: rgba(255, 255, 255, 0.4); pointer-events: none;
-        }
+        .ripple-effect { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple 0.6s linear; background-color: rgba(255, 255, 255, 0.4); pointer-events: none; }
         @keyframes ripple { to { transform: scale(4); opacity: 0; } }
     </style>
 </head>
@@ -506,6 +462,7 @@
     let markers = [];
     let routeOrigin = null; 
     let polyline = null; 
+
     
     let tripDates = [
         { day: 1, label: 'Day 1 出發', week: 'WED', date: '04' },
@@ -710,7 +667,6 @@
             : `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
                <div class="timeline-line bg-gray-200 h-full mt-1 min-h-[2rem]"></div>`;
 
-        // ★★★ 修正：花費金額強制換行 ★★★
         const costBadge = totalItemCost > 0 ? 
             `<div class="mt-3 block">
                 <span class="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-lg text-xs font-bold border border-yellow-200 shadow-sm">
@@ -744,8 +700,8 @@
                                 <h3 class="font-extrabold text-gray-800 text-lg leading-tight mt-1">${item.title}</h3>
                             </div>
                             <div class="flex gap-1">
-                                <button class="expense-btn w-8 h-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center hover:bg-yellow-100 transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-wallet"></i></button>
-                                <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-[var(--primary-normal)]/10 hover:text-[var(--primary-normal)] transition active:scale-95" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
+                                <button class="expense-btn w-8 h-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center hover:bg-yellow-100 transition active:scale-95 jelly-btn" data-item-id="${item.id}"><i class="fas fa-wallet"></i></button>
+                                <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-[var(--primary-normal)]/10 hover:text-[var(--primary-normal)] transition active:scale-95 jelly-btn" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
                             </div>
                         </div>
                         <p class="text-sm text-gray-500 mt-2 leading-relaxed">${item.content || ''}</p>
@@ -1202,7 +1158,6 @@
         await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !currentStatus }); 
     }
 
-    // 刪除舊的 addChecklistItem 函式，避免混淆
     async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
     async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
     async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
@@ -1223,7 +1178,22 @@
         const expenseBtn = e.target.closest('.expense-btn');
         if (editBtn) prepareEdit(editBtn.getAttribute('data-item-id'));
         if (expenseBtn) openExpenseModal(expenseBtn.getAttribute('data-item-id'));
+        
+        // 觸發小豬噴發特效
+        createPiggyPop(e.clientX, e.clientY);
     });
+    
+    // 小豬噴發邏輯 (自訂 Emoji 版)
+    function createPiggyPop(x, y) {
+        const emojis = ['🐷', '🐦', '🌸', '🐽', '⛩️', '🗻']; // ✨ 已修改為指定內容
+        const particle = document.createElement('div');
+        particle.classList.add('piggy-particle');
+        particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1000);
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
@@ -1236,16 +1206,8 @@
     window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
     window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
     window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
-    window.editDayTitle = editDayTitle; window.initMap = initMap; 
-    
-    // 暴露新功能給 HTML
-    window.switchChecklistOwner = switchChecklistOwner; 
-    window.switchChecklistType = switchChecklistType;
-    window.confirmAddChecklist = confirmAddChecklist; 
-    window.addCarryItem = addCarryItem;
-    window.handleFileSelect = handleFileSelect;
-    window.viewImage = viewImage; 
-    window.closeImageViewer = closeImageViewer;
+    window.editDayTitle = editDayTitle; window.initMap = initMap; window.switchChecklistTab = switchChecklistOwner; window.switchChecklistOwner = switchChecklistOwner; window.switchChecklistType = switchChecklistType;
+    window.confirmAddChecklist = confirmAddChecklist; window.addCarryItem = addCarryItem; window.handleFileSelect = handleFileSelect; window.viewImage = viewImage; window.closeImageViewer = closeImageViewer;
 </script>
 </body>
 </html>
