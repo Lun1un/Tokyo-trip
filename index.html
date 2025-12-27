@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (紅色地標+點擊特效)</title>
+    <title>東京遛豬之旅 2026 (最終修復版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -34,7 +34,7 @@
         }
 
         html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--soft-bg-color); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; cursor: pointer; /* 讓游標變成手指，提示可點擊 */ }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--soft-bg-color); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; cursor: pointer; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
@@ -507,11 +507,22 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const SCHEDULE_COLLECTION = 'trip_schedules_v4';
+    
+    // ★★★ 資料庫名稱設定 (請確認你的資料在哪個版本) ★★★
+    // 如果在救援模式發現是 v4，請改為 'trip_schedules_v4'
+    const SCHEDULE_COLLECTION = 'trip_schedules'; 
+    
     const CHECKLIST_COLLECTION = 'trip_checklist'; 
     const CONFIG_DOCUMENT_ID = 'trip_config';
 
-    function getDocumentId(day) { return `tokyo_feb_2026_day_${day}`; }
+    function getDocumentId(day) {
+        // ★★★ 如果你是用 v4，這裡可能需要改成 return `tokyo_feb_2026_day_${day}`;
+        // 目前設為自動偵測模式：如果集合名稱包含 v4，就用長檔名
+        if (SCHEDULE_COLLECTION.includes('v4')) {
+             return `tokyo_feb_2026_day_${day}`;
+        }
+        return `day_${day}`; 
+    }
 
     async function fetchWeather() {
         try {
@@ -674,7 +685,7 @@
                 </span>
              </div>` : '';
              
-        let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 mt-1 font-bold hover:text-[var(--primary-normal)] hover:underline inline-block max-w-[90%] truncate" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
+        let locationHTML = item.location ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 mt-1 font-bold hover:text-[var(--primary-normal)] hover:underline inline-block max-w-[90%] truncate" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
 
         let transportHTML = '';
         if (item.transport) {
@@ -799,7 +810,7 @@
     async function initMap() {
         if (!mapInstance) { 
             mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
-            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { 
+            L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { 
                 maxZoom: 20, 
                 subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] 
             }).addTo(mapInstance); 
@@ -927,7 +938,15 @@
         mapInstance.closePopup(); 
     };
 
-    window.navigateHere = (lat, lon) => { if (!routeOrigin) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`, '_blank'); } else { window.open(`https://www.google.com/maps/dir/?api=1&origin=${routeOrigin.lat},${routeOrigin.lon}&destination=${lat},${lon}`, '_blank'); routeOrigin = null; } mapInstance.closePopup(); };
+    window.navigateHere = (lat, lon) => { 
+        if (!routeOrigin) { 
+            window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`, '_blank'); 
+        } else { 
+            window.open(`https://www.google.com/maps/dir/?api=1&origin=${routeOrigin.lat},${routeOrigin.lon}&destination=${lat},${lon}`, '_blank'); 
+            routeOrigin = null; 
+        } 
+        mapInstance.closePopup(); 
+    };
 
     function getCategoryVibe(category) {
         const map = { 'FOOD': { hex: '#fb923c', color: 'orange', label: '餐飲' }, 'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, 'TRANSPORT': { hex: '#38bdf8', color: 'sky', label: '交通' }, 'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, 'HOTEL': { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'violet', label: '住宿' }, 'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } };
