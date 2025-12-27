@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (最終修復版)</title>
+    <title>東京遛豬之旅 2026 (資料回歸版)</title>
     
     <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
     <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
@@ -11,7 +11,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -509,18 +508,17 @@
     const db = firebase.firestore();
     
     // ★★★ 資料庫名稱設定 (請確認你的資料在哪個版本) ★★★
-    // 如果在救援模式發現是 v4，請改為 'trip_schedules_v4'
+    // 預設改回 'trip_schedules' 以找回舊資料
     const SCHEDULE_COLLECTION = 'trip_schedules'; 
     
     const CHECKLIST_COLLECTION = 'trip_checklist'; 
     const CONFIG_DOCUMENT_ID = 'trip_config';
 
     function getDocumentId(day) {
-        // ★★★ 如果你是用 v4，這裡可能需要改成 return `tokyo_feb_2026_day_${day}`;
-        // 目前設為自動偵測模式：如果集合名稱包含 v4，就用長檔名
-        if (SCHEDULE_COLLECTION.includes('v4')) {
-             return `tokyo_feb_2026_day_${day}`;
-        }
+        // ★★★ 關鍵修正：舊資料通常使用 'day_1' 格式
+        // 如果發現還是沒資料，且確定是 v4，請把下一行取消註解
+        // if (SCHEDULE_COLLECTION.includes('v4')) return `tokyo_feb_2026_day_${day}`;
+        
         return `day_${day}`; 
     }
 
