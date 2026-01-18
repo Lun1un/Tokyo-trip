@@ -2,1289 +2,648 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>東京遛豬之旅 2026 (完整版)</title>
-    
-    <link rel="apple-touch-icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
-    <link rel="shortcut icon" href="https://i.meee.com.tw/rpOFJGM.jpg">
-    <link rel="icon" type="image/png" sizes="32x32" href="https://i.meee.com.tw/rpOFJGM.jpg">
-    
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🇯🇵 東京行 Tokyo Trip</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; padding-bottom: 80px; }
+        .hidden { display: none; }
+        .active-tab { color: #2563eb; border-top: 2px solid #2563eb; }
         
-        :root {
-            --primary-light: #E0C8FF; 
-            --primary-normal: #C084FC; 
-            --primary-dark: #A855F7; 
-            --soft-bg-color: #f8fafc; 
+        /* 動畫效果 */
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
+        .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
 
-        html, body { height: 100%; margin: 0; padding: 0; overflow-x: hidden; box-sizing: border-box; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--soft-bg-color); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; cursor: pointer; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .page-content { opacity: 1; transition: opacity 0.3s ease-in-out; min-height: 100vh; padding-bottom: 8rem; } 
-        .page-content.hidden { opacity: 0; display: none !important; }
-
-        .modal { opacity: 0; visibility: hidden; display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; transition: opacity 0.2s ease, visibility 0.2s ease; }
-        .modal.active { opacity: 1; visibility: visible; display: flex; }
-
-        /* --- 🌸 櫻花特效 --- */
-        .sakura {
-            position: fixed; top: -10%; background-color: #ffd1dc; border-radius: 100% 0 100% 0;
-            animation: fall linear infinite; z-index: 9998; pointer-events: none; opacity: 0.8;
-        }
-        @keyframes fall {
-            0% { top: -10%; transform: translateX(0) rotate(0deg); opacity: 0.8; }
-            100% { top: 100%; transform: translateX(100px) rotate(360deg); opacity: 0; }
-        }
-
-        /* --- 🎥 Ken Burns --- */
-        @keyframes ken-burns {
-            0% { transform: scale(1) translate(0, 0); }
-            50% { transform: scale(1.1) translate(-2%, 1%); }
-            100% { transform: scale(1) translate(0, 0); }
-        }
-
-        /* --- ⌨️ 打字機 --- */
-        @keyframes typing { from { width: 0; } to { width: 8em; } }
-        @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: white; } }
-        .typewriter-text {
-            overflow: hidden; white-space: nowrap; border-right: 2px solid white; width: 0;
-            animation: typing 2s steps(20, end) forwards, blink-caret 0.75s step-end infinite;
-            display: inline-block; vertical-align: bottom; max-width: 100%;
-        }
-
-        /* --- 🐷 點擊噴發特效 --- */
-        .piggy-particle {
-            position: fixed;
-            pointer-events: none;
-            z-index: 99999;
-            font-size: 24px;
-            animation: float-emoji 1s ease-out forwards;
-            user-select: none;
-        }
-        @keyframes float-emoji {
-            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5) rotate(0deg); }
-            50% { transform: translate(-50%, -150%) scale(1.2) rotate(10deg); }
-            100% { opacity: 0; transform: translate(-50%, -250%) scale(1) rotate(-10deg); }
-        }
-
-        .fixed-header-container {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000; 
-            height: auto; overflow: hidden; 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            border-bottom-left-radius: 1.5rem; border-bottom-right-radius: 1.5rem;
-        }
-
-        .fixed-header-bg-image {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1974&auto=format&fit=crop');
-            background-size: cover; background-position: center bottom; z-index: -2;
-            animation: ken-burns 20s ease-in-out infinite alternate;
-        }
-        
-        .fixed-header-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(20, 10, 40, 0.5), rgba(20, 10, 40, 0.9));
-            z-index: -1; backdrop-filter: blur(1px);
-        }
-
-        .header-content { position: relative; z-index: 1; padding: 16px 16px 10px 16px; color: white; }
-
-        /* --- 其他動畫 --- */
-        @keyframes elastic-slide-up {
-            0% { opacity: 0; transform: translateY(40px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        .anim-card-entry { animation: elastic-slide-up 0.5s ease-out forwards; opacity: 0; }
-        
-        @keyframes float-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-        .empty-anim-icon { font-size: 3.5rem; display: inline-block; animation: float-bounce 3s ease-in-out infinite; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
-
-        .map-icon {
-            background-color: #ef4444 !important;
-            color: white !important; 
-            font-weight: 900; 
-            text-align: center; 
-            line-height: 30px; 
-            border-radius: 50%; 
-            width: 30px !important; 
-            height: 30px !important; 
-            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4); 
-            border: 3px solid white; 
-            display: flex !important; 
-            align-items: center; 
-            justify-content: center; 
-            opacity: 1 !important;
-        }
-        .map-icon span { font-size: 14px; }
-
-        .check-text {
-            position: relative; display: inline-block; transition: color 0.3s ease;
-            background-image: linear-gradient(transparent 45%, #9ca3af 45%, #9ca3af 55%, transparent 55%);
-            background-repeat: no-repeat; background-size: 0% 100%; background-position: left center;
-            transition: background-size 0.5s ease-out, color 0.3s ease; padding-right: 2px;
-        }
-        .check-item.completed .check-text { background-size: 100% 100%; color: #9ca3af; }
-        .check-item.completed .check-circle { background-color: var(--primary-light); border-color: var(--primary-light); color: var(--primary-dark); transform: scale(1.1) rotate(360deg); transition: all 0.4s ease; }
-
-        @keyframes breathe { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(192, 132, 252, 0); } 50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(192, 132, 252, 0.4); } }
-        .anim-pulse { animation: breathe 3s infinite ease-in-out; }
-
-        .fixed-footer { 
-            position: fixed; bottom: 24px; left: 20px; right: 20px; margin: 0 auto; max-width: 400px; z-index: 1001; 
-            background-color: white; border-radius: 2rem; box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
-            height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; box-sizing: border-box; 
-        }
-
-        #schedule-page { padding-top: 240px; } 
-        #expense-page, #checklist-page { padding-top: 30px; } 
-        #map-page { padding-top: 30px; padding-bottom: 7.5rem !important; } 
-        
-        .soft-card-shadow { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border-radius: 1.5rem; }
-        .soft-card-glow { box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); border: 2px solid var(--primary-light); background-color: rgba(255, 255, 255, 0.95); border-radius: 1.5rem; position: relative; overflow: hidden; }
-        
-        .sortable-ghost { opacity: 0.4 !important; background-color: #f3e8ff !important; border: 2px dashed var(--primary-normal) !important; border-radius: 1.5rem; animation: none !important; transition: none !important; }
-        .sortable-drag { background-color: white !important; transform: scale(1.05) !important; z-index: 9999 !important; border-radius: 1.5rem; box-shadow: 0 20px 40px rgba(0,0,0,0.2) !important; animation: none !important; transition: none !important; opacity: 1 !important; }
-        
-        #map { height: 100%; width: 100%; border-radius: 1.5rem; z-index: 1; }
-        .modal-background { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); }
-
-        .input-focus:focus { border-color: var(--primary-normal); box-shadow: 0 0 0 3px var(--primary-light); outline: none; }
-        .glow-btn { background-color: var(--primary-normal); box-shadow: 0 0 10px var(--primary-light); transition: all 0.2s; }
-        .glow-btn:hover { background-color: var(--primary-dark); }
-
-        .timeline-line { background-color: #cbd5e1; width: 2px; border-radius: 9999px; }
-        .header-glass-card { background-color: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.3); color: white; }
-        
-        #map-page .leaflet-control-container .leaflet-top.leaflet-left { margin-top: 80px !important; }
-        #map-page .leaflet-control-container .leaflet-bottom { bottom: 110px !important; }
-
-        .leaflet-control-custom-btn { background-color: white; width: 34px; height: 34px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.65); cursor: pointer; display: flex; align-items: center; justify-content: center; color: #4b5563; font-size: 16px; transition: all 0.2s; }
-        .leaflet-control-custom-btn:hover { background-color: #f3f4f6; color: var(--primary-normal); }
-
-        #loading-status { display: none !important; }
-
-        .check-tab-active { background-color: white; color: var(--primary-normal); box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 2px solid var(--primary-light); }
-        .check-tab-inactive { color: #9ca3af; background-color: transparent; border: 2px solid transparent; }
-        .type-tab-active { background-color: var(--primary-normal); color: white; box-shadow: 0 4px 10px rgba(192, 132, 252, 0.4); }
-        .type-tab-inactive { background-color: #f3f4f6; color: #6b7280; }
-
-        .toast { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) scale(0.9); background-color: rgba(0, 0, 0, 0.85); color: white; padding: 10px 20px; border-radius: 30px; font-size: 14px; font-weight: bold; z-index: 2000; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(4px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); white-space: nowrap; }
-        .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
-        .check-thumb { width: 45px; height: 45px; border-radius: 8px; object-fit: cover; border: 1px solid #e5e7eb; cursor: zoom-in; flex-shrink: 0; transition: transform 0.2s; background-color: #f3f4f6; }
-        .check-thumb:active { transform: scale(0.95); }
-        .file-upload-btn { display: flex; align-items: center; justify-content: center; background-color: #f3f4f6; color: #4b5563; border: 2px dashed #d1d5db; border-radius: 0.75rem; padding: 0.75rem; cursor: pointer; transition: all 0.2s; font-size: 0.875rem; font-weight: 500; }
-        .file-upload-btn:hover { border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f9fafb; }
-        .file-upload-btn.has-file { border-style: solid; border-color: var(--primary-normal); color: var(--primary-normal); background-color: #f3e8ff; }
-        #image-viewer-modal { background-color: rgba(0, 0, 0, 0.95); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        #image-viewer-content { max-width: 95%; max-height: 85%; border-radius: 12px; box-shadow: 0 0 30px rgba(0,0,0,0.5); transition: transform 0.3s ease; }
-        .ripple-btn { position: relative; overflow: hidden; }
-        .ripple-effect { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple 0.6s linear; background-color: rgba(255, 255, 255, 0.4); pointer-events: none; }
-        @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+        /* 隱藏 Scrollbar 但保持滑動 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="text-gray-700">
+<body>
 
-    <div id="toast-msg" class="toast"></div>
-
-    <div id="image-viewer-modal" class="modal" onclick="closeImageViewer()">
-        <img id="image-viewer-content" src="" alt="Enlarged">
-        <div class="absolute bottom-10 text-white text-sm bg-black/50 px-3 py-1 rounded-full">點擊任意處關閉</div>
-    </div>
-
-    <div id="schedule-page" class="page-content">
-        <div class="fixed-header-container" id="main-header">
-            <div class="fixed-header-bg-image"></div>
-            <div class="fixed-header-overlay"></div>
-            
-            <div class="header-content">
-                <div class="flex justify-between items-start mb-2 relative z-10">
-                    <div class="flex-1">
-                        <h1 class="text-2xl font-black text-white tracking-tight mb-1 drop-shadow-lg w-fit">
-                            <span class="typewriter-text">東京遛豬之旅 🐷</span>
-                        </h1>
-                        
-                        <div id="countdown-timer" class="text-[10px] font-mono text-yellow-300 font-bold tracking-wide mb-2 flex items-center gap-1">
-                            <i class="fas fa-hourglass-half"></i> 載入倒數中...
-                        </div>
-
-                        <div class="text-lg font-bold text-white/90 cursor-pointer flex items-center gap-2" onclick="editDayTitle()">
-                            <span id="current-day-title" class="border-b border-transparent hover:border-white/50 transition">Day 1</span>
-                            <i class="fas fa-pen text-xs text-white/60"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="flex flex-col items-end gap-1 mt-1">
-                         <div class="header-glass-card px-3 py-2 rounded-xl shadow-lg flex flex-col items-end">
-                            <span class="text-[10px] text-white/80 font-bold uppercase">今日花費</span>
-                            <span class="text-xl font-black text-white leading-none count-up" id="header-daily-cost">¥ 0</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="flex justify-between items-center mb-4 px-1 relative z-10">
-                    <button onclick="prepareRateModal()" class="text-[11px] text-white px-3 py-1.5 rounded-lg font-bold active:scale-95 header-glass-card hover:bg-white/20 transition shrink-0 mr-2 ripple-btn">
-                        匯率: <span id="display-rate">0.22</span>
-                    </button>
-                    
-                    <div id="hourly-weather-container" class="flex-1 overflow-x-auto hide-scrollbar flex gap-3 items-center">
-                         <div class="text-white/60 text-xs animate-pulse ml-auto">讀取天氣中...</div>
-                    </div>
-                </div>
-
-                <div class="flex overflow-x-auto gap-3 py-1 pb-1 hide-scrollbar z-10 relative" id="date-slider"></div>
-            </div>
+    <div class="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md shadow-sm z-40 px-4 py-3 flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-black text-gray-800 tracking-tight">
+                <i class="fas fa-plane-departure text-blue-600 mr-2"></i>東京行
+            </h1>
+            <p class="text-xs text-gray-400" id="currentDateDisplay">2024.06.01 - 06.07</p>
         </div>
-
-        <div class="px-4 space-y-5"> 
-            <div id="loading-status"></div>
-            <div id="schedule-container" class="space-y-4 pb-10 min-h-[200px]"></div>
+        <div class="bg-gray-100 rounded-full px-3 py-1 flex items-center gap-2">
+            <span class="text-xs font-bold text-gray-500">匯率</span>
+            <input type="number" id="rateInput" value="0.22" step="0.001" onchange="updateRate()" 
+                   class="w-12 bg-transparent text-right font-bold text-blue-600 outline-none border-b border-gray-300 focus:border-blue-500">
         </div>
     </div>
 
-    <div id="map-page" class="hidden page-content px-4 h-screen flex flex-col">
-        <div class="flex-1 bg-white rounded-3xl soft-card-shadow relative overflow-hidden">
-             <div class="absolute top-0 left-0 right-0 z-10 p-4 bg-white/70 backdrop-blur-md rounded-t-3xl border-b border-gray-100">
-                <h1 class="text-2xl font-black flex items-center gap-2 text-gray-800">
-                    <span style="color:var(--primary-normal);"><i class="fas fa-map-marked-alt"></i></span>
-                    今日路線
-                </h1>
-            </div>
-            <div id="map" class="h-full w-full pt-16"></div>
-        </div>
-    </div>
+    <div class="h-16"></div>
 
-    <div id="expense-page" class="hidden page-content px-4">
-        <h1 class="text-2xl font-black mb-4 flex items-center gap-2 text-gray-800">
-            <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-wallet"></i></span>
-            消費統計
-        </h1>
+    <div id="page-schedule" class="page-section px-4 pt-4">
         
-        <div class="bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 rounded-3xl soft-card-shadow mb-6 relative overflow-hidden anim-card-entry">
-            <div class="absolute top-0 right-0 w-32 h-32" style="background-color: var(--primary-normal); opacity: 0.15; border-radius: 9999px; margin-right: -4rem; margin-top: -4rem; filter: blur(3rem);"></div>
-            <div class="flex justify-between items-start relative z-10">
+        <div class="flex overflow-x-auto no-scrollbar gap-3 mb-4 pb-2" id="dayTabsContainer">
+            </div>
+
+        <div id="scheduleList" class="space-y-4">
+            <div class="text-center text-gray-400 py-10">載入中...</div>
+        </div>
+
+        <button onclick="openEditModal()" class="fixed bottom-24 right-4 bg-blue-600 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl active:scale-90 transition-transform z-30">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <div id="page-expense" class="page-section hidden px-4 pt-4">
+        
+        <div class="bg-white rounded-2xl shadow-sm p-5 mb-6">
+            <h2 class="text-gray-500 text-sm font-bold mb-4 uppercase tracking-wider">總消費統計</h2>
+            <div class="flex justify-between items-end mb-2">
                 <div>
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">Total Trip Cost</p>
-                    <div class="text-4xl font-extrabold mt-1 count-up-target" id="total-trip-jpy" data-value="0">¥ 0</div>
-                    <div class="text-sm mt-1 text-white/80" id="total-trip-twd">≈ NT$ 0</div>
+                    <span class="text-3xl font-black text-gray-800" id="totalExpenseJPY">0</span>
+                    <span class="text-sm text-gray-400">JPY</span>
                 </div>
-                <button onclick="calculateAllExpenses()" class="text-white hover:text-gray-300 transition active:scale-95 ripple-btn"><i class="fas fa-sync-alt"></i></button>
+                <div class="text-right">
+                    <div class="text-lg font-bold text-blue-600" id="totalExpenseTWD">NT$ 0</div>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-8 anim-card-entry" style="animation-delay: 0.1s;">
-            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-blue-300">
-                <div class="text-2xl mb-1">🐦</div><div class="text-xs text-gray-400 font-bold">Dove</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate count-up-target" id="total-bird" data-value="0">¥0</div>
-            </div>
-            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-pink-300">
-                <div class="text-2xl mb-1">🐷</div><div class="text-xs text-gray-400 font-bold">Pig</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate count-up-target" id="total-pig" data-value="0">¥0</div>
-            </div>
-            <div class="bg-white p-3 rounded-2xl soft-card-shadow text-center border-b-4 border-yellow-300">
-                <div class="text-2xl mb-1">🐷🐦</div><div class="text-xs text-gray-400 font-bold">Shared</div>
-                <div class="font-extrabold text-gray-800 text-sm mt-1 truncate count-up-target" id="total-shared" data-value="0">¥0</div>
-            </div>
+        <div class="mb-6">
+            <button onclick="calculateSettlement()" class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-3 active:scale-95 transition-transform">
+                <div class="bg-white/20 p-2 rounded-full">
+                    <i class="fas fa-calculator text-xl"></i>
+                </div>
+                <span class="text-xl">一鍵結算：誰該給誰錢？</span>
+            </button>
         </div>
-        <div id="expense-full-list" class="space-y-3 pb-20"></div>
+
+        <h3 class="font-bold text-gray-800 mb-3">消費明細 (依時間排序)</h3>
+        <div id="expenseList" class="space-y-3 pb-10">
+            </div>
     </div>
 
-    <div id="checklist-page" class="hidden page-content px-4">
-        <h1 class="text-2xl font-black mb-4 flex items-center gap-2 text-gray-800">
-            <span class="p-2 rounded-lg text-xl" style="background-color: var(--primary-light); color: var(--primary-normal);"><i class="fas fa-clipboard-check"></i></span>
-            必買 & 準備
-        </h1>
-
-        <div class="bg-gray-100 p-1 rounded-2xl flex gap-1 mb-3 shadow-inner">
-            <button id="check-owner-bird" onclick="switchChecklistOwner('bird')" class="flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2 ripple-btn">
-                <span>🐦</span> Dove
-            </button>
-            <button id="check-owner-pig" onclick="switchChecklistOwner('pig')" class="flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2 ripple-btn">
-                <span>🐷</span> Pig
-            </button>
+    <div id="page-checklist" class="page-section hidden px-4 pt-4">
+        <div class="flex gap-2 mb-4">
+            <input type="text" id="newCheckItem" placeholder="新增待辦/必買..." class="flex-1 bg-white p-3 rounded-xl shadow-sm outline-none">
+            <button onclick="addCheckItem()" class="bg-blue-600 text-white px-5 rounded-xl font-bold">新增</button>
         </div>
-
-        <div class="flex gap-2 mb-5">
-            <button id="check-type-shopping" onclick="switchChecklistType('shopping')" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1 ripple-btn">
-                <i class="fas fa-shopping-bag"></i> 購物攻略
-            </button>
-            <button id="check-type-carry" onclick="switchChecklistType('carry')" class="flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1 ripple-btn">
-                <i class="fas fa-suitcase"></i> 攜帶清單
-            </button>
-        </div>
-
-        <div id="input-area-shopping">
-            <button onclick="showModal('checklist-add-modal')" class="w-full bg-white border-2 border-dashed border-gray-300 rounded-2xl p-4 text-gray-400 font-bold flex items-center justify-center gap-2 hover:bg-gray-50 hover:border-[var(--primary-normal)] hover:text-[var(--primary-normal)] transition-all mb-6 shadow-sm active:scale-98 ripple-btn">
-                <i class="fas fa-plus-circle text-xl"></i> 新增詳細購物項目
-            </button>
-        </div>
-
-        <div id="input-area-carry" class="hidden">
-            <div class="flex gap-3 mb-6 w-full">
-                <input type="text" id="checklist-input-carry" placeholder="新增攜帶項目 (直接輸入)" class="input-focus flex-1 min-w-0 p-3 border border-gray-300 rounded-xl shadow-inner bg-white focus:outline-none">
-                <button onclick="addCarryItem()" class="text-white px-4 rounded-xl font-bold shadow-lg shadow-[var(--primary-light)] active:scale-90 transition shrink-0 glow-btn ripple-btn"><i class="fas fa-plus"></i></button>
+        <div id="checklistContainer" class="space-y-2">
             </div>
-        </div>
-
-        <div id="checklist-container" class="space-y-3 pb-20"></div>
     </div>
 
-    <div id="checklist-add-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('checklist-add-modal')">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
-                <i class="fas fa-cart-plus text-[var(--primary-normal)]"></i> 新增購物項目
-            </h2>
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around items-center py-2 pb-5 z-40 text-xs text-gray-400 font-medium">
+        <button onclick="switchTab('schedule')" class="nav-btn active-tab flex flex-col items-center w-full py-1" id="btn-schedule">
+            <i class="fas fa-calendar-alt text-xl mb-1"></i> 行程
+        </button>
+        <button onclick="switchTab('expense')" class="nav-btn flex flex-col items-center w-full py-1" id="btn-expense">
+            <i class="fas fa-yen-sign text-xl mb-1"></i> 花費
+        </button>
+        <button onclick="switchTab('checklist')" class="nav-btn flex flex-col items-center w-full py-1" id="btn-checklist">
+            <i class="fas fa-check-square text-xl mb-1"></i> 清單
+        </button>
+    </div>
+
+    <div id="editModal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-end justify-center backdrop-blur-sm">
+        <div class="bg-white w-full rounded-t-3xl p-6 h-[85vh] overflow-y-auto animate-slide-up relative">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800" id="modalTitle">新增行程</h3>
+                <button onclick="closeModal()" class="text-gray-400 bg-gray-100 w-8 h-8 rounded-full"><i class="fas fa-times"></i></button>
+            </div>
+
             <div class="space-y-4">
-                <input type="text" id="check-add-name" placeholder="✨ 物品名稱 (必填)" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
-                <div class="relative">
-                    <i class="fas fa-map-marker-alt absolute left-4 top-3.5 text-gray-400"></i>
-                    <input type="text" id="check-add-shop" placeholder="購買地點 (例如: 唐吉訶德)" class="input-focus w-full pl-10 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
-                </div>
-                <label class="file-upload-btn ripple-btn" id="file-label">
-                    <input type="file" id="check-add-file" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
-                    <i class="fas fa-camera mr-2"></i> <span id="file-label-text">上傳照片 (選填)</span>
-                </label>
-                <div id="file-preview" class="hidden w-full h-32 bg-gray-100 rounded-xl bg-cover bg-center border border-gray-200"></div>
-            </div>
-            <div class="flex justify-end space-x-3 mt-6">
-                <button onclick="closeModal('checklist-add-modal')" class="px-5 py-2.5 text-gray-500 font-medium rounded-xl hover:bg-gray-100 ripple-btn">取消</button>
-                <button onclick="confirmAddChecklist()" class="px-5 py-2.5 glow-btn text-white rounded-xl font-bold active:scale-95 ripple-btn">新增</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="add-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('add-modal')">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">新增行程</h2>
-            <div class="space-y-3">
-                <div class="flex gap-2">
-                    <div class="flex-1 flex gap-1 items-center bg-gray-50 border border-gray-200 rounded-xl p-2 shadow-inner">
-                        <input type="time" id="new-start-time" class="w-full bg-transparent font-bold text-center text-lg focus:outline-none" value="09:00">
-                        <span class="text-gray-300">-</span>
-                        <input type="time" id="new-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-1">
+                        <label class="block text-xs text-gray-500 mb-1">時間</label>
+                        <input type="time" id="inpStart" class="w-full bg-gray-50 p-3 rounded-xl">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs text-gray-500 mb-1">標題</label>
+                        <input type="text" id="inpTitle" class="w-full bg-gray-50 p-3 rounded-xl font-bold" placeholder="例如: 淺草雷門">
                     </div>
                 </div>
-                <div class="flex gap-2">
-                    <select id="new-category" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                        <option value="FOOD">🍴 餐飲</option><option value="SHOPPING">🛍 購物</option><option value="SIGHTSEEING">⛩ 景點</option><option value="TRANSPORT">🚄 交通</option><option value="HOTEL">🏨 住宿</option><option value="OTHER">💡 其他</option>
-                    </select>
-                    <select id="new-transport" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                        <option value="">(交通方式)</option><option value="walk">🚶 步行</option><option value="car">🚗 開車</option><option value="taxi">🚕 計程車</option><option value="bus">🚌 公車</option><option value="subway">🚇 地鐵</option><option value="skyliner">🚅 Skyliner</option><option value="plane">✈️ 飛機</option>
-                    </select>
-                </div>
-                <input type="text" id="new-title" placeholder="行程標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
-                <input type="text" id="new-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
-                <textarea id="new-content" placeholder="備註..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
-            </div>
-            <div class="flex justify-end space-x-3 mt-6">
-                <button onclick="closeModal('add-modal')" class="px-5 py-2.5 text-gray-500 font-medium rounded-xl hover:bg-gray-100 ripple-btn">取消</button>
-                <button onclick="addScheduleItem()" class="px-5 py-2.5 glow-btn text-white rounded-xl font-bold active:scale-95 ripple-btn">新增</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="edit-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('edit-modal')">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">編輯行程</h2>
-            <div class="space-y-3">
-                <div class="flex gap-2">
-                    <div class="flex-1 flex gap-1 items-center bg-gray-50 border border-gray-200 rounded-xl p-2 shadow-inner">
-                        <input type="time" id="edit-start-time" class="w-full bg-transparent font-bold text-center text-lg focus:outline-none">
-                        <span class="text-gray-300">-</span>
-                        <input type="time" id="edit-end-time" class="w-full bg-transparent font-bold text-gray-400 text-center text-lg focus:outline-none">
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <select id="edit-category" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                        <option value="FOOD">🍴 餐飲</option><option value="SHOPPING">🛍 購物</option><option value="SIGHTSEEING">⛩ 景點</option><option value="TRANSPORT">🚄 交通</option><option value="HOTEL">🏨 住宿</option><option value="OTHER">💡 其他</option>
-                    </select>
-                    <select id="edit-transport" class="input-focus flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                        <option value="">(交通方式)</option><option value="walk">🚶 步行</option><option value="car">🚗 開車</option><option value="taxi">🚕 計程車</option><option value="bus">🚌 公車</option><option value="subway">🚇 地鐵</option><option value="skyliner">🚅 Skyliner</option><option value="plane">✈️ 飛機</option>
-                    </select>
-                </div>
-                <input type="text" id="edit-title" placeholder="標題" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-bold">
-                <input type="text" id="edit-location" placeholder="📍 地點" class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm">
-                <textarea id="edit-content" placeholder="詳細內容..." class="input-focus w-full p-3 bg-gray-50 border border-gray-200 rounded-xl h-20 text-sm"></textarea>
-            </div>
-            <div class="flex justify-between items-center mt-6">
-                 <button onclick="deleteScheduleItem()" class="px-4 py-2 text-red-500 rounded-xl hover:bg-red-50 text-sm font-medium active:scale-95 ripple-btn"><i class="fas fa-trash-alt mr-1"></i> 刪除</button>
-                <div class="space-x-2">
-                    <button onclick="closeModal('edit-modal')" class="px-4 py-2 text-gray-500 font-medium rounded-xl hover:bg-gray-100 ripple-btn">取消</button>
-                    <button onclick="saveEdit()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95 ripple-btn">儲存</button>
-                </div>
-            </div>
-             <input type="hidden" id="editing-item-id">
-        </div>
-    </div>
 
-    <div id="expense-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('expense-modal')">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl flex flex-col max-h-[80vh]" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-start mb-4">
-                <h2 class="text-xl font-bold text-gray-800" id="expense-modal-title">行程花費</h2>
-                <button onclick="closeModal('expense-modal')" class="text-gray-400 hover:text-gray-600 active:scale-95 ripple-btn"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <div id="expense-list" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-1 min-h-[100px]"></div>
-            
-            <div class="bg-gray-50 p-3 rounded-xl border border-gray-200 mt-auto shadow-inner">
-                <div class="flex gap-2 mb-2">
-                    <div class="flex flex-col gap-1 w-1/3">
-                        <label class="text-[10px] text-gray-400 font-bold ml-1">分攤者</label>
-                        <select id="expense-payer" class="input-focus w-full p-2 border border-gray-300 rounded-lg text-lg text-center bg-white focus:outline-none">
-                            <option value="bird">🐦</option>
-                            <option value="pig">🐷</option>
-                            <option value="shared">🐷🐦</option>
-                        </select>
-                    </div>
-                    <div class="flex flex-col gap-1 w-2/3">
-                        <label class="text-[10px] text-gray-400 font-bold ml-1">誰先出錢 (墊付)</label>
-                        <select id="expense-advance-payer" class="input-focus w-full p-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none font-bold text-gray-600">
-                            <option value="bird">💸 🐦 Dove 先付</option>
-                            <option value="pig">💸 🐷 Pig 先付</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="flex gap-2">
-                    <input type="text" id="expense-desc" placeholder="品項" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm">
-                </div>
-                
-                <div class="flex gap-2 mt-2">
-                    <select id="expense-currency" class="input-focus w-[70px] p-2 border border-gray-300 rounded-lg text-sm font-bold bg-white focus:outline-none shrink-0">
-                        <option value="JPY">JPY</option>
-                        <option value="TWD">TWD</option>
-                    </select>
-                    <input type="number" id="expense-amount" placeholder="金額" class="input-focus flex-1 min-w-0 p-2 border border-gray-300 rounded-lg text-sm font-bold">
-                    <button onclick="addExpenseToItem()" class="w-[60px] bg-yellow-500 text-white font-bold py-2 rounded-lg shadow-md hover:bg-yellow-600 shrink-0 active:scale-95 ripple-btn"><i class="fas fa-plus"></i></button>
-                </div>
-            </div>
-            <input type="hidden" id="expense-item-id">
-        </div>
-    </div>
-
-    <div id="rate-modal" class="modal modal-background items-center justify-center p-4" onclick="closeModal('rate-modal')"><div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl" onclick="event.stopPropagation()"><h2 class="text-xl font-bold mb-2">匯率設定</h2><div class="flex items-center space-x-2 bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-inner"><span class="text-lg font-bold text-gray-400">×</span><input type="number" step="0.0001" id="exchange-rate-input" class="input-focus flex-1 bg-transparent text-2xl font-bold text-center focus:outline-none"></div><div class="flex justify-end mt-6"><button onclick="saveExchangeRate()" class="px-5 py-2 glow-btn text-white rounded-xl font-bold active:scale-95 ripple-btn">儲存</button></div></div></div>
-
-    <div class="fixed-footer text-gray-400">
-        <button id="tab-schedule" onclick="switchPage('schedule')" class="p-2 w-14 flex flex-col items-center justify-center text-[var(--primary-normal)] transition-colors active:scale-90 ripple-btn"><i class="fas fa-map-marked-alt text-xl mb-1"></i><span class="text-[9px] font-bold">行程</span></button>
-        <button id="tab-map" onclick="switchPage('map')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90 ripple-btn"><i class="fas fa-map text-xl mb-1"></i><span class="text-[9px] font-bold">地圖</span></button>
-        <div id="add-schedule-btn" onclick="showModal('add-modal')" class="glow-btn text-white w-16 h-16 rounded-full flex items-center justify-center -mt-10 cursor-pointer active:scale-90 transition-transform border-4 border-white shadow-xl shadow-[var(--primary-light)] anim-pulse ripple-btn"><i class="fas fa-plus text-xl"></i></div>
-        <button id="tab-expense" onclick="switchPage('expense')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-yellow-500 transition-colors active:scale-90 ripple-btn"><i class="fas fa-wallet text-xl mb-1"></i><span class="text-[9px] font-bold">花費</span></button>
-        <button id="tab-checklist" onclick="switchPage('checklist')" class="p-2 w-14 flex flex-col items-center justify-center hover:text-[var(--primary-normal)] transition-colors active:scale-90 ripple-btn"><i class="fas fa-clipboard-list text-xl mb-1"></i><span class="text-[9px] font-bold">清單</span></button>
-    </div>
-
-<script>
-    let currentDay = 1; 
-    let currentItems = []; 
-    let exchangeRate = 0.22; 
-    let checklistItems = [];
-    let currentChecklistOwner = 'bird'; 
-    let currentChecklistType = 'shopping';
-    let currentBase64Image = ''; 
-    let sortableInstance = null;
-    let firestoreScheduleListener = null;
-    let firestoreChecklistListener = null;
-    let firestoreTitlesListener = null;
-    let mapInstance = null;
-    let markers = [];
-    let routeOrigin = null; 
-    let polyline = null; 
-
-    
-    let tripDates = [
-        { day: 1, label: 'Day 1 出發', week: 'WED', date: '04' },
-        { day: 2, label: 'Day 2 探索', week: 'THU', date: '05' },
-        { day: 3, label: 'Day 3 購物', week: 'FRI', date: '06' },
-        { day: 4, label: 'Day 4 動漫', week: 'SAT', date: '07' },
-        { day: 5, label: 'Day 5 樂園', week: 'SUN', date: '08' },
-        { day: 6, label: 'Day 6 橫濱', week: 'MON', date: '09' },
-        { day: 7, label: 'Day 7 回程', week: 'TUE', date: '10' },
-    ];
-
-    function updateCountdown() {
-        const tripStartDate = new Date("2026-02-04T00:00:00").getTime();
-        const tripEndDate = new Date("2026-02-11T00:00:00").getTime(); 
-        const now = new Date().getTime();
-        const timerElement = document.getElementById("countdown-timer");
-
-        if (now < tripStartDate) {
-            const distance = tripStartDate - now;
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            timerElement.innerHTML = `<i class="fas fa-hourglass-half text-yellow-300 mr-1"></i> 還有 ${days}天 ${hours}時 ${minutes}分 ${seconds}秒`;
-        } else if (now < tripEndDate) {
-            const distanceToEnd = tripEndDate - now;
-            const daysLeft = Math.ceil(distanceToEnd / (1000 * 60 * 60 * 24));
-            timerElement.innerHTML = `<i class="fas fa-plane-departure text-green-300 mr-1"></i> 旅程進行中 (剩餘 ${daysLeft} 天)`;
-        } else {
-            timerElement.innerHTML = `<i class="fas fa-home text-white mr-1"></i> 旅程已圓滿結束`;
-        }
-    }
-    setInterval(updateCountdown, 1000);
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBSIP0E7wHTxEnoGmBnqe3IrdojWSTZu0A",
-      authDomain: "tokyotrip2026-24a2c.firebaseapp.com",
-      projectId: "tokyotrip2026-24a2c",
-      storageBucket: "tokyotrip2026-24a2c.firebasestorage.app",
-      messagingSenderId: "473041619302",
-      appId: "1:473041619302:web:477c0eee8903999012a0a7"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const SCHEDULE_COLLECTION = 'trip_schedules_v4';
-    const CHECKLIST_COLLECTION = 'trip_checklist'; 
-    const CONFIG_DOCUMENT_ID = 'trip_config';
-
-    function getDocumentId(day) { return `tokyo_feb_2026_day_${day}`; }
-
-    async function fetchWeather() {
-        try {
-            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=35.6895&longitude=139.6917&hourly=temperature_2m,weathercode&timezone=Asia%2FTokyo`);
-            const data = await res.json();
-            
-            if (data.hourly) {
-                const now = new Date();
-                const currentHour = now.getHours();
-                const startIndex = currentHour; 
-                const temps = data.hourly.temperature_2m.slice(startIndex, startIndex + 24);
-                const codes = data.hourly.weathercode.slice(startIndex, startIndex + 24);
-                const times = data.hourly.time.slice(startIndex, startIndex + 24);
-
-                const weatherContainer = document.getElementById('hourly-weather-container');
-                weatherContainer.innerHTML = ''; 
-
-                for (let i = 0; i < temps.length; i++) {
-                    const timeStr = times[i];
-                    const hour = new Date(timeStr).getHours().toString().padStart(2, '0') + ':00';
-                    const temp = Math.round(temps[i]);
-                    const code = codes[i];
-                    
-                    let iconClass = 'fas fa-sun'; 
-                    let iconColor = 'text-yellow-300';
-
-                    if (code === 0) { iconClass = 'fas fa-sun'; iconColor = 'text-yellow-300'; }
-                    else if (code >= 1 && code <= 3) { iconClass = 'fas fa-cloud-sun'; iconColor = 'text-yellow-200'; }
-                    else if (code >= 45 && code <= 48) { iconClass = 'fas fa-smog'; iconColor = 'text-gray-400'; }
-                    else if (code >= 51 && code <= 67) { iconClass = 'fas fa-cloud-rain'; iconColor = 'text-blue-300'; }
-                    else if (code >= 71 && code <= 77) { iconClass = 'fas fa-snowflake'; iconColor = 'text-white'; }
-                    else if (code >= 95) { iconClass = 'fas fa-bolt'; iconColor = 'text-yellow-400'; }
-                    
-                    const h = parseInt(new Date(timeStr).getHours());
-                    if (h >= 18 || h < 6) {
-                        if (code === 0) { iconClass = 'fas fa-moon'; iconColor = 'text-yellow-100'; }
-                    }
-
-                    const html = `
-                        <div class="flex flex-col items-center justify-center px-3 min-w-[4rem] flex-shrink-0">
-                            <span class="text-[10px] opacity-80 text-white font-mono">${hour}</span>
-                            <i class="${iconClass} ${iconColor} text-lg my-1"></i>
-                            <span class="text-xs font-bold text-white">${temp}°</span>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">類別</label>
+                    <div class="flex gap-2 overflow-x-auto pb-2" id="categorySelector">
                         </div>
-                    `;
-                    weatherContainer.insertAdjacentHTML('beforeend', html);
+                    <input type="hidden" id="inpCategory" value="other">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">地點 / 備註</label>
+                    <input type="text" id="inpLocation" class="w-full bg-gray-50 p-3 rounded-xl" placeholder="Google Map 連結或備註">
+                </div>
+
+                <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                    <h4 class="font-bold text-yellow-700 mb-3 text-sm"><i class="fas fa-coins mr-1"></i> 消費記錄 (選填)</h4>
+                    
+                    <div class="flex items-center gap-2 mb-3">
+                        <input type="number" id="inpAmount" placeholder="金額 (JPY)" class="flex-1 p-2 rounded-lg border border-yellow-200">
+                        <input type="text" id="inpDesc" placeholder="說明 (午餐/門票)" class="flex-1 p-2 rounded-lg border border-yellow-200">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-yellow-600 mb-1">付款歸屬 (誰享受?)</label>
+                            <select id="inpPayer" class="w-full p-2 rounded-lg bg-white border border-yellow-200 text-sm">
+                                <option value="shared">🤝 共同分攤</option>
+                                <option value="bird">🐦 Dove 個人</option>
+                                <option value="pig">🐷 Pig 個人</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-yellow-600 mb-1">誰先墊錢 (錢包?)</label>
+                            <select id="inpAdvance" class="w-full p-2 rounded-lg bg-white border border-yellow-200 text-sm">
+                                <option value="bird">🐦 Dove 先付</option>
+                                <option value="pig">🐷 Pig 先付</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" id="editingId">
+
+                <div class="pt-4 flex gap-3">
+                    <button onclick="deleteItem()" id="btnDelete" class="bg-red-100 text-red-500 py-3 px-4 rounded-xl hidden"><i class="fas fa-trash"></i></button>
+                    <button onclick="saveItem()" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settlementModal" class="fixed inset-0 bg-black/80 hidden z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl animate-slide-up">
+            <div class="bg-gray-900 text-white p-6 text-center relative">
+                <h3 class="text-2xl font-bold mb-1">💰 最終結算</h3>
+                <p class="text-gray-400 text-sm">統計所有 7 天的行程花費</p>
+                <button onclick="closeSettlementModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-blue-50 p-4 rounded-2xl">
+                        <div class="text-xs text-gray-500 mb-1">Dove 先墊付了</div>
+                        <div class="font-bold text-xl text-blue-600" id="totalDovePaid">0</div>
+                        <div class="text-xs text-gray-400">JPY</div>
+                    </div>
+                    <div class="bg-pink-50 p-4 rounded-2xl">
+                        <div class="text-xs text-gray-500 mb-1">Pig 先墊付了</div>
+                        <div class="font-bold text-xl text-pink-600" id="totalPigPaid">0</div>
+                        <div class="text-xs text-gray-400">JPY</div>
+                    </div>
+                </div>
+                <div class="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-6 text-center">
+                    <div class="text-gray-600 font-medium mb-2">最終結算結果</div>
+                    <div id="finalResult" class="text-3xl font-black text-gray-800 my-2">計算中...</div>
+                    <div id="finalResultTWD" class="text-sm text-gray-500">(約 TWD 0)</div>
+                </div>
+                <div class="text-xs text-gray-400 text-center">
+                    <p>計算公式：(共同花費÷2) + (幫對方墊付的個人花費)</p>
+                </div>
+            </div>
+            <div class="p-4 bg-gray-50 border-t border-gray-100">
+                <button onclick="closeSettlementModal()" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl">知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-xl z-50 transition-opacity opacity-0 pointer-events-none text-sm font-medium">
+        提示訊息
+    </div>
+
+    <script>
+        // ================= 1. 初始化與設定 =================
+        // ⚠️ 請在此填入您的 Firebase Config
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "SENDER_ID",
+            appId: "APP_ID"
+        };
+
+        // 初始化 Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // 全域變數
+        const COLLECTION_NAME = 'TokyoTrip2024';
+        const CONFIG_DOC = 'config';
+        let currentDay = 1;
+        let exchangeRate = 0.22;
+        let currentScheduleData = [];
+
+        // 類別設定
+        const CATEGORIES = [
+            { id: 'food', icon: 'fa-utensils', label: '美食', color: 'bg-orange-100 text-orange-600' },
+            { id: 'spot', icon: 'fa-camera', label: '景點', color: 'bg-blue-100 text-blue-600' },
+            { id: 'shop', icon: 'fa-shopping-bag', label: '購物', color: 'bg-pink-100 text-pink-600' },
+            { id: 'transport', icon: 'fa-train', label: '交通', color: 'bg-green-100 text-green-600' },
+            { id: 'hotel', icon: 'fa-bed', label: '住宿', color: 'bg-purple-100 text-purple-600' },
+            { id: 'other', icon: 'fa-star', label: '其他', color: 'bg-gray-100 text-gray-600' }
+        ];
+
+        // 啟動
+        window.onload = async function() {
+            renderDayTabs();
+            renderCategoryButtons();
+            
+            // 讀取匯率
+            const configSnap = await db.collection(COLLECTION_NAME).doc(CONFIG_DOC).get();
+            if (configSnap.exists && configSnap.data().rate) {
+                exchangeRate = configSnap.data().rate;
+                document.getElementById('rateInput').value = exchangeRate;
+            }
+
+            loadSchedule(1);
+        };
+
+        // ================= 2. 核心功能: 行程 =================
+
+        // 渲染天數按鈕
+        function renderDayTabs() {
+            const container = document.getElementById('dayTabsContainer');
+            let html = '';
+            const dates = ['6/1', '6/2', '6/3', '6/4', '6/5', '6/6', '6/7'];
+            for(let i=1; i<=7; i++) {
+                html += `
+                    <button onclick="loadSchedule(${i})" id="dayBtn${i}" 
+                        class="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all ${i===1 ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-gray-500 border'}">
+                        Day ${i} <span class="text-xs font-normal block">${dates[i-1]}</span>
+                    </button>`;
+            }
+            container.innerHTML = html;
+        }
+
+        // 讀取行程
+        async function loadSchedule(day) {
+            currentDay = day;
+            
+            // UI 更新
+            for(let i=1; i<=7; i++) {
+                const btn = document.getElementById(`dayBtn${i}`);
+                if(i === day) {
+                    btn.className = "flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all bg-blue-600 text-white shadow-md";
+                } else {
+                    btn.className = "flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all bg-white text-gray-500 border";
                 }
             }
-        } catch(e) { 
-             document.getElementById('hourly-weather-container').innerHTML = '<div class="text-white/50 text-xs">Weather Unavailable</div>';
-        }
-    }
 
-    function listenForDayTitles() {
-        if (firestoreTitlesListener) firestoreTitlesListener();
-        firestoreTitlesListener = db.collection(CONFIG_DOCUMENT_ID).doc('titles').onSnapshot(doc => {
-            if (doc.exists) {
-                const data = doc.data();
-                tripDates.forEach(d => { if (data[`day${d.day}`]) d.label = data[`day${d.day}`]; });
-            }
-            document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === currentDay).label;
-            renderDateSlider();
-        });
-    }
+            const listDiv = document.getElementById('scheduleList');
+            listDiv.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i></div>';
 
-    async function editDayTitle() {
-        const currentLabel = tripDates.find(d => d.day === currentDay).label;
-        const newLabel = prompt("編輯今日標題:", currentLabel);
-        if (newLabel && newLabel !== currentLabel) {
             try {
-                document.getElementById('current-day-title').textContent = newLabel;
-                tripDates.find(d => d.day === currentDay).label = newLabel;
-                await db.collection(CONFIG_DOCUMENT_ID).doc('titles').set({ [`day${currentDay}`]: newLabel }, { merge: true });
-            } catch (e) {}
-        }
-    }
-
-    function listenForScheduleUpdates(day) {
-        if (firestoreScheduleListener) firestoreScheduleListener();
-        const loading = document.getElementById('loading-status');
-        
-        firestoreScheduleListener = db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(day)).onSnapshot(doc => {
-            currentItems = doc.exists ? (doc.data().schedule || []) : [];
-            renderSchedule();
-            calculateDailyCost();
-            if (!document.getElementById('map-page').classList.contains('hidden')) initMap(); 
-        });
-    }
-
-    async function saveScheduleToFirestore(items) {
-        try { await db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(currentDay)).set({ schedule: items, lastUpdated: firebase.firestore.FieldValue.serverTimestamp() }); } catch (e) {}
-    }
-
-    function initSortable() {
-        const el = document.getElementById('schedule-container');
-        if (sortableInstance) sortableInstance.destroy();
-        sortableInstance = new Sortable(el, {
-            animation: 200, 
-            delay: 500, 
-            delayOnTouchOnly: true, 
-            ghostClass: 'sortable-ghost', 
-            dragClass: 'sortable-drag',
-            onEnd: function (evt) {
-                const item = currentItems[evt.oldIndex];
-                currentItems.splice(evt.oldIndex, 1);
-                currentItems.splice(evt.newIndex, 0, item);
-                saveScheduleToFirestore(currentItems);
-            },
-        });
-    }
-
-    function renderSchedule() {
-        const container = document.getElementById('schedule-container');
-        container.innerHTML = ''; 
-        if (currentItems.length === 0) { 
-            container.innerHTML = `
-                <div class="flex flex-col items-center justify-center py-24 opacity-80 select-none">
-                    <div class="flex gap-6 mb-4">
-                        <span class="empty-anim-icon" style="animation-delay: 0s">🐦</span>
-                        <span class="empty-anim-icon" style="animation-delay: 0.2s">✈️</span>
-                        <span class="empty-anim-icon" style="animation-delay: 0.4s">🐷</span>
-                    </div>
-                    <div class="text-gray-400 font-bold text-sm tracking-widest uppercase">點擊下方 + 開始規劃</div>
-                </div>`;
-            return; 
-        }
-        currentItems.forEach((item, index) => container.insertAdjacentHTML('beforeend', createScheduleItemHTML(item, index)));
-        
-        VanillaTilt.init(document.querySelectorAll(".soft-card-glow"), {
-            max: 10, speed: 400, glare: true, "max-glare": 0.3, scale: 1.02
-        });
-
-        initSortable();
-        
-        setTimeout(() => {
-            document.querySelectorAll('.anim-card-entry').forEach(el => {
-                el.classList.remove('anim-card-entry');
-                el.style.opacity = '1';
-            });
-        }, 600);
-    }
-
-    function createScheduleItemHTML(item, index) {
-        const vibe = getCategoryVibe(item.category);
-        const expenses = item.expenses || [];
-        const totalItemCost = expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0);
-        
-        const hasEnd = !!item.endTime;
-        const timeHTML = hasEnd 
-            ? `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
-               <div class="timeline-line bg-gray-300 flex-1 my-0.5 opacity-50"></div>
-               <div class="text-xs font-bold text-gray-400 leading-none">${item.endTime}</div>`
-            : `<div class="text-sm font-black text-gray-800 leading-none">${item.startTime}</div>
-               <div class="timeline-line bg-gray-200 h-full mt-1 min-h-[2rem]"></div>`;
-
-        const costBadge = totalItemCost > 0 ? 
-            `<div class="mt-3 block">
-                <span class="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-lg text-xs font-bold border border-yellow-200 shadow-sm">
-                    ¥ ${totalItemCost.toLocaleString()}
-                </span>
-             </div>` : '';
-             
-        let locationHTML = item.location ? `<a href="http://maps.google.com/?q=${encodeURIComponent(item.location)}" target="_blank" class="text-xs text-gray-400 mt-1 font-bold hover:text-[var(--primary-normal)] hover:underline inline-block max-w-[90%] truncate" onclick="event.stopPropagation()"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</a>` : '';
-
-        let transportHTML = '';
-        if (item.transport) {
-            const transportMap = { 'walk': '🚶', 'car': '🚗', 'taxi': '🚕', 'bus': '🚌', 'subway': '🚇', 'skyliner': '🚅', 'plane': '✈️' };
-            const icon = transportMap[item.transport] || '';
-            if(icon) transportHTML = `<span class="inline-block text-sm ml-2 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200 text-gray-600">${icon}</span>`;
-        }
-
-        const badgeColor = `background-color: ${vibe.hex}20; color: ${vibe.hex}; border: 1px solid ${vibe.hex}40;`;
-        const delayStyle = `animation-delay: ${index * 0.08}s`;
-
-        return `
-            <div class="flex gap-3 items-stretch group relative select-none cursor-grab anim-card-entry" style="${delayStyle}" data-id="${item.id}">
-                <div class="flex flex-col items-center pt-1 min-w-[3.5rem]">
-                    ${timeHTML}
-                </div>
-                <div class="flex-1 soft-card-glow relative overflow-hidden transition-all active:scale-[0.98]">
-                    <div class="p-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-1" style="${badgeColor}">${vibe.label}</span>
-                                ${transportHTML}
-                                <h3 class="font-extrabold text-gray-800 text-lg leading-tight mt-1">${item.title}</h3>
-                            </div>
-                            <div class="flex gap-1">
-                                <button class="expense-btn w-8 h-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center hover:bg-yellow-100 transition active:scale-95 jelly-btn" data-item-id="${item.id}"><i class="fas fa-wallet"></i></button>
-                                <button class="edit-btn w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-[var(--primary-normal)]/10 hover:text-[var(--primary-normal)] transition active:scale-95 jelly-btn" data-item-id="${item.id}"><i class="fas fa-pen text-xs"></i></button>
-                            </div>
-                        </div>
-                        <p class="text-sm text-gray-500 mt-2 leading-relaxed">${item.content || ''}</p>
-                        ${locationHTML}
-                        ${costBadge}
-                    </div>
-                </div>
-            </div>`;
-    }
-    
-    function calculateDailyCost() {
-        let total = 0;
-        currentItems.forEach(item => { if(item.expenses) total += item.expenses.reduce((sum, ex) => sum + (parseInt(ex.amount)||0), 0); });
-        const el = document.getElementById('header-daily-cost');
-        if(el) {
-            animateValue(el, parseInt(el.textContent.replace(/\D/g,'')) || 0, total, 1000);
-        }
-    }
-
-    function animateValue(obj, start, end, duration) {
-        let startTimestamp = null;
-        const step = (timestamp) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            obj.innerHTML = '¥ ' + Math.floor(progress * (end - start) + start).toLocaleString();
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
+                const doc = await db.collection(COLLECTION_NAME).doc(`day${day}`).get();
+                currentScheduleData = doc.exists ? (doc.data().schedule || []) : [];
+                
+                // 排序：按時間
+                currentScheduleData.sort((a, b) => a.startTime.localeCompare(b.startTime));
+                
+                renderScheduleList();
+            } catch (e) {
+                console.error(e);
+                listDiv.innerHTML = '<div class="text-center text-red-500">載入失敗</div>';
             }
-        };
-        window.requestAnimationFrame(step);
-    }
+        }
 
-    async function calculateAllExpenses() {
-        const container = document.getElementById('expense-full-list');
-        container.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fas fa-spinner fa-spin text-2xl"></i> 計算中...</div>';
-        let grandTotal = 0; let totalBird = 0; let totalPig = 0; let totalShared = 0;
-        let htmlContent = '';
-        for (let i = 1; i <= 7; i++) {
-            const doc = await db.collection(SCHEDULE_COLLECTION).doc(getDocumentId(i)).get();
-            if (doc.exists) {
-                const items = doc.data().schedule || [];
-                let dayTotal = 0; let dayHTML = '';
-                items.forEach(item => {
-                    if (item.expenses && item.expenses.length > 0) {
-                        item.expenses.forEach(ex => {
-                            const amt = parseInt(ex.amount) || 0; grandTotal += amt; dayTotal += amt;
-                            if (ex.payer === 'bird') totalBird += amt; else if (ex.payer === 'pig') totalPig += amt; else totalShared += amt; 
-                            let payerIcon = ex.payer === 'bird' ? '🐦' : (ex.payer === 'pig' ? '🐷' : '🐷🐦');
-                            // 🌟 顯示墊付資訊
-                            let advanceInfo = '';
-                            if (ex.advancePayer) {
-                                advanceInfo = `<span class="ml-1 text-[10px] bg-yellow-100 text-yellow-700 px-1 rounded border border-yellow-200">${ex.advancePayer === 'pig' ? '🐷先付' : '🐦先付'}</span>`;
+        // 渲染列表 HTML
+        function renderScheduleList() {
+            const listDiv = document.getElementById('scheduleList');
+            if (currentScheduleData.length === 0) {
+                listDiv.innerHTML = '<div class="text-center text-gray-400 py-10">尚無行程，點擊右下角 + 新增</div>';
+                return;
+            }
+
+            let html = '';
+            currentScheduleData.forEach((item, index) => {
+                const cat = CATEGORIES.find(c => c.id === item.category) || CATEGORIES[5];
+                const expense = (item.expenses && item.expenses.length > 0) ? item.expenses[0] : null;
+
+                html += `
+                <div onclick="openEditModal(${index})" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex gap-4 active:bg-gray-50 transition-colors cursor-pointer">
+                    <div class="flex flex-col items-center pt-1 min-w-[50px]">
+                        <span class="font-bold text-gray-700 font-mono text-lg">${item.startTime}</span>
+                        <div class="h-full w-0.5 bg-gray-100 mt-2"></div>
+                    </div>
+                    <div class="flex-1 pb-2">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="${cat.color} px-2 py-0.5 rounded text-xs font-bold">${cat.label}</span>
+                            ${expense ? `<span class="text-gray-900 font-bold">¥${parseInt(expense.amount).toLocaleString()}</span>` : ''}
+                        </div>
+                        <h3 class="font-bold text-gray-800 text-lg mb-1">${item.title}</h3>
+                        ${item.location ? `<p class="text-xs text-gray-400"><i class="fas fa-map-marker-alt mr-1"></i>${item.location}</p>` : ''}
+                    </div>
+                </div>`;
+            });
+            listDiv.innerHTML = html;
+        }
+
+        // ================= 3. 編輯與新增 (Modal) =================
+
+        function renderCategoryButtons() {
+            const container = document.getElementById('categorySelector');
+            container.innerHTML = CATEGORIES.map(c => `
+                <button onclick="selectCategory('${c.id}')" id="catBtn-${c.id}" class="cat-btn flex-shrink-0 px-3 py-2 rounded-lg bg-gray-100 text-gray-500 text-xs font-bold border border-transparent">
+                    <i class="fas ${c.icon} mr-1"></i>${c.label}
+                </button>
+            `).join('');
+        }
+
+        function selectCategory(id) {
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                b.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50', 'text-blue-600');
+                b.classList.add('bg-gray-100', 'text-gray-500');
+            });
+            const btn = document.getElementById(`catBtn-${id}`);
+            btn.classList.remove('bg-gray-100', 'text-gray-500');
+            btn.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50', 'text-blue-600');
+            document.getElementById('inpCategory').value = id;
+        }
+
+        function openEditModal(index = -1) {
+            const modal = document.getElementById('editModal');
+            modal.classList.remove('hidden');
+            
+            document.getElementById('editingId').value = index;
+            document.getElementById('btnDelete').classList.toggle('hidden', index === -1);
+            document.getElementById('modalTitle').innerText = index === -1 ? '新增行程' : '編輯行程';
+
+            if (index > -1) {
+                const data = currentScheduleData[index];
+                document.getElementById('inpStart').value = data.startTime;
+                document.getElementById('inpTitle').value = data.title;
+                document.getElementById('inpLocation').value = data.location || '';
+                selectCategory(data.category || 'other');
+
+                if (data.expenses && data.expenses.length > 0) {
+                    const ex = data.expenses[0];
+                    document.getElementById('inpAmount').value = ex.amount;
+                    document.getElementById('inpDesc').value = ex.description;
+                    document.getElementById('inpPayer').value = ex.payer;
+                    document.getElementById('inpAdvance').value = ex.advancePayer;
+                } else {
+                    resetExpenseInputs();
+                }
+            } else {
+                document.getElementById('inpStart').value = '10:00';
+                document.getElementById('inpTitle').value = '';
+                document.getElementById('inpLocation').value = '';
+                selectCategory('spot');
+                resetExpenseInputs();
+            }
+        }
+
+        function resetExpenseInputs() {
+            document.getElementById('inpAmount').value = '';
+            document.getElementById('inpDesc').value = '';
+            document.getElementById('inpPayer').value = 'shared';
+            document.getElementById('inpAdvance').value = 'bird';
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        async function saveItem() {
+            const index = parseInt(document.getElementById('editingId').value);
+            const startTime = document.getElementById('inpStart').value;
+            const title = document.getElementById('inpTitle').value;
+            if(!title) return showToast('請輸入標題');
+
+            const item = {
+                startTime,
+                title,
+                category: document.getElementById('inpCategory').value,
+                location: document.getElementById('inpLocation').value,
+                expenses: []
+            };
+
+            const amt = document.getElementById('inpAmount').value;
+            if (amt) {
+                item.expenses.push({
+                    amount: parseInt(amt),
+                    description: document.getElementById('inpDesc').value || title,
+                    payer: document.getElementById('inpPayer').value,
+                    advancePayer: document.getElementById('inpAdvance').value
+                });
+            }
+
+            if (index === -1) {
+                currentScheduleData.push(item);
+            } else {
+                currentScheduleData[index] = item;
+            }
+
+            try {
+                await db.collection(COLLECTION_NAME).doc(`day${currentDay}`).set({ schedule: currentScheduleData });
+                closeModal();
+                loadSchedule(currentDay);
+                showToast('已儲存');
+            } catch (e) {
+                alert('儲存失敗');
+            }
+        }
+
+        async function deleteItem() {
+            if(!confirm('確定刪除?')) return;
+            const index = parseInt(document.getElementById('editingId').value);
+            currentScheduleData.splice(index, 1);
+            
+            await db.collection(COLLECTION_NAME).doc(`day${currentDay}`).set({ schedule: currentScheduleData });
+            closeModal();
+            loadSchedule(currentDay);
+            showToast('已刪除');
+        }
+
+        // ================= 4. 花費與統計 (Expense) =================
+
+        async function loadExpenses() {
+            const listDiv = document.getElementById('expenseList');
+            listDiv.innerHTML = '載入中...';
+            
+            let allExpenses = [];
+            let totalJPY = 0;
+
+            for(let i=1; i<=7; i++) {
+                const doc = await db.collection(COLLECTION_NAME).doc(`day${i}`).get();
+                if(doc.exists) {
+                    const items = doc.data().schedule || [];
+                    items.forEach(item => {
+                        if(item.expenses) {
+                            item.expenses.forEach(ex => {
+                                allExpenses.push({
+                                    day: i,
+                                    title: item.title,
+                                    ...ex
+                                });
+                                totalJPY += parseInt(ex.amount);
+                            });
+                        }
+                    });
+                }
+            }
+
+            document.getElementById('totalExpenseJPY').innerText = totalJPY.toLocaleString();
+            document.getElementById('totalExpenseTWD').innerText = `NT$ ${Math.round(totalJPY * exchangeRate).toLocaleString()}`;
+
+            let html = '';
+            allExpenses.forEach(ex => {
+                const payerMap = { 'bird': 'Dove', 'pig': 'Pig', 'shared': '共同' };
+                const payerColor = ex.payer === 'shared' ? 'bg-gray-100 text-gray-500' : (ex.payer === 'bird' ? 'bg-blue-100 text-blue-600' : 'bg-pink-100 text-pink-600');
+                
+                html += `
+                <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-gray-100">
+                    <div>
+                        <div class="text-xs text-gray-400 mb-1">Day ${ex.day} · ${ex.description}</div>
+                        <div class="font-bold text-gray-800">${ex.title}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-gray-900">¥${parseInt(ex.amount).toLocaleString()}</div>
+                        <span class="text-[10px] px-2 py-0.5 rounded ${payerColor}">${payerMap[ex.payer]}</span>
+                    </div>
+                </div>`;
+            });
+            listDiv.innerHTML = html || '<div class="text-center text-gray-400">尚無消費紀錄</div>';
+        }
+
+        // ================= 5. 一鍵結算 (Settlement) =================
+
+        async function calculateSettlement() {
+            showToast('🧮 正在計算...');
+            let totalDovePaid = 0; // Dove 錢包出
+            let totalPigPaid = 0;  // Pig 錢包出
+            let balance = 0;       // 正數: Pig欠Dove, 負數: Dove欠Pig
+
+            try {
+                for (let i = 1; i <= 7; i++) {
+                    const doc = await db.collection(COLLECTION_NAME).doc(`day${i}`).get();
+                    if (doc.exists) {
+                        const items = doc.data().schedule || [];
+                        items.forEach(item => {
+                            if (item.expenses) {
+                                item.expenses.forEach(ex => {
+                                    const amount = parseFloat(ex.amount) || 0;
+                                    
+                                    // 1. 誰先墊付
+                                    if (ex.advancePayer === 'bird') totalDovePaid += amount;
+                                    else if (ex.advancePayer === 'pig') totalPigPaid += amount;
+
+                                    // 2. 債務計算
+                                    if (ex.payer === 'shared') {
+                                        if (ex.advancePayer === 'bird') balance += (amount / 2);
+                                        if (ex.advancePayer === 'pig') balance -= (amount / 2);
+                                    } else if (ex.payer === 'pig') {
+                                        if (ex.advancePayer === 'bird') balance += amount;
+                                    } else if (ex.payer === 'bird') {
+                                        if (ex.advancePayer === 'pig') balance -= amount;
+                                    }
+                                });
                             }
-                            
-                            dayHTML += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-gray-100 last:border-0 hover:bg-gray-50 px-2 -mx-2 rounded"><div class="flex items-center gap-2 overflow-hidden flex-1 min-w-0"><span class="text-xs bg-gray-200 px-1 rounded-full shrink-0">${payerIcon}</span><span class="text-gray-600 truncate">${item.title} - ${ex.description}</span></div><div class="flex items-center gap-1 shrink-0 ml-2">${advanceInfo}<span class="font-mono font-bold text-gray-800">¥${amt.toLocaleString()}</span></div></div>`;
                         });
                     }
-                });
-                if (dayTotal > 0) htmlContent += `<div class="bg-white rounded-xl p-4 soft-card-shadow border-t-4 border-gray-300 mb-4 anim-card-entry" style="animation-delay: ${i*0.1}s"><div class="flex justify-between items-center mb-2 pb-1 border-b border-gray-200"><h3 class="font-bold text-lg text-gray-800">Day ${i}</h3><span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-lg">Total: ¥${dayTotal.toLocaleString()}</span></div><div>${dayHTML}</div></div>`;
-            }
-        }
-        
-        animateValue(document.getElementById('total-trip-jpy'), 0, grandTotal, 1000);
-        document.getElementById('total-trip-twd').textContent = `≈ NT$ ${Math.round(grandTotal * exchangeRate).toLocaleString()}`;
-        animateValue(document.getElementById('total-bird'), 0, totalBird, 1000);
-        animateValue(document.getElementById('total-pig'), 0, totalPig, 1000);
-        animateValue(document.getElementById('total-shared'), 0, totalShared, 1000);
-
-        container.innerHTML = htmlContent || '<div class="text-center text-gray-400 py-10">目前沒有任何消費記錄</div>';
-    }
-
-    function renderDateSlider() {
-        const slider = document.getElementById('date-slider');
-        slider.innerHTML = '';
-        tripDates.forEach(d => {
-            const active = d.day === currentDay;
-            const activeClass = active 
-                ? 'bg-[var(--primary-normal)] text-white shadow-lg shadow-purple-500/30 scale-105 border border-transparent active' 
-                : 'bg-white/20 backdrop-blur-md border border-white/20 text-white hover:bg-white/30';
-            
-            slider.insertAdjacentHTML('beforeend', `
-                <div class="date-slider-item flex-shrink-0 w-14 h-16 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all active:scale-95 ${activeClass}" onclick="switchDay(${d.day})">
-                    <div class="text-[10px] font-bold ${active ? 'opacity-90' : 'opacity-80'}">${d.week}</div>
-                    <div class="text-xl font-black leading-none">${d.date}</div>
-                    <div class="text-[8px] font-medium mt-1 truncate max-w-[90%] ${active ? 'text-white/80' : 'text-white/70'}">${d.label}</div>
-                </div>`);
-        });
-    }
-
-    // ✨ 顯示氣泡提示的函式
-    function showToast(msg) {
-        const t = document.getElementById('toast-msg');
-        if(t) {
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2000);
-        }
-    }
-
-    async function initMap() {
-        if (!mapInstance) { 
-            mapInstance = L.map('map').setView([35.6895, 139.6917], 11); 
-            L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', { 
-                maxZoom: 20, 
-                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] 
-            }).addTo(mapInstance); 
-            
-            const locBtn = L.Control.extend({
-                options: { position: 'bottomright' },
-                onAdd: function(map) {
-                    const btn = L.DomUtil.create('div', 'leaflet-control-custom-btn');
-                    btn.innerHTML = '<i class="fas fa-crosshairs"></i>';
-                    btn.onclick = () => { map.locate({setView: true, maxZoom: 16}); };
-                    return btn;
                 }
-            });
-            mapInstance.addControl(new locBtn());
-            
-            mapInstance.on('locationfound', (e) => {
-                L.circleMarker(e.latlng, { radius: 8, color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.8 }).addTo(mapInstance).bindPopup("目前位置").openPopup();
-            });
-        }
-        
-        markers.forEach(m => mapInstance.removeLayer(m)); 
-        markers = [];
-        if (polyline) {
-            mapInstance.removeLayer(polyline);
-        }
 
-        const locations = currentItems.filter(i => i.location);
-        let bounds = L.latLngBounds();
-        let pathCoords = [];
-
-        for (let index = 0; index < locations.length; index++) {
-            const item = locations[index];
-            let lat = null, lon = null;
-            let isCoordinate = false;
-
-            const coordPattern = /([0-9]+\.[0-9]+)[,\s]+([0-9]+\.[0-9]+)/;
-            const match = item.location.match(coordPattern);
-
-            if (match) {
-                lat = parseFloat(match[1]);
-                lon = parseFloat(match[2]);
-                isCoordinate = true;
-            } else {
-                try {
-                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(item.location)}&limit=1`);
-                    const data = await res.json();
-                    if (data && data.length > 0) {
-                        lat = data[0].lat;
-                        lon = data[0].lon;
-                    }
-                } catch (e) {} 
-                await new Promise(r => setTimeout(r, 600)); 
-            }
-
-            if (lat && lon) {
-                const customIcon = L.divIcon({ className: 'map-icon', html: `<span>${index + 1}</span>`, iconSize: [30, 30], iconAnchor: [15, 30] });
-                const marker = L.marker([lat, lon], { icon: customIcon }).addTo(mapInstance);
+                document.getElementById('totalDovePaid').innerText = totalDovePaid.toLocaleString();
+                document.getElementById('totalPigPaid').innerText = totalPigPaid.toLocaleString();
                 
-                const popupContent = `<div class="text-center"><b>${index + 1}. ${item.title}</b><br><span class="text-xs text-gray-500">${isCoordinate ? '📍 使用精確座標' : item.location}</span><br><span class="text-gray-500 text-xs">${item.startTime}</span><br><div class="mt-2 flex gap-2 justify-center"><button onclick="setRouteOrigin(${lat}, ${lon}, '${item.title}')" class="bg-blue-500 text-white px-2 py-1 rounded text-xs">🚩 設為起點</button><button onclick="navigateHere(${lat}, ${lon})" class="bg-green-500 text-white px-2 py-1 rounded text-xs">🏁 導航至此</button></div></div>`;
-                marker.bindPopup(popupContent);
+                const resultDiv = document.getElementById('finalResult');
+                const resultTWDDiv = document.getElementById('finalResultTWD');
+                const absBalance = Math.abs(balance);
                 
-                markers.push(marker); 
-                bounds.extend([lat, lon]);
-                pathCoords.push([lat, lon]);
-            }
-        }
-
-        if (pathCoords.length > 1) {
-            let curvedPath = [];
-            for (let i = 0; i < pathCoords.length - 1; i++) {
-                let start = pathCoords[i];
-                let end = pathCoords[i + 1];
-                let curvePoints = getCurvePoints(start, end);
-                curvedPath = curvedPath.concat(curvePoints);
-            }
-
-            polyline = L.polyline(curvedPath, {
-                color: '#facc15', 
-                weight: 5, 
-                opacity: 0.9,
-                dashArray: '10, 10', 
-                lineCap: 'round'
-            }).addTo(mapInstance);
-        }
-
-        if (markers.length > 0) mapInstance.fitBounds(bounds, { padding: [50, 50] });
-    }
-    
-    function getCurvePoints(start, end) {
-        const lat1 = start[0];
-        const lng1 = start[1];
-        const lat2 = end[0];
-        const lng2 = end[1];
-        
-        const midLat = (lat1 + lat2) / 2;
-        const midLng = (lng1 + lng2) / 2;
-
-        const dx = lng2 - lng1;
-        const dy = lat2 - lat1;
-        const offsetFactor = 0.15; 
-        
-        const controlLat = midLat - dx * offsetFactor;
-        const controlLng = midLng + dy * offsetFactor;
-
-        let points = [];
-        for (let t = 0; t <= 1; t += 0.02) {
-            const lat = (1 - t) * (1 - t) * lat1 + 2 * (1 - t) * t * controlLat + t * t * lat2;
-            const lng = (1 - t) * (1 - t) * lng1 + 2 * (1 - t) * t * controlLng + t * t * lng2;
-            points.push([lat, lng]);
-        }
-        return points;
-    }
-
-    window.setRouteOrigin = (lat, lon, title) => { 
-        routeOrigin = { lat, lon }; 
-        showToast(`🚩 已設定「${title}」為起點`); 
-        mapInstance.closePopup(); 
-    };
-
-    window.navigateHere = (lat, lon) => { if (!routeOrigin) { window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`, '_blank'); } else { window.open(`https://www.google.com/maps/dir/?api=1&origin=${routeOrigin.lat},${routeOrigin.lon}&destination=${lat},${lon}`, '_blank'); routeOrigin = null; } mapInstance.closePopup(); };
-
-    function getCategoryVibe(category) {
-        const map = { 'FOOD': { hex: '#fb923c', color: 'orange', label: '餐飲' }, 'SIGHTSEEING': { hex: '#f87171', color: 'red', label: '景點' }, 'TRANSPORT': { hex: '#38bdf8', color: 'sky', label: '交通' }, 'SHOPPING': { hex: '#f472b6', color: 'pink', label: '購物' }, 'HOTEL': { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'violet', label: '住宿' }, 'OTHER': { hex: '#94a3b8', color: 'slate', label: '其他' } };
-        if (category === 'HOTEL') return { hex: getComputedStyle(document.documentElement).getPropertyValue('--primary-normal'), color: 'purple', label: '住宿' };
-        return map[category] || map['OTHER'];
-    }
-
-    function switchDay(day) { if (day === currentDay) return; currentDay = day; document.getElementById('current-day-title').textContent = tripDates.find(d => d.day === day).label; renderDateSlider(); listenForScheduleUpdates(day); }
-    function switchPage(page) {
-        document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden')); document.getElementById(`${page === 'expense' ? 'expense' : (page === 'checklist' ? 'checklist' : (page === 'map' ? 'map' : 'schedule'))}-page`).classList.remove('hidden');
-        const primaryColorNormal = getComputedStyle(document.documentElement).getPropertyValue('--primary-normal');
-        document.getElementById('tab-schedule').style.color = page === 'schedule' ? primaryColorNormal : '';
-        document.getElementById('tab-map').style.color = page === 'map' ? primaryColorNormal : '';
-        document.getElementById('tab-expense').style.color = page === 'expense' ? '#f59e0b' : '';
-        document.getElementById('tab-checklist').style.color = page === 'checklist' ? primaryColorNormal : ''; 
-        if(page === 'expense') calculateAllExpenses(); if(page === 'map') setTimeout(initMap, 200); setTimeout(adjustContentPadding, 50);
-    }
-
-    function showModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    function openExpenseModal(itemId) { const item = currentItems.find(i => i.id === itemId); if(!item) return; document.getElementById('expense-modal-title').textContent = item.title; document.getElementById('expense-item-id').value = itemId; document.getElementById('expense-desc').value = ''; document.getElementById('expense-amount').value = ''; document.getElementById('expense-currency').value = 'JPY'; renderExpenseList(item.expenses || []); showModal('expense-modal'); }
-    
-    function prepareEdit(id) { const item = currentItems.find(i => i.id === id); if (!item) return; document.getElementById('edit-start-time').value = item.startTime; document.getElementById('edit-end-time').value = item.endTime || ''; document.getElementById('edit-title').value = item.title; document.getElementById('edit-location').value = item.location || ''; document.getElementById('edit-content').value = item.content || ''; document.getElementById('edit-category').value = item.category; document.getElementById('edit-transport').value = item.transport || ''; document.getElementById('editing-item-id').value = id; showModal('edit-modal'); }
-    function prepareRateModal() { document.getElementById('exchange-rate-input').value = exchangeRate; showModal('rate-modal'); }
-
-    // 🌟 更新 Expense List 渲染，顯示墊付人
-    function renderExpenseList(expenses) { 
-        const c = document.getElementById('expense-list'); 
-        c.innerHTML = ''; 
-        expenses.forEach((ex, i) => { 
-            const icon = ex.payer==='bird'?'🐦':(ex.payer==='pig'?'🐷':'🐷🐦'); 
-            
-            // 顯示墊付資訊
-            let advanceInfo = '';
-            if (ex.advancePayer) {
-                advanceInfo = `<span class="text-[10px] bg-yellow-100 text-yellow-700 px-1 py-0.5 rounded ml-1 border border-yellow-200 shadow-sm">${ex.advancePayer === 'pig' ? '🐷先付' : '🐦先付'}</span>`;
-            }
-
-            c.insertAdjacentHTML('beforeend', `<div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm"><div class="flex gap-2 items-center overflow-hidden flex-1 min-w-0"><span class="text-lg shrink-0">${icon}</span><span class="text-sm font-bold text-gray-700 truncate">${ex.description}</span>${advanceInfo}</div><div class="flex items-center gap-3 shrink-0 ml-2"><span class="font-mono font-bold text-gray-800">¥${parseInt(ex.amount).toLocaleString()}</span><button onclick="removeExpense(${i})" class="text-red-300 hover:text-red-500 active:scale-95 jelly-btn"><i class="fas fa-times"></i></button></div></div>`); 
-        }); 
-    }
-
-    // 🌟 更新新增記帳邏輯，加入 advancePayer
-    async function addExpenseToItem() { 
-        const id=document.getElementById('expense-item-id').value, payer=document.getElementById('expense-payer').value, cur=document.getElementById('expense-currency').value; 
-        const advancePayer = document.getElementById('expense-advance-payer').value; // 取得墊付人
-        
-        let desc=document.getElementById('expense-desc').value||'未分類', amt=parseInt(document.getElementById('expense-amount').value); 
-        if(isNaN(amt)||amt<=0)return; 
-        const idx=currentItems.findIndex(i=>i.id===id); 
-        if(idx===-1)return; 
-        if(cur==='TWD'){ const old=amt; amt=Math.round(amt/exchangeRate); desc+=` (TWD ${old})`; } 
-        if(!currentItems[idx].expenses)currentItems[idx].expenses=[]; 
-        
-        // 儲存資料
-        currentItems[idx].expenses.push({
-            description:desc,
-            amount:amt,
-            payer:payer,
-            advancePayer: advancePayer // 儲存墊付人
-        }); 
-        
-        renderExpenseList(currentItems[idx].expenses); 
-        document.getElementById('expense-desc').value=''; 
-        document.getElementById('expense-amount').value=''; 
-        await saveScheduleToFirestore(currentItems); 
-        renderSchedule(); 
-        calculateDailyCost(); 
-    }
-
-    async function removeExpense(i) { const id=document.getElementById('expense-item-id').value, idx=currentItems.findIndex(x=>x.id===id); if(idx===-1)return; currentItems[idx].expenses.splice(i,1); renderExpenseList(currentItems[idx].expenses); await saveScheduleToFirestore(currentItems); renderSchedule(); calculateDailyCost(); }
-    async function addScheduleItem() { const s=document.getElementById('new-start-time').value, e=document.getElementById('new-end-time').value, t=document.getElementById('new-title').value, l=document.getElementById('new-location').value, c=document.getElementById('new-content').value, cat=document.getElementById('new-category').value, trans=document.getElementById('new-transport').value; if(!t)return alert("請輸入標題"); currentItems.push({id:'item-'+Date.now(),startTime:s,endTime:e,title:t,content:c,category:cat,location:l,transport:trans,expenses:[]}); currentItems.sort((a,b)=>a.startTime.localeCompare(b.startTime)); await saveScheduleToFirestore(currentItems); closeModal('add-modal'); document.getElementById('new-title').value=''; }
-    async function saveEdit() { const id=document.getElementById('editing-item-id').value, idx=currentItems.findIndex(i=>i.id===id); if(idx===-1)return; currentItems[idx]={...currentItems[idx], startTime:document.getElementById('edit-start-time').value, endTime:document.getElementById('edit-end-time').value, title:document.getElementById('edit-title').value, location:document.getElementById('edit-location').value, content:document.getElementById('edit-content').value, category:document.getElementById('edit-category').value, transport:document.getElementById('edit-transport').value}; await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
-    async function deleteScheduleItem() { if(!confirm('刪除？'))return; const id=document.getElementById('editing-item-id').value; currentItems=currentItems.filter(i=>i.id!==id); await saveScheduleToFirestore(currentItems); closeModal('edit-modal'); }
-    
-    // --- 🌸 櫻花產生器 ---
-    function createSakura() {
-        const sakuraContainer = document.createElement('div');
-        document.body.appendChild(sakuraContainer);
-        const petalCount = 15; 
-        for (let i = 0; i < petalCount; i++) {
-            const petal = document.createElement('div');
-            petal.classList.add('sakura');
-            const size = Math.random() * 10 + 5 + 'px';
-            const left = Math.random() * 100 + 'vw';
-            const duration = Math.random() * 5 + 5 + 's'; 
-            const delay = Math.random() * 5 + 's';
-            petal.style.width = size;
-            petal.style.height = size;
-            petal.style.left = left;
-            petal.style.animationDuration = duration;
-            petal.style.animationDelay = delay;
-            sakuraContainer.appendChild(petal);
-        }
-    }
-    createSakura();
-
-    function switchChecklistOwner(owner) {
-        currentChecklistOwner = owner;
-        document.getElementById('check-owner-bird').className = owner === 'bird' ? 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2 jelly-btn' : 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2 jelly-btn';
-        document.getElementById('check-owner-pig').className = owner === 'pig' ? 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-active flex items-center justify-center gap-2 jelly-btn' : 'flex-1 py-2 text-base font-bold rounded-xl transition-all check-tab-inactive flex items-center justify-center gap-2 jelly-btn';
-        renderChecklist(); 
-    }
-
-    function switchChecklistType(type) {
-        currentChecklistType = type;
-        document.getElementById('check-type-shopping').className = type === 'shopping' ? 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1 jelly-btn' : 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1 jelly-btn';
-        document.getElementById('check-type-carry').className = type === 'carry' ? 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-active flex items-center justify-center gap-1 jelly-btn' : 'flex-1 py-2 rounded-xl text-sm font-bold transition-all type-tab-inactive flex items-center justify-center gap-1 jelly-btn';
-        
-        if(type === 'shopping') {
-            document.getElementById('input-area-shopping').style.display = 'block';
-            document.getElementById('input-area-carry').style.display = 'none';
-        } else {
-            document.getElementById('input-area-shopping').style.display = 'none';
-            document.getElementById('input-area-carry').style.display = 'block';
-        }
-        renderChecklist();
-    }
-
-    function renderChecklist() {
-        const c = document.getElementById('checklist-container'); 
-        c.innerHTML = ''; 
-        const filteredItems = checklistItems.filter(i => {
-            const itemOwner = i.owner || 'bird';
-            const itemType = i.type || 'shopping';
-            return itemOwner === currentChecklistOwner && itemType === currentChecklistType;
-        });
-        
-        if (filteredItems.length === 0) {
-            c.innerHTML = `<div class="text-center text-gray-400 py-10">這個清單還沒有項目哦</div>`;
-            return;
-        }
-
-        filteredItems.sort((a,b)=>a.isCompleted-b.isCompleted).forEach(i=>{ 
-            const cc=i.isCompleted?'completed':'', ic=i.isCompleted?'fa-check':''; 
-            let shopHtml = i.shop ? `<div class="text-xs text-gray-400 mt-1 font-bold"><i class="fas fa-map-marker-alt mr-1 text-[var(--primary-normal)]"></i>${i.shop}</div>` : '';
-            let imgHtml = i.imageBase64 ? `<img src="${i.imageBase64}" class="check-thumb ml-3" onclick="viewImage('${i.imageBase64}')">` : '';
-
-            c.insertAdjacentHTML('beforeend', `
-                <div class="check-item flex items-start bg-white p-4 rounded-xl soft-card-shadow ${cc} transition-shadow hover:bg-gray-50 items-center">
-                    <div onclick="toggleChecklist('${i.id}',${i.isCompleted})" class="check-circle cursor-pointer w-7 h-7 rounded-full border-2 mr-3 flex-shrink-0 flex items-center justify-center text-xs active:scale-90 transition-transform" style="border-color:var(--primary-normal);"><i class="fas ${ic}"></i></div>
-                    <div class="flex-1 min-w-0" onclick="toggleChecklist('${i.id}',${i.isCompleted})">
-                        <div class="font-bold text-gray-700 select-none text-base"><span class="check-text">${i.text}</span></div>
-                        ${shopHtml}
-                    </div>
-                    ${imgHtml}
-                    <button onclick="deleteChecklist('${i.id}')" class="text-gray-300 hover:text-red-500 ml-3 px-2 py-2 active:scale-95 jelly-btn"><i class="fas fa-trash-alt"></i></button>
-                </div>`); 
-        }); 
-    }
-
-    function listenForChecklistUpdates() { 
-        if(firestoreChecklistListener)firestoreChecklistListener(); 
-        firestoreChecklistListener=db.collection(CHECKLIST_COLLECTION).orderBy('timestamp','desc').onSnapshot(s=>{ 
-            checklistItems=s.docs.map(d=>({id:d.id,...d.data()})); 
-            renderChecklist();
-        }); 
-    }
-
-    function handleFileSelect(event) {
-        const file = event.target.files[0];
-        if (file) {
-            document.getElementById('file-label-text').textContent = '處理中...';
-            compressImage(file).then(base64 => {
-                currentBase64Image = base64;
-                const preview = document.getElementById('file-preview');
-                preview.style.backgroundImage = `url('${base64}')`;
-                preview.classList.remove('hidden');
+                if (balance > 0) {
+                    resultDiv.innerHTML = `<span class="text-pink-600">Pig</span> <span class="text-sm text-gray-400">給</span> <span class="text-blue-600">Dove</span><br>${Math.round(balance).toLocaleString()} <span class="text-base">JPY</span>`;
+                } else if (balance < 0) {
+                    resultDiv.innerHTML = `<span class="text-blue-600">Dove</span> <span class="text-sm text-gray-400">給</span> <span class="text-pink-600">Pig</span><br>${Math.round(absBalance).toLocaleString()} <span class="text-base">JPY</span>`;
+                } else {
+                    resultDiv.innerHTML = `<span class="text-green-500">帳目已平！</span>`;
+                }
+                resultTWDDiv.innerText = `(約 TWD ${Math.round(absBalance * exchangeRate).toLocaleString()})`;
                 
-                const label = document.getElementById('file-label');
-                label.classList.add('has-file');
-                document.getElementById('file-label-text').textContent = '照片已選取 (可點擊更換)';
-            });
-        }
-    }
+                document.getElementById('settlementModal').classList.remove('hidden');
 
-    function compressImage(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    const MAX_WIDTH = 800;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > MAX_WIDTH) {
-                        height *= MAX_WIDTH / width;
-                        width = MAX_WIDTH;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7));
-                };
-            };
-            reader.onerror = error => reject(error);
-        });
-    }
-
-    async function confirmAddChecklist() {
-        const name = document.getElementById('check-add-name').value.trim();
-        const shop = document.getElementById('check-add-shop').value.trim();
-
-        if(name) {
-            await db.collection(CHECKLIST_COLLECTION).add({
-                text: name,
-                shop: shop,
-                imageBase64: currentBase64Image, 
-                isCompleted: false,
-                owner: currentChecklistOwner,
-                type: 'shopping', 
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            document.getElementById('check-add-name').value = '';
-            document.getElementById('check-add-shop').value = '';
-            document.getElementById('check-add-file').value = '';
-            document.getElementById('file-preview').classList.add('hidden');
-            document.getElementById('file-label').classList.remove('has-file');
-            document.getElementById('file-label-text').textContent = '上傳照片 (選填)';
-            currentBase64Image = '';
-            
-            closeModal('checklist-add-modal');
-        } else {
-            showToast('請輸入物品名稱！');
-        }
-    }
-
-    async function addCarryItem() {
-        const val = document.getElementById('checklist-input-carry').value.trim();
-        if(val) {
-            await db.collection(CHECKLIST_COLLECTION).add({
-                text: val,
-                isCompleted: false,
-                owner: currentChecklistOwner,
-                type: 'carry', 
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            document.getElementById('checklist-input-carry').value = '';
-        }
-    }
-
-    function viewImage(url) {
-        const modal = document.getElementById('image-viewer-modal');
-        const img = document.getElementById('image-viewer-content');
-        img.src = url;
-        modal.classList.add('active');
-    }
-    function closeImageViewer() {
-        document.getElementById('image-viewer-modal').classList.remove('active');
-    }
-
-    async function toggleChecklist(id, currentStatus) { 
-        if (!currentStatus) {
-            if(window.confetti) {
-                 window.confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#A855F7', '#E0C8FF', '#FFC0CB']
-                });
+            } catch (e) {
+                console.error(e);
+                alert('計算失敗');
             }
         }
-        await db.collection(CHECKLIST_COLLECTION).doc(id).update({ isCompleted: !currentStatus }); 
-    }
-
-    async function deleteChecklist(id) { if(confirm("刪除?"))await db.collection(CHECKLIST_COLLECTION).doc(id).delete(); }
-    async function loadExchangeRate() { try{const d=await db.collection(CONFIG_DOCUMENT_ID).doc('rate').get(); if(d.exists){exchangeRate=d.data().val; document.getElementById('display-rate').textContent=exchangeRate;}}catch(e){} }
-    async function saveExchangeRate() { const r=parseFloat(document.getElementById('exchange-rate-input').value); if(r){exchangeRate=r; document.getElementById('display-rate').textContent=r; await db.collection(CONFIG_DOCUMENT_ID).doc('rate').set({val:r}); closeModal('rate-modal');} }
-
-    function adjustContentPadding() {
-        const h = document.getElementById('main-header');
-        const p = document.getElementById('schedule-page');
-        if(h && p) {
-            const headerHeight = h.offsetHeight;
-            p.style.paddingTop = (headerHeight + 5) + 'px';
+        function closeSettlementModal() {
+            document.getElementById('settlementModal').classList.add('hidden');
         }
-        document.querySelectorAll('.page-content').forEach(page => page.style.paddingBottom = '90px'); 
-    }
 
-    document.addEventListener('click', (e) => {
-        const editBtn = e.target.closest('.edit-btn');
-        const expenseBtn = e.target.closest('.expense-btn');
-        if (editBtn) prepareEdit(editBtn.getAttribute('data-item-id'));
-        if (expenseBtn) openExpenseModal(expenseBtn.getAttribute('data-item-id'));
-        createPiggyPop(e.clientX, e.clientY);
-    });
-    
-    function createPiggyPop(x, y) {
-        const emojis = ['🐷', '🐦', '🌸', '🐽', '⛩️', '🗻'];
-        const particle = document.createElement('div');
-        particle.classList.add('piggy-particle');
-        particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        particle.style.left = x + 'px';
-        particle.style.top = y + 'px';
-        document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 1000);
-    }
+        // ================= 6. 清單功能 (Checklist) =================
+        async function loadChecklist() {
+            const div = document.getElementById('checklistContainer');
+            div.innerHTML = '載入中...';
+            const snap = await db.collection(COLLECTION_NAME + '_checklist').get();
+            let html = '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                html += `
+                <div class="flex items-center gap-3 bg-white p-3 rounded-xl border ${d.done ? 'opacity-50' : ''}">
+                    <input type="checkbox" ${d.done ? 'checked' : ''} onchange="toggleCheck('${doc.id}', this.checked)" class="w-5 h-5">
+                    <span class="flex-1 ${d.done ? 'line-through text-gray-400' : ''}">${d.text}</span>
+                    <button onclick="deleteCheck('${doc.id}')" class="text-red-300"><i class="fas fa-times"></i></button>
+                </div>`;
+            });
+            div.innerHTML = html;
+        }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        renderDateSlider(); switchPage('schedule'); listenForScheduleUpdates(currentDay); listenForDayTitles(); listenForChecklistUpdates(); loadExchangeRate(); fetchWeather();
-        setTimeout(adjustContentPadding, 100);
-        window.addEventListener('resize', adjustContentPadding);
-    });
+        async function addCheckItem() {
+            const txt = document.getElementById('newCheckItem').value;
+            if(!txt) return;
+            await db.collection(COLLECTION_NAME + '_checklist').add({ text: txt, done: false, created: Date.now() });
+            document.getElementById('newCheckItem').value = '';
+            loadChecklist();
+        }
 
-    window.switchDay = switchDay; window.switchPage = switchPage; window.prepareRateModal = prepareRateModal;
-    window.saveExchangeRate = saveExchangeRate; 
-    window.showModal = showModal; window.closeModal = closeModal; window.saveEdit = saveEdit; window.deleteScheduleItem = deleteScheduleItem;
-    window.addScheduleItem = addScheduleItem; window.toggleChecklist = toggleChecklist; window.deleteChecklist = deleteChecklist;
-    window.addExpenseToItem = addExpenseToItem; window.removeExpense = removeExpense; window.calculateAllExpenses = calculateAllExpenses;
-    window.editDayTitle = editDayTitle; window.initMap = initMap; window.switchChecklistTab = switchChecklistOwner; window.switchChecklistOwner = switchChecklistOwner; window.switchChecklistType = switchChecklistType;
-    window.confirmAddChecklist = confirmAddChecklist; window.addCarryItem = addCarryItem; window.handleFileSelect = handleFileSelect; window.viewImage = viewImage; window.closeImageViewer = closeImageViewer;
-</script>
+        async function toggleCheck(id, val) {
+            await db.collection(COLLECTION_NAME + '_checklist').doc(id).update({ done: val });
+            loadChecklist();
+        }
+
+        async function deleteCheck(id) {
+            if(!confirm('刪除?')) return;
+            await db.collection(COLLECTION_NAME + '_checklist').doc(id).delete();
+            loadChecklist();
+        }
+
+        // ================= 7. 工具函數 =================
+
+        function switchTab(tab) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`page-${tab}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('active-tab', 'text-blue-600');
+                b.classList.add('text-gray-400');
+            });
+            document.getElementById(`btn-${tab}`).classList.add('active-tab', 'text-blue-600');
+            document.getElementById(`btn-${tab}`).classList.remove('text-gray-400');
+
+            if(tab === 'expense') loadExpenses();
+            if(tab === 'checklist') loadChecklist();
+        }
+
+        function updateRate() {
+            exchangeRate = parseFloat(document.getElementById('rateInput').value);
+            db.collection(COLLECTION_NAME).doc(CONFIG_DOC).set({ rate: exchangeRate }, { merge: true });
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.remove('opacity-0');
+            setTimeout(() => t.classList.add('opacity-0'), 2000);
+        }
+
+    </script>
 </body>
 </html>
