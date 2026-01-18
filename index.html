@@ -837,7 +837,17 @@
                                 }
                             }
                             
-                            dayHTML += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-gray-100 last:border-0 hover:bg-gray-50 px-2 -mx-2 rounded"><div class="flex items-center gap-2 overflow-hidden flex-1 min-w-0"><span class="text-xs bg-gray-200 px-1 rounded-full shrink-0">${payerIcon}</span><span class="text-gray-600 truncate">${item.title} - ${ex.description}</span></div><div class="flex items-center gap-1 shrink-0 ml-2">${advanceInfo}<span class="font-mono font-bold text-gray-800">¥${amt.toLocaleString()}</span></div></div>`;
+                            // --- 關鍵修改處：加入 overflow-x-auto 和 whitespace-nowrap ---
+                            dayHTML += `<div class="flex justify-between items-center text-sm py-1.5 border-b border-gray-100 last:border-0 hover:bg-gray-50 px-2 -mx-2 rounded">
+                                <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar flex-1 mr-2">
+                                    <span class="text-xs bg-gray-200 px-1 rounded-full shrink-0">${payerIcon}</span>
+                                    <span class="text-gray-600 whitespace-nowrap">${item.title} - ${ex.description}</span>
+                                </div>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    ${advanceInfo}<span class="font-mono font-bold text-gray-800">¥${amt.toLocaleString()}</span>
+                                </div>
+                            </div>`;
+                            // --------------------------------------------------------
                         });
                     }
                 });
